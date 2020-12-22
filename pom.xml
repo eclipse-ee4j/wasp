@@ -28,8 +28,8 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.glassfish.web</groupId>
-    <artifactId>jakarta.servlet.jsp</artifactId>
+    <groupId>org.glassfish.wasp</groupId>
+    <artifactId>wasp</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 
     <name>WaSP</name>
@@ -184,9 +184,9 @@
                 <version>5.1.1</version>
                 <configuration>
                     <instructions>
-                        <Automatic-Module-Name>org.glassfish.jsp</Automatic-Module-Name>
-                        <Extension-Name>jakarta.servlet.jsp</Extension-Name>
-                        <Bundle-SymbolicName>org.glassfish.web.jakarta.servlet.jsp</Bundle-SymbolicName>
+                        <Automatic-Module-Name>org.glassfish.wasp</Automatic-Module-Name>
+                        <Extension-Name>org.glassfish.wasp.wasp</Extension-Name>
+                        <Bundle-SymbolicName>org.glassfish.wasp.wasp</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>WaSP Jakarta Server Pages Implementation ${project.version}</Bundle-Name>
                         <Bundle-Description>Eclipse Jakarta Server Pages Implementation (jakarta.pages/3.0) ${project.version}</Bundle-Description>  
@@ -245,7 +245,7 @@
                                 <group>
                                     <title>WaSP ${project.version}</title>
                                     <packages>org.apache.jasper</packages>
-                                    <packages>glassfish.jsp.api</packages>
+                                    <packages>org.glassfish.jsp.api</packages>
                                 </group>
                             </groups>
                             <bottom><![CDATA[

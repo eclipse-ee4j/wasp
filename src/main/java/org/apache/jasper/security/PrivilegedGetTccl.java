@@ -27,5 +27,3 @@ public class PrivilegedGetTccl implements PrivilegedAction<ClassLoader> {
         return Thread.currentThread().getContextClassLoader();
     }
 }
-
-

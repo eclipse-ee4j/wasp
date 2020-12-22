@@ -19,8 +19,8 @@ package org.glassfish.jsp.api;
 /**
  * Interface for triggering events useful for monitoring.
  *
- * A web container can pass an implementation of this interface in the
- * context attribute "org.glassfish.jsp.monitor.probeEmitter". 
+ * A web container can pass an implementation of this interface in the context attribute
+ * "org.glassfish.jsp.monitor.probeEmitter".
  */
 
 public interface JspProbeEmitter {

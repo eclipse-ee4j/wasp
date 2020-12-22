@@ -18,19 +18,15 @@
 package org.apache.jasper.runtime;
 
 /**
- * Interface for tracking the source files dependencies, for the purpose
- * of compiling out of date pages.  This is used for
- * 1) files that are included by page directives
- * 2) files that are included by include-prelude and include-coda in jsp:config
- * 3) files that are tag files and referenced
- * 4) TLDs referenced
+ * Interface for tracking the source files dependencies, for the purpose of compiling out of date pages. This is used
+ * for 1) files that are included by page directives 2) files that are included by include-prelude and include-coda in
+ * jsp:config 3) files that are tag files and referenced 4) TLDs referenced
  */
 
 public interface JspSourceDependent {
 
-   /**
-    * Returns a list of files names that the current page has a source
-    * dependency on.
-    */
+    /**
+     * Returns a list of files names that the current page has a source dependency on.
+     */
     public java.util.List<String> getDependants();
 }

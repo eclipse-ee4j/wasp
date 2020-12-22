@@ -33,18 +33,8 @@ public class JspProperty {
     private String defaultContentType;
     private String errorOnUndeclaredNamespace;
 
-    public JspProperty(String isXml,
-                       String elIgnored,
-                       String scriptingInvalid,
-                       String trimSpaces,
-                       String poundAllowed,
-                       String pageEncoding,
-                       List<String> includePrelude,
-                       List<String> includeCoda,
-                       String defaultContentType,
-                       String buffer,
-                       String errorOnUndeclaredNamespace) {
-
+    public JspProperty(String isXml, String elIgnored, String scriptingInvalid, String trimSpaces, String poundAllowed, String pageEncoding,
+            List<String> includePrelude, List<String> includeCoda, String defaultContentType, String buffer, String errorOnUndeclaredNamespace) {
 
         this.isXml = isXml;
         this.elIgnored = elIgnored;

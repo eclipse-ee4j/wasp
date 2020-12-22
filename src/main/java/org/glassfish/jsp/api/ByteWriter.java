@@ -17,22 +17,20 @@
 package org.glassfish.jsp.api;
 
 /**
- * This interface defines additional functionalities a web container can
- * provide for the response writer.  If implementated, perfermance will
- * likely to be improved.
+ * This interface defines additional functionalities a web container can provide for the response writer. If
+ * implementated, perfermance will likely to be improved.
  *
  * @author Kin-man Chung
  */
- 
+
 public interface ByteWriter {
 
     /**
      * Write a portion of a byte array to the output.
      *
-     * @param  buff  A byte array
-     * @param  off   Offset from which to start reading byte
-     * @param  len   Number of bytes to write
+     * @param buff A byte array
+     * @param off Offset from which to start reading byte
+     * @param len Number of bytes to write
      */
-    void write(byte buff[], int off, int len)
-        throws java.io.IOException;
+    void write(byte buff[], int off, int len) throws java.io.IOException;
 }

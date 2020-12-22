@@ -54,27 +54,27 @@ public class AntJavaCompiler implements JavaCompiler {
 
     private JasperAntLogger logger;
     private Javac javac;
-    private Project project=null;
+    private Project project;
     private JspCompilationContext ctxt;
     private Options options;
     private ErrorDispatcher errDispatcher;
     private String javaFileName;
     private String javaEncoding;
     private StringBuilder info = new StringBuilder();
-        // For collecting Java compilation enviroment
+    // For collecting Java compilation enviroment
     private Logger log;
 
     // Use a threadpool and force it to 1 to simulate serialization
-    private static ExecutorService threadPool = null;
+    private static ExecutorService threadPool;
     private static ThreadFactory threadFactory = new JavacThreadFactory();
     private static final String JAVAC_THREAD_PREFIX = "javac-";
 
     private static String lineSeparator = System.getProperty("line.separator");
 
-
     private Project getProject() {
 
-        if( project!=null ) return project;
+        if (project != null)
+            return project;
 
         // Initializing project
         project = new Project();
@@ -82,15 +82,15 @@ public class AntJavaCompiler implements JavaCompiler {
         logger.setOutputPrintStream(System.out);
         logger.setErrorPrintStream(System.err);
         logger.setMessageOutputLevel(Project.MSG_INFO);
-        project.addBuildListener( logger);
+        project.addBuildListener(logger);
         if (System.getProperty("catalina.home") != null) {
-            project.setBasedir( System.getProperty("catalina.home"));
+            project.setBasedir(System.getProperty("catalina.home"));
         }
 
-        if( options.getCompiler() != null ) {
-            if( log.isLoggable(Level.FINE))
-                log.fine("Compiler " + options.getCompiler() );
-            project.setProperty("build.compiler", options.getCompiler() );
+        if (options.getCompiler() != null) {
+            if (log.isLoggable(Level.FINE))
+                log.fine("Compiler " + options.getCompiler());
+            project.setProperty("build.compiler", options.getCompiler());
         }
         project.init();
         return project;
@@ -100,9 +100,7 @@ public class AntJavaCompiler implements JavaCompiler {
 
         private StringBuilder reportBuf = new StringBuilder();
 
-        protected void printMessage(final String message,
-                                    final PrintStream stream,
-                                    final int priority) {
+        protected void printMessage(final String message, final PrintStream stream, final int priority) {
         }
 
         protected void log(String message) {
@@ -117,16 +115,14 @@ public class AntJavaCompiler implements JavaCompiler {
         }
     }
 
-    public void init(JspCompilationContext ctxt,
-                     ErrorDispatcher errDispatcher,
-                     boolean suppressLogging) {
+    public void init(JspCompilationContext ctxt, ErrorDispatcher errDispatcher, boolean suppressLogging) {
 
         this.ctxt = ctxt;
         this.errDispatcher = errDispatcher;
         options = ctxt.getOptions();
         log = Logger.getLogger(AntJavaCompiler.class.getName());
         if (suppressLogging) {
-           log.setLevel(Level.OFF);
+            log.setLevel(Level.OFF);
         }
         getProject();
         javac = (Javac) project.createTask("javac");
@@ -145,7 +141,7 @@ public class AntJavaCompiler implements JavaCompiler {
         Path extdirs = new Path(project);
         extdirs.setPath(exts);
         javac.setExtdirs(extdirs);
-        info.append("    extdirs=" + exts+ "\n");
+        info.append("    extdirs=" + exts + "\n");
     }
 
     public void setTargetVM(String targetVM) {
@@ -161,7 +157,7 @@ public class AntJavaCompiler implements JavaCompiler {
 
     public void setClassPath(List<File> cpath) {
         Path path = new Path(project);
-        for (File file: cpath) {
+        for (File file : cpath) {
             path.setLocation(file);
             info.append("    cp=" + file + "\n");
         }
@@ -182,31 +178,25 @@ public class AntJavaCompiler implements JavaCompiler {
         return classFile.lastModified();
     }
 
-    public Writer getJavaWriter(String javaFileName,
-                                String javaEncoding)
-            throws JasperException {
+    public Writer getJavaWriter(String javaFileName, String javaEncoding) throws JasperException {
 
         this.javaFileName = javaFileName;
-        info.append("Compile: javaFileName=" + javaFileName + "\n" );
+        info.append("Compile: javaFileName=" + javaFileName + "\n");
 
         this.javaEncoding = javaEncoding;
-    
+
         Writer writer = null;
         try {
-            writer = new OutputStreamWriter(
-                        new FileOutputStream(javaFileName), javaEncoding);
+            writer = new OutputStreamWriter(new FileOutputStream(javaFileName), javaEncoding);
         } catch (UnsupportedEncodingException ex) {
-            errDispatcher.jspError("jsp.error.needAlternateJavaEncoding",
-                                   javaEncoding);
+            errDispatcher.jspError("jsp.error.needAlternateJavaEncoding", javaEncoding);
         } catch (IOException ex) {
-            errDispatcher.jspError("jsp.error.unableToCreateOutputWriter",
-                                   javaFileName, ex);
+            errDispatcher.jspError("jsp.error.unableToCreateOutputWriter", javaFileName, ex);
         }
         return writer;
     }
 
-    public JavacErrorDetail[] compile(String className, Node.Nodes pageNodes)
-            throws JasperException {
+    public JavacErrorDetail[] compile(String className, Node.Nodes pageNodes) throws JasperException {
 
         // Start capturing the System.err output for this thread
         SystemLogHandler.setThread();
@@ -216,13 +206,13 @@ public class AntJavaCompiler implements JavaCompiler {
         Path srcPath = new Path(project);
         srcPath.setLocation(options.getScratchDir());
         javac.setSrcdir(srcPath);
-        info.append("    srcDir=" + srcPath + "\n" );
+        info.append("    srcDir=" + srcPath + "\n");
         info.append("    work dir=" + options.getScratchDir() + "\n");
 
         // Build includes path
         PatternSet.NameEntry includes = javac.createInclude();
         includes.setName(ctxt.getJavaPath());
-        info.append("    include="+ ctxt.getJavaPath() + "\n" );
+        info.append("    include=" + ctxt.getJavaPath() + "\n");
 
         BuildException be = null;
         StringBuilder errorReport = new StringBuilder();
@@ -232,10 +222,8 @@ public class AntJavaCompiler implements JavaCompiler {
                 javac.execute();
             } catch (BuildException e) {
                 be = e;
-                log.log(Level.SEVERE, Localizer
-                        .getMessage("jsp.error.javac.exception"), e);
-                log.log(Level.SEVERE, Localizer
-                        .getMessage("jsp.error.javac.env", info.toString()));
+                log.log(Level.SEVERE, Localizer.getMessage("jsp.error.javac.exception"), e);
+                log.log(Level.SEVERE, Localizer.getMessage("jsp.error.javac.env", info.toString()));
             }
             errorReport.append(logger.getReport());
             // Stop capturing the System.err output for this thread
@@ -251,7 +239,7 @@ public class AntJavaCompiler implements JavaCompiler {
             }
 
             JavacObj javacObj = new JavacObj(javac);
-            synchronized(javacObj) {
+            synchronized (javacObj) {
                 threadPool.execute(javacObj);
                 // Wait for the thread to complete
                 try {
@@ -262,10 +250,8 @@ public class AntJavaCompiler implements JavaCompiler {
             }
             be = javacObj.getException();
             if (be != null) {
-                log.log(Level.SEVERE, Localizer
-                        .getMessage("jsp.error.javac.exception"), be);
-                log.log(Level.SEVERE, Localizer
-                        .getMessage("jsp.error.javac.env", info.toString()));
+                log.log(Level.SEVERE, Localizer.getMessage("jsp.error.javac.exception"), be);
+                log.log(Level.SEVERE, Localizer.getMessage("jsp.error.javac.env", info.toString()));
             }
             errorReport.append(logger.getReport());
             errorCapture = javacObj.getErrorCapture();
@@ -280,8 +266,7 @@ public class AntJavaCompiler implements JavaCompiler {
         if (be != null) {
             try {
                 String errorReportString = errorReport.toString();
-                javacErrors = ErrorDispatcher.parseJavacMessage(
-                        pageNodes, errorReportString, javaFileName);
+                javacErrors = ErrorDispatcher.parseJavacMessage(pageNodes, errorReportString, javaFileName);
             } catch (IOException ex) {
                 throw new JasperException(ex);
             }
@@ -324,11 +309,11 @@ public class AntJavaCompiler implements JavaCompiler {
             SystemLogHandler.setThread();
             try {
                 _javac.execute();
-            } catch  (BuildException e) {
+            } catch (BuildException e) {
                 _be = e;
             } finally {
                 _errorCapture = SystemLogHandler.unsetThread();
-                synchronized(this) {
+                synchronized (this) {
                     this.notify();
                 }
             }
@@ -351,7 +336,6 @@ public class AntJavaCompiler implements JavaCompiler {
             Thread t = defaultFactory.newThread(r);
             t.setName(JAVAC_THREAD_PREFIX + t.getName());
             return t;
-        }        
+        }
     }
 }
-

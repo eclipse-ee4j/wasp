@@ -23,8 +23,7 @@ public class JspPropertyGroup {
     private String extension;
     private JspProperty jspProperty;
 
-    public JspPropertyGroup(String path, String extension,
-                            JspProperty jspProperty) {
+    public JspPropertyGroup(String path, String extension, JspProperty jspProperty) {
         this.path = path;
         this.extension = extension;
         this.jspProperty = jspProperty;

@@ -17,8 +17,6 @@
 
 package org.apache.jasper.compiler.tagplugin;
 
-import org.apache.jasper.compiler.ServletWriter;
-
 /**
  * This interface allows the plugin author to make inqueries about the properties of the current tag, and to use Jasper
  * resources to generate direct Java codes in place of tag handler invocations.
@@ -43,7 +41,7 @@ public interface TagPluginContext {
 
     /**
      * Generate an import statement
-     * 
+     *
      * @param s Name of the import class, '*' allowed.
      */
     void generateImport(String s);
@@ -51,7 +49,7 @@ public interface TagPluginContext {
     /**
      * Generate a declaration in the of the generated class. This can be used to declare an innter class, a method, or a
      * class variable.
-     * 
+     *
      * @param id An unique ID identifying the declaration. It is not part of the declaration, and is used to ensure that the
      * declaration will only appear once. If this method is invoked with the same id more than once in the translation unit,
      * only the first declaration will be taken.
@@ -78,7 +76,7 @@ public interface TagPluginContext {
     /**
      * Generate codesto evaluate value of a attribute in the custom tag The codes is a Java expression. NOTE: Currently
      * cannot handle attributes that are fragments.
-     * 
+     *
      * @param attribute The specified attribute
      */
     void generateAttribute(String attribute);
@@ -98,7 +96,7 @@ public interface TagPluginContext {
      * Get the PluginContext for the parent of this custom tag. NOTE: The operations available for PluginContext so obtained
      * is limited to getPluginAttribute and setPluginAttribute, and queries (e.g. isScriptless(). There should be no calls
      * to generate*().
-     * 
+     *
      * @return The pluginContext for the parent node. null if the parent is not a custom tag, or if the pluginConxt if not
      * available (because useTagPlugin is false, e.g).
      */

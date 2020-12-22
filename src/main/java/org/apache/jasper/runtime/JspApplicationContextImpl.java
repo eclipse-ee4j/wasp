@@ -18,21 +18,20 @@
 package org.apache.jasper.runtime;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Collections;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.jsp.JspApplicationContext;
-
-import jakarta.el.ELResolver;
-import jakarta.el.ELContext;
-import jakarta.el.ExpressionFactory;
-import jakarta.el.ELContextListener;
-import jakarta.el.ELContextEvent;
+import java.util.Map;
 
 import org.apache.jasper.Constants;
+
+import jakarta.el.ELContext;
+import jakarta.el.ELContextEvent;
+import jakarta.el.ELContextListener;
+import jakarta.el.ELResolver;
+import jakarta.el.ExpressionFactory;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.jsp.JspApplicationContext;
 
 /**
  * Implements jakarta.servlet.jsp.JspApplication
@@ -49,6 +48,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         }
     }
 
+    @Override
     public void addELResolver(ELResolver resolver) {
         if ("true".equals(context.getAttribute(Constants.FIRST_REQUEST_SEEN))) {
             throw new IllegalStateException("Attempt to invoke addELResolver " + "after the application has already received a request");
@@ -57,6 +57,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         elResolvers.add(0, resolver);
     }
 
+    @Override
     public ExpressionFactory getExpressionFactory() {
         if (expressionFactory == null) {
             expressionFactory = ExpressionFactory.newInstance();
@@ -68,6 +69,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         this.expressionFactory = expressionFactory;
     }
 
+    @Override
     public void addELContextListener(ELContextListener listener) {
         listeners.add(listener);
     }
@@ -105,8 +107,8 @@ public class JspApplicationContextImpl implements JspApplicationContext {
 
     private static Map<ServletContext, JspApplicationContextImpl> map = Collections.synchronizedMap(new HashMap<ServletContext, JspApplicationContextImpl>());
 
-    private ArrayList<ELResolver> elResolvers = new ArrayList<ELResolver>();
-    private ArrayList<ELContextListener> listeners = new ArrayList<ELContextListener>();
+    private ArrayList<ELResolver> elResolvers = new ArrayList<>();
+    private ArrayList<ELContextListener> listeners = new ArrayList<>();
     private ServletContext context;
     private ExpressionFactory expressionFactory;
 }

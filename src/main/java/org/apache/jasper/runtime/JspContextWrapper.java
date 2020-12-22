@@ -26,8 +26,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import jakarta.el.ELContext;
+import org.apache.jasper.compiler.Localizer;
 
+import jakarta.el.ELContext;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -38,12 +39,10 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.jsp.JspContext;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.el.ExpressionEvaluator;
+import jakarta.servlet.jsp.el.VariableResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
 import jakarta.servlet.jsp.tagext.VariableInfo;
-import jakarta.servlet.jsp.el.VariableResolver;
-import jakarta.servlet.jsp.el.ExpressionEvaluator;
-
-import org.apache.jasper.compiler.Localizer;
 
 /**
  * Implementation of a JSP Context Wrapper.
@@ -80,19 +79,21 @@ public class JspContextWrapper extends PageContext {
         this.nestedVars = nestedVars;
         this.atBeginVars = atBeginVars;
         this.atEndVars = atEndVars;
-        this.pageAttributes = new Hashtable<String, Object>(16);
+        this.pageAttributes = new Hashtable<>(16);
         this.aliases = aliases;
 
         if (nestedVars != null) {
-            this.originalNestedVars = new HashMap<String, Object>(nestedVars.size());
+            this.originalNestedVars = new HashMap<>(nestedVars.size());
         }
         syncBeginTagFile();
     }
 
+    @Override
     public void initialize(Servlet servlet, ServletRequest request, ServletResponse response, String errorPageURL, boolean needsSession, int bufferSize,
             boolean autoFlush) throws IOException, IllegalStateException, IllegalArgumentException {
     }
 
+    @Override
     public Object getAttribute(String name) {
 
         if (name == null) {
@@ -102,6 +103,7 @@ public class JspContextWrapper extends PageContext {
         return pageAttributes.get(name);
     }
 
+    @Override
     public Object getAttribute(String name, int scope) {
 
         if (name == null) {
@@ -115,6 +117,7 @@ public class JspContextWrapper extends PageContext {
         return invokingJspCtxt.getAttribute(name, scope);
     }
 
+    @Override
     public void setAttribute(String name, Object value) {
 
         if (name == null) {
@@ -128,6 +131,7 @@ public class JspContextWrapper extends PageContext {
         }
     }
 
+    @Override
     public void setAttribute(String name, Object value, int scope) {
 
         if (name == null) {
@@ -145,6 +149,7 @@ public class JspContextWrapper extends PageContext {
         }
     }
 
+    @Override
     public Object findAttribute(String name) {
 
         if (name == null) {
@@ -167,6 +172,7 @@ public class JspContextWrapper extends PageContext {
         return o;
     }
 
+    @Override
     public void removeAttribute(String name) {
 
         if (name == null) {
@@ -181,6 +187,7 @@ public class JspContextWrapper extends PageContext {
         invokingJspCtxt.removeAttribute(name, APPLICATION_SCOPE);
     }
 
+    @Override
     public void removeAttribute(String name, int scope) {
 
         if (name == null) {
@@ -194,6 +201,7 @@ public class JspContextWrapper extends PageContext {
         }
     }
 
+    @Override
     public int getAttributesScope(String name) {
 
         if (name == null) {
@@ -207,6 +215,7 @@ public class JspContextWrapper extends PageContext {
         }
     }
 
+    @Override
     public Enumeration<String> getAttributeNamesInScope(int scope) {
         if (scope == PAGE_SCOPE) {
             return pageAttributes.keys();
@@ -215,38 +224,47 @@ public class JspContextWrapper extends PageContext {
         return invokingJspCtxt.getAttributeNamesInScope(scope);
     }
 
+    @Override
     public void release() {
         invokingJspCtxt.release();
     }
 
+    @Override
     public JspWriter getOut() {
         return invokingJspCtxt.getOut();
     }
 
+    @Override
     public HttpSession getSession() {
         return invokingJspCtxt.getSession();
     }
 
+    @Override
     public Object getPage() {
         return invokingJspCtxt.getPage();
     }
 
+    @Override
     public ServletRequest getRequest() {
         return invokingJspCtxt.getRequest();
     }
 
+    @Override
     public ServletResponse getResponse() {
         return invokingJspCtxt.getResponse();
     }
 
+    @Override
     public Exception getException() {
         return invokingJspCtxt.getException();
     }
 
+    @Override
     public ServletConfig getServletConfig() {
         return invokingJspCtxt.getServletConfig();
     }
 
+    @Override
     public ServletContext getServletContext() {
         return invokingJspCtxt.getServletContext();
     }
@@ -258,6 +276,7 @@ public class JspContextWrapper extends PageContext {
         return pc;
     }
 
+    @Override
     public ELContext getELContext() {
         if (elContext == null) {
             PageContext pc = invokingJspCtxt;
@@ -272,44 +291,54 @@ public class JspContextWrapper extends PageContext {
         return elContext;
     }
 
+    @Override
     public void forward(String relativeUrlPath) throws ServletException, IOException {
         invokingJspCtxt.forward(relativeUrlPath);
     }
 
+    @Override
     public void include(String relativeUrlPath) throws ServletException, IOException {
         invokingJspCtxt.include(relativeUrlPath);
     }
 
+    @Override
     public void include(String relativeUrlPath, boolean flush) throws ServletException, IOException {
         invokingJspCtxt.include(relativeUrlPath, flush);
     }
 
+    @Override
     public VariableResolver getVariableResolver() {
         return null;
     }
 
+    @Override
     public BodyContent pushBody() {
         return invokingJspCtxt.pushBody();
     }
 
+    @Override
     public JspWriter pushBody(Writer writer) {
         return invokingJspCtxt.pushBody(writer);
     }
 
+    @Override
     public JspWriter popBody() {
         return invokingJspCtxt.popBody();
     }
 
+    @Override
     public ExpressionEvaluator getExpressionEvaluator() {
         return invokingJspCtxt.getExpressionEvaluator();
     }
 
+    @Override
     public void handlePageException(Exception ex) throws IOException, ServletException {
         // Should never be called since handleException() called with a
         // Throwable in the generated servlet.
         handlePageException((Throwable) ex);
     }
 
+    @Override
     public void handlePageException(Throwable t) throws IOException, ServletException {
         invokingJspCtxt.handlePageException(t);
     }
@@ -365,7 +394,7 @@ public class JspContextWrapper extends PageContext {
             break;
         }
 
-        while ((iter != null) && iter.hasNext()) {
+        while (iter != null && iter.hasNext()) {
             String varName = iter.next();
             Object obj = getAttribute(varName);
             varName = findAlias(varName);
@@ -422,8 +451,9 @@ public class JspContextWrapper extends PageContext {
      */
     private String findAlias(String varName) {
 
-        if (aliases == null)
+        if (aliases == null) {
             return varName;
+        }
 
         String alias = aliases.get(varName);
         if (alias == null) {

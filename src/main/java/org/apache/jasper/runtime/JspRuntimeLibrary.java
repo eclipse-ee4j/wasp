@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
+import org.apache.jasper.JasperException;
+import org.apache.jasper.compiler.Localizer;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -31,9 +34,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyContent;
-
-import org.apache.jasper.JasperException;
-import org.apache.jasper.compiler.Localizer;
 
 /**
  * Bunch of util methods that are used by code generated for useBean, getProperty and setProperty.
@@ -75,17 +75,19 @@ public class JspRuntimeLibrary {
     }
 
     public static boolean coerceToBoolean(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return false;
-        else
+        } else {
             return Boolean.valueOf(s).booleanValue();
+        }
     }
 
     public static byte coerceToByte(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return (byte) 0;
-        else
+        } else {
             return Byte.valueOf(s).byteValue();
+        }
     }
 
     public static char coerceToChar(String s) {
@@ -93,49 +95,54 @@ public class JspRuntimeLibrary {
             return (char) 0;
         } else {
             // this trick avoids escaping issues
-            return (char) (int) s.charAt(0);
+            return (char) s.charAt(0);
         }
     }
 
     public static double coerceToDouble(String s) {
-        if (s == null || s.length() == 0)
-            return (double) 0;
-        else
+        if (s == null || s.length() == 0) {
+            return 0;
+        } else {
             return Double.valueOf(s).doubleValue();
+        }
     }
 
     public static float coerceToFloat(String s) {
-        if (s == null || s.length() == 0)
-            return (float) 0;
-        else
+        if (s == null || s.length() == 0) {
+            return 0;
+        } else {
             return Float.valueOf(s).floatValue();
+        }
     }
 
     public static int coerceToInt(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return 0;
-        else
+        } else {
             return Integer.valueOf(s).intValue();
+        }
     }
 
     public static short coerceToShort(String s) {
-        if (s == null || s.length() == 0)
+        if (s == null || s.length() == 0) {
             return (short) 0;
-        else
+        } else {
             return Short.valueOf(s).shortValue();
+        }
     }
 
     public static long coerceToLong(String s) {
-        if (s == null || s.length() == 0)
-            return (long) 0;
-        else
+        if (s == null || s.length() == 0) {
+            return 0;
+        } else {
             return Long.valueOf(s).longValue();
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T coerce(String s, Class<T> target) {
 
-        boolean isNullOrEmpty = (s == null || s.length() == 0);
+        boolean isNullOrEmpty = s == null || s.length() == 0;
 
         if (target == Boolean.class) {
             if (isNullOrEmpty) {
@@ -143,43 +150,51 @@ public class JspRuntimeLibrary {
             }
             return (T) Boolean.valueOf(s);
         } else if (target == Byte.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Byte.valueOf((byte) 0);
-            else
+            } else {
                 return (T) Byte.valueOf(s);
+            }
         } else if (target == Character.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Character.valueOf((char) 0);
-            else
+            } else {
                 return (T) Character.valueOf(s.charAt(0));
+            }
         } else if (target == Double.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Double.valueOf(0);
-            else
+            } else {
                 return (T) Double.valueOf(s);
+            }
         } else if (target == Float.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Float.valueOf(0);
-            else
+            } else {
                 return (T) Float.valueOf(s);
+            }
         } else if (target == Integer.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Integer.valueOf(0);
-            else
+            } else {
                 return (T) Integer.valueOf(s);
+            }
         } else if (target == Short.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Short.valueOf((short) 0);
-            else
+            } else {
                 return (T) Short.valueOf(s);
+            }
         } else if (target == Long.class) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return (T) Long.valueOf(0);
-            else
+            } else {
                 return (T) Long.valueOf(s);
+            }
         } else if (target.isEnum()) {
-            if (isNullOrEmpty)
+            if (isNullOrEmpty) {
                 return null;
+            }
             return (T) Enum.valueOf((Class) target, s);
         } else {
             return null;
@@ -190,10 +205,11 @@ public class JspRuntimeLibrary {
     public static Object convert(String propertyName, String s, Class t, Class propertyEditorClass) throws JasperException {
         try {
             if (s == null) {
-                if (t.equals(Boolean.class) || t.equals(Boolean.TYPE))
+                if (t.equals(Boolean.class) || t.equals(Boolean.TYPE)) {
                     s = "false";
-                else
+                } else {
                     return null;
+                }
             }
             if (propertyEditorClass != null) {
                 return getValueFromBeanInfoPropertyEditor(t, propertyName, s, propertyEditorClass);
@@ -270,26 +286,28 @@ public class JspRuntimeLibrary {
                     Class t = type.getComponentType();
                     String[] values = request.getParameterValues(param);
                     // XXX Please check.
-                    if (values == null)
+                    if (values == null) {
                         return;
+                    }
                     if (t.equals(String.class)) {
                         method.invoke(bean, new Object[] { values });
                     } else {
-                        Object tmpval = null;
                         createTypedArray(prop, bean, method, values, t, propertyEditorClass);
                     }
                 } else {
-                    if (value == null || (param != null && value.equals("")))
+                    if (value == null || param != null && value.equals("")) {
                         return;
+                    }
                     Object oval = convert(prop, value, type, propertyEditorClass);
-                    if (oval != null)
-                        method.invoke(bean, new Object[] { oval });
+                    if (oval != null) {
+                        method.invoke(bean, oval);
+                    }
                 }
             }
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
-        if (!ignoreMethodNF && (method == null)) {
+        if (!ignoreMethodNF && method == null) {
             if (type == null) {
                 throw new JasperException(Localizer.getMessage("jsp.error.beans.noproperty", prop, bean.getClass().getName()));
             } else {
@@ -355,83 +373,99 @@ public class JspRuntimeLibrary {
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Integer.class)) {
                 Integer[] tmpval = new Integer[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Integer.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Byte.class)) {
                 Byte[] tmpval = new Byte[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Byte.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Boolean.class)) {
                 Boolean[] tmpval = new Boolean[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Boolean.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Short.class)) {
                 Short[] tmpval = new Short[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Short.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Long.class)) {
                 Long[] tmpval = new Long[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Long.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Double.class)) {
                 Double[] tmpval = new Double[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Double.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Float.class)) {
                 Float[] tmpval = new Float[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Float.valueOf(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(Character.class)) {
                 Character[] tmpval = new Character[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Character.valueOf(values[i].charAt(0));
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(int.class)) {
                 int[] tmpval = new int[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Integer.parseInt(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(byte.class)) {
                 byte[] tmpval = new byte[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Byte.parseByte(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(boolean.class)) {
                 boolean[] tmpval = new boolean[values.length];
-                for (int i = 0; i < values.length; i++)
-                    tmpval[i] = (Boolean.valueOf(values[i])).booleanValue();
+                for (int i = 0; i < values.length; i++) {
+                    tmpval[i] = Boolean.valueOf(values[i]).booleanValue();
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(short.class)) {
                 short[] tmpval = new short[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Short.parseShort(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(long.class)) {
                 long[] tmpval = new long[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Long.parseLong(values[i]);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(double.class)) {
                 double[] tmpval = new double[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Double.valueOf(values[i]).doubleValue();
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(float.class)) {
                 float[] tmpval = new float[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = Float.valueOf(values[i]).floatValue();
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(char.class)) {
                 char[] tmpval = new char[values.length];
-                for (int i = 0; i < values.length; i++)
+                for (int i = 0; i < values.length; i++) {
                     tmpval[i] = values[i].charAt(0);
+                }
                 method.invoke(bean, new Object[] { tmpval });
             } else {
                 Object[] tmpval = new Integer[values.length];
@@ -447,14 +481,15 @@ public class JspRuntimeLibrary {
 
     /**
      * Escape special shell characters.
-     * 
+     *
      * @param unescString The string to shell-escape
      * @return The escaped shell string.
      */
 
     public static String escapeQueryString(String unescString) {
-        if (unescString == null)
+        if (unescString == null) {
             return null;
+        }
 
         String escString = "";
         String shellSpChars = "&;`'\"|*?~<>^()[]{}$\\\n";
@@ -462,8 +497,9 @@ public class JspRuntimeLibrary {
         for (int index = 0; index < unescString.length(); index++) {
             char nextChar = unescString.charAt(index);
 
-            if (shellSpChars.indexOf(nextChar) != -1)
+            if (shellSpChars.indexOf(nextChar) != -1) {
                 escString += "\\";
+            }
 
             escString += nextChar;
         }
@@ -498,7 +534,7 @@ public class JspRuntimeLibrary {
             throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { PageContextImpl.evaluateExpression(expression, method.getParameterTypes()[0], pageContext, functionMapper) });
+            method.invoke(bean, PageContextImpl.evaluateExpression(expression, method.getParameterTypes()[0], pageContext, functionMapper));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -507,7 +543,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, Object value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { value });
+            method.invoke(bean, value);
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -516,7 +552,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, int value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Integer.valueOf(value) });
+            method.invoke(bean, Integer.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -525,7 +561,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, short value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Short.valueOf(value) });
+            method.invoke(bean, Short.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -534,7 +570,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, long value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Long.valueOf(value) });
+            method.invoke(bean, Long.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -543,7 +579,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, double value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Double.valueOf(value) });
+            method.invoke(bean, Double.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -552,7 +588,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, float value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Float.valueOf(value) });
+            method.invoke(bean, Float.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -561,7 +597,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, char value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Character.valueOf(value) });
+            method.invoke(bean, Character.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -570,7 +606,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, byte value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Byte.valueOf(value) });
+            method.invoke(bean, Byte.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -579,7 +615,7 @@ public class JspRuntimeLibrary {
     public static void handleSetProperty(Object bean, String prop, boolean value) throws JasperException {
         try {
             Method method = getWriteMethod(bean.getClass(), prop);
-            method.invoke(bean, new Object[] { Boolean.valueOf(value) });
+            method.invoke(bean, Boolean.valueOf(value));
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
@@ -689,10 +725,12 @@ public class JspRuntimeLibrary {
      */
     public static String getContextRelativePath(ServletRequest request, String relativePath) {
 
-        if (relativePath.startsWith("/"))
-            return (relativePath);
-        if (!(request instanceof HttpServletRequest))
-            return (relativePath);
+        if (relativePath.startsWith("/")) {
+            return relativePath;
+        }
+        if (!(request instanceof HttpServletRequest)) {
+            return relativePath;
+        }
         HttpServletRequest hrequest = (HttpServletRequest) request;
         String uri = (String) request.getAttribute("jakarta.servlet.include.servlet_path");
         if (uri != null) {
@@ -727,8 +765,9 @@ public class JspRuntimeLibrary {
     public static void include(ServletRequest request, ServletResponse response, String relativePath, JspWriter out, boolean flush)
             throws IOException, ServletException {
 
-        if (flush && !(out instanceof BodyContent))
+        if (flush && !(out instanceof BodyContent)) {
             out.flush();
+        }
 
         // FIXME - It is tempting to use request.getRequestDispatcher() to
         // resolve a relative path directly, but Catalina currently does not

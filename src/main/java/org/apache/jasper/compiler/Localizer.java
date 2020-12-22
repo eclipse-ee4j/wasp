@@ -17,11 +17,9 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.*;
-import java.io.*;
 import java.text.MessageFormat;
-import org.xml.sax.*;
-import org.apache.jasper.JasperException;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  * Class responsible for converting error codes to corresponding localized error messages.
@@ -39,7 +37,7 @@ public class Localizer {
      * message.
      *
      * @param errCode Error code to localize
-     * 
+     *
      * @return Localized error message
      */
     public static String getMessage(String errCode) {
@@ -58,7 +56,7 @@ public class Localizer {
      * message.
      *
      * @param errCode Error code to localize
-     * 
+     *
      * @param arg Argument for parametric replacement
      *
      * @return Localized error message
@@ -74,9 +72,9 @@ public class Localizer {
      * message.
      *
      * @param errCode Error code to localize
-     * 
+     *
      * @param arg1 First argument for parametric replacement
-     * 
+     *
      * @param arg2 Second argument for parametric replacement
      *
      * @return Localized error message
@@ -92,11 +90,11 @@ public class Localizer {
      * message.
      *
      * @param errCode Error code to localize
-     * 
+     *
      * @param arg1 First argument for parametric replacement
-     * 
+     *
      * @param arg2 Second argument for parametric replacement
-     * 
+     *
      * @param arg3 Third argument for parametric replacement
      *
      * @return Localized error message
@@ -112,13 +110,13 @@ public class Localizer {
      * message.
      *
      * @param errCode Error code to localize
-     * 
+     *
      * @param arg1 First argument for parametric replacement
-     * 
+     *
      * @param arg2 Second argument for parametric replacement
-     * 
+     *
      * @param arg3 Third argument for parametric replacement
-     * 
+     *
      * @param arg4 Fourth argument for parametric replacement
      *
      * @return Localized error message
@@ -134,7 +132,7 @@ public class Localizer {
      * message.
      *
      * @param errCode Error code to localize
-     * 
+     *
      * @param args Arguments for parametric replacement
      *
      * @return Localized error message

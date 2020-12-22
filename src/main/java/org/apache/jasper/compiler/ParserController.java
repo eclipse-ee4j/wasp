@@ -19,7 +19,6 @@ package org.apache.jasper.compiler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -57,7 +56,7 @@ class ParserController implements TagConstants {
     /*
      * A stack to keep track of the 'current base directory' for include directives that refer to relative paths.
      */
-    private Stack<String> baseDirStack = new Stack<String>();
+    private Stack<String> baseDirStack = new Stack<>();
 
     private boolean isEncodingSpecifiedInProlog;
 
@@ -127,7 +126,7 @@ class ParserController implements TagConstants {
         boolean directiveOnlySave = directiveOnly;
         isTagFile = true;
         directiveOnly = true;
-        Node.Nodes page = doParse(inFileName, null, (URL) ctxt.getTagFileJarUrls().get(inFileName));
+        Node.Nodes page = doParse(inFileName, null, ctxt.getTagFileJarUrls().get(inFileName));
         directiveOnly = directiveOnlySave;
         isTagFile = isTagFileSave;
         return page;
@@ -349,8 +348,9 @@ class ParserController implements TagConstants {
             jspReader.reset(startMark);
             if (hasJspRoot(jspReader)) {
                 isXml = true;
-                if (revert)
+                if (revert) {
                     sourceEnc = "UTF-8";
+                }
                 return;
             } else {
                 isXml = false;
@@ -443,7 +443,7 @@ class ParserController implements TagConstants {
      * In the case of 'contentType', the page encoding is taken from the content type's 'charset' component.
      *
      * @param attrs The page directive attributes
-     * 
+     *
      * @param attrName The name of the attribute to search for (either 'pageEncoding' or 'contentType')
      *
      * @return The page encoding, or null
@@ -496,8 +496,9 @@ class ParserController implements TagConstants {
         Mark start = null;
         while ((start = reader.skipUntil("<")) != null) {
             int c = reader.nextChar();
-            if (c != '!' && c != '?')
+            if (c != '!' && c != '?') {
                 break;
+            }
         }
         if (start == null) {
             return false;

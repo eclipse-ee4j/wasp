@@ -58,19 +58,21 @@ public class ServletWriter {
 
     public void pushIndent() {
         virtual_indent += TAB_WIDTH;
-        if (virtual_indent >= 0 && virtual_indent <= SPACES.length())
+        if (virtual_indent >= 0 && virtual_indent <= SPACES.length()) {
             indent = virtual_indent;
+        }
     }
 
     public void popIndent() {
         virtual_indent -= TAB_WIDTH;
-        if (virtual_indent >= 0 && virtual_indent <= SPACES.length())
+        if (virtual_indent >= 0 && virtual_indent <= SPACES.length()) {
             indent = virtual_indent;
+        }
     }
 
     /**
      * Print a standard comment for echo outputed chunk.
-     * 
+     *
      * @param start The starting position of the JSP chunk being processed.
      * @param stop The ending position of the JSP chunk being processed.
      */
@@ -80,13 +82,15 @@ public class ServletWriter {
             println("//   to=" + stop);
         }
 
-        if (chars != null)
+        if (chars != null) {
             for (int i = 0; i < chars.length;) {
                 printin();
                 print("// ");
-                while (chars[i] != '\n' && i < chars.length)
+                while (chars[i] != '\n' && i < chars.length) {
                     writer.print(chars[i++]);
+                }
             }
+        }
     }
 
     /**

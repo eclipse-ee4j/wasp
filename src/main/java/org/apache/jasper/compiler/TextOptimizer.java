@@ -41,6 +41,7 @@ public class TextOptimizer {
             this.trim = trim;
         }
 
+        @Override
         public void doVisit(Node n) throws JasperException {
             collectText();
         }
@@ -49,30 +50,35 @@ public class TextOptimizer {
          * The following directives are ignored in text concatenation except in the pre pass phase.
          */
 
+        @Override
         public void visit(Node.PageDirective n) throws JasperException {
             if (prePass) {
                 collectText();
             }
         }
 
+        @Override
         public void visit(Node.TagDirective n) throws JasperException {
             if (prePass) {
                 collectText();
             }
         }
 
+        @Override
         public void visit(Node.TaglibDirective n) throws JasperException {
             if (prePass) {
                 collectText();
             }
         }
 
+        @Override
         public void visit(Node.AttributeDirective n) throws JasperException {
             if (prePass) {
                 collectText();
             }
         }
 
+        @Override
         public void visit(Node.VariableDirective n) throws JasperException {
             if (prePass) {
                 collectText();
@@ -82,14 +88,16 @@ public class TextOptimizer {
         /*
          * Don't concatenate text across body boundaries
          */
+        @Override
         public void visitBody(Node n) throws JasperException {
             super.visitBody(n);
             collectText();
         }
 
+        @Override
         public void visit(Node.TemplateText n) throws JasperException {
 
-            if ((trim) && !prePass && n.isAllSpace()) {
+            if (trim && !prePass && n.isAllSpace()) {
                 n.setText(emptyText);
                 return;
             }

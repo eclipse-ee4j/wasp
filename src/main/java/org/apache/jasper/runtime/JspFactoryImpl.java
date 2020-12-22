@@ -20,19 +20,19 @@ package org.apache.jasper.runtime;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.jsp.JspFactory;
-import jakarta.servlet.jsp.JspEngineInfo;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.JspApplicationContext;
+import java.util.logging.Logger;
 
 import org.apache.jasper.Constants;
+
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.jsp.JspApplicationContext;
+import jakarta.servlet.jsp.JspEngineInfo;
+import jakarta.servlet.jsp.JspFactory;
+import jakarta.servlet.jsp.PageContext;
 
 /**
  * Implementation of JspFactory.
@@ -55,11 +55,13 @@ public class JspFactoryImpl extends JspFactory {
 
     // Per-thread pool of PageContext objects
     private ThreadLocal<LinkedList<PageContext>> pool = new ThreadLocal<LinkedList<PageContext>>() {
+        @Override
         protected synchronized LinkedList<PageContext> initialValue() {
-            return new LinkedList<PageContext>();
+            return new LinkedList<>();
         }
     };
 
+    @Override
     public PageContext getPageContext(Servlet servlet, ServletRequest request, ServletResponse response, String errorPageURL, boolean needsSession,
             int bufferSize, boolean autoflush) {
 
@@ -71,9 +73,11 @@ public class JspFactoryImpl extends JspFactory {
         }
     }
 
+    @Override
     public void releasePageContext(PageContext pc) {
-        if (pc == null)
+        if (pc == null) {
             return;
+        }
         if (Constants.IS_SECURITY_ENABLED) {
             PrivilegedReleasePageContext dp = new PrivilegedReleasePageContext(this, pc);
             AccessController.doPrivileged(dp);
@@ -82,14 +86,17 @@ public class JspFactoryImpl extends JspFactory {
         }
     }
 
+    @Override
     public JspEngineInfo getEngineInfo() {
         return new JspEngineInfo() {
+            @Override
             public String getSpecificationVersion() {
                 return SPEC_VERSION;
             }
         };
     }
 
+    @Override
     public JspApplicationContext getJspApplicationContext(ServletContext context) {
         return JspApplicationContextImpl.findJspApplicationContext(context);
     }
@@ -120,7 +127,7 @@ public class JspFactoryImpl extends JspFactory {
 
     private void internalReleasePageContext(PageContext pc) {
         pc.release();
-        if (USE_POOL && (pc instanceof PageContextImpl)) {
+        if (USE_POOL && pc instanceof PageContextImpl) {
             LinkedList<PageContext> pcPool = pool.get();
             pcPool.addFirst(pc);
         }
@@ -149,6 +156,7 @@ public class JspFactoryImpl extends JspFactory {
             this.autoflush = autoflush;
         }
 
+        @Override
         public PageContext run() {
             return factory.internalGetPageContext(servlet, request, response, errorPageURL, needsSession, bufferSize, autoflush);
         }
@@ -164,6 +172,7 @@ public class JspFactoryImpl extends JspFactory {
             this.pageContext = pageContext;
         }
 
+        @Override
         public Object run() {
             factory.internalReleasePageContext(pageContext);
             return null;

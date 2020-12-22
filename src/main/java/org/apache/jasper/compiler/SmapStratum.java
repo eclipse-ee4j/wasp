@@ -17,8 +17,8 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the line and file mappings associated with a JSR-045 "stratum".
@@ -44,15 +44,17 @@ public class SmapStratum {
 
         /** Sets InputStartLine. */
         public void setInputStartLine(int inputStartLine) {
-            if (inputStartLine < 0)
+            if (inputStartLine < 0) {
                 throw new IllegalArgumentException("" + inputStartLine);
+            }
             this.inputStartLine = inputStartLine;
         }
 
         /** Sets OutputStartLine. */
         public void setOutputStartLine(int outputStartLine) {
-            if (outputStartLine < 0)
+            if (outputStartLine < 0) {
                 throw new IllegalArgumentException("" + outputStartLine);
+            }
             this.outputStartLine = outputStartLine;
         }
 
@@ -61,23 +63,26 @@ public class SmapStratum {
          * if the current LineInfo has no (logical) predecessor. <tt>LineInfo</tt> will print this file number no matter what.
          */
         public void setLineFileID(int lineFileID) {
-            if (lineFileID < 0)
+            if (lineFileID < 0) {
                 throw new IllegalArgumentException("" + lineFileID);
+            }
             this.lineFileID = lineFileID;
             this.lineFileIDSet = true;
         }
 
         /** Sets InputLineCount. */
         public void setInputLineCount(int inputLineCount) {
-            if (inputLineCount < 0)
+            if (inputLineCount < 0) {
                 throw new IllegalArgumentException("" + inputLineCount);
+            }
             this.inputLineCount = inputLineCount;
         }
 
         /** Sets OutputLineIncrement. */
         public void setOutputLineIncrement(int outputLineIncrement) {
-            if (outputLineIncrement < 0)
+            if (outputLineIncrement < 0) {
                 throw new IllegalArgumentException("" + outputLineIncrement);
+            }
             this.outputLineIncrement = outputLineIncrement;
         }
 
@@ -86,21 +91,26 @@ public class SmapStratum {
          * it's been specified, as its necessity is sensitive to context).
          */
         public String getString() {
-            if (inputStartLine == -1 || outputStartLine == -1)
+            if (inputStartLine == -1 || outputStartLine == -1) {
                 throw new IllegalStateException();
+            }
             StringBuilder out = new StringBuilder();
             out.append(inputStartLine);
-            if (lineFileIDSet)
+            if (lineFileIDSet) {
                 out.append("#" + lineFileID);
-            if (inputLineCount != 1)
+            }
+            if (inputLineCount != 1) {
                 out.append("," + inputLineCount);
+            }
             out.append(":" + outputStartLine);
-            if (outputLineIncrement != 1)
+            if (outputLineIncrement != 1) {
                 out.append("," + outputLineIncrement);
+            }
             out.append('\n');
             return out.toString();
         }
 
+        @Override
         public String toString() {
             return getString();
         }
@@ -125,9 +135,9 @@ public class SmapStratum {
      */
     public SmapStratum(String stratumName) {
         this.stratumName = stratumName;
-        fileNameList = new ArrayList<String>();
-        filePathList = new ArrayList<String>();
-        lineData = new ArrayList<LineInfo>();
+        fileNameList = new ArrayList<>();
+        filePathList = new ArrayList<>();
+        lineData = new ArrayList<>();
         lastFileID = 0;
     }
 
@@ -214,16 +224,18 @@ public class SmapStratum {
     public void addLineData(int inputStartLine, String inputFileName, int inputLineCount, int outputStartLine, int outputLineIncrement) {
         // check the input - what are you doing here??
         int fileIndex = filePathList.indexOf(inputFileName);
-        if (fileIndex == -1) // still
+        if (fileIndex == -1) {
             throw new IllegalArgumentException("inputFileName: " + inputFileName);
+        }
 
         // Jasper incorrectly SMAPs certain Nodes, giving them an
         // outputStartLine of 0. This can cause a fatal error in
         // optimizeLineSection, making it impossible for Jasper to
         // compile the JSP. Until we can fix the underlying
         // SMAPping problem, we simply ignore the flawed SMAP entries.
-        if (outputStartLine == 0)
+        if (outputStartLine == 0) {
             return;
+        }
 
         // build the LineInfo
         LineInfo li = new LineInfo();
@@ -231,8 +243,9 @@ public class SmapStratum {
         li.setInputLineCount(inputLineCount);
         li.setOutputStartLine(outputStartLine);
         li.setOutputLineIncrement(outputLineIncrement);
-        if (fileIndex != lastFileID)
+        if (fileIndex != lastFileID) {
             li.setLineFileID(fileIndex);
+        }
         lastFileID = fileIndex;
 
         // save it
@@ -255,8 +268,9 @@ public class SmapStratum {
      */
     public String getString() {
         // check state and initialize buffer
-        if (fileNameList.size() == 0 || lineData.size() == 0)
+        if (fileNameList.size() == 0 || lineData.size() == 0) {
             return null;
+        }
 
         StringBuilder out = new StringBuilder();
 
@@ -292,6 +306,7 @@ public class SmapStratum {
         return out.toString();
     }
 
+    @Override
     public String toString() {
         return getString();
     }

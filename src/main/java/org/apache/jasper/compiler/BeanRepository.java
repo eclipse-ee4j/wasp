@@ -39,7 +39,7 @@ class BeanRepository {
 
         this.loader = loader;
         this.errDispatcher = err;
-        beanTypes = new HashMap<String, String>();
+        beanTypes = new HashMap<>();
     }
 
     public void addBean(Node.UseBean n, String s, String type, String scope) throws JasperException {

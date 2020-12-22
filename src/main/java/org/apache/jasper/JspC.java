@@ -23,25 +23,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.io.UnsupportedEncodingException;
-// START GlassFish 750
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.Writer;
 // END GlassFish 750
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.StringTokenizer;
 // START GlassFish 750
-import jakarta.servlet.jsp.tagext.TagLibraryInfo;
-// END GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspConfig;
@@ -55,6 +59,10 @@ import org.apache.jasper.servlet.JspCServletContext;
 import org.apache.jasper.xmlparser.ParserUtils;
 // END PWC 6386258
 
+// START GlassFish 750
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
+// END GlassFish 750
+
 // START SJSAS 6258619
 // XXX Remove the dependency on glassfish.webtier for now
 // import com.sun.appserv.ClassLoaderUtil;
@@ -67,7 +75,7 @@ import org.apache.jasper.xmlparser.ParserUtils;
  * This version can process files from a _single_ webapp at once, i.e. a single docbase can be specified.
  *
  * It can be used as an Ant task using:
- * 
+ *
  * <pre>
  *   &lt;taskdef classname="org.apache.jasper.JspC" name="jasper2" &gt;
  *      &lt;classpath&gt;
@@ -97,8 +105,6 @@ public class JspC implements Options {
 
     public static final String DEFAULT_IE_CLASS_ID = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
 
-    // START SJSAS 6402545
-    private static final String JAVA_1_0 = "1.0";
     private static final String JAVA_1_1 = "1.1";
     private static final String JAVA_1_2 = "1.2";
     private static final String JAVA_1_3 = "1.3";
@@ -118,9 +124,7 @@ public class JspC implements Options {
 
     private static final String SWITCH_VERBOSE = "-v";
     private static final String SWITCH_HELP = "-help";
-    private static final String SWITCH_QUIET = "-q";
     private static final String SWITCH_OUTPUT_DIR = "-d";
-    private static final String SWITCH_IE_CLASS_ID = "-ieplugin";
     private static final String SWITCH_PACKAGE_NAME = "-p";
     private static final String SWITCH_CLASS_NAME = "-c";
     private static final String SWITCH_FULL_STOP = "--";
@@ -157,7 +161,6 @@ public class JspC implements Options {
 
     private static final String SHOW_SUCCESS = "-s";
     private static final String LIST_ERRORS = "-l";
-    private static final int NO_WEBXML = 0;
     private static final int INC_WEBXML = 10;
     private static final int ALL_WEBXML = 20;
     private static final int DEFAULT_DIE_LEVEL = 1;
@@ -204,7 +207,7 @@ public class JspC implements Options {
     private boolean failOnError = true;
 
     private ArrayList<String> extensions;
-    private ArrayList<String> pages = new ArrayList<String>();
+    private ArrayList<String> pages = new ArrayList<>();
     private boolean errorOnUseBeanInvalidClassAttribute = false;
 
     /**
@@ -234,7 +237,6 @@ public class JspC implements Options {
     private JspConfig jspConfig = null;
     private TagPluginManager tagPluginManager = null;
 
-    private boolean verbose = false;
     private boolean listErrors = false;
     private boolean showSuccess = false;
     private int argPos;
@@ -246,7 +248,7 @@ public class JspC implements Options {
     // END SJSAS 6384538
 
     // START SJSAS 6329723
-    private HashMap<String, JasperException> jspErrors = new HashMap<String, JasperException>();
+    private HashMap<String, JasperException> jspErrors = new HashMap<>();
     // END SJSAS 6329723
 
     // START SJSAS 6403017
@@ -255,7 +257,7 @@ public class JspC implements Options {
 
     // START SJSAS 6393940
     private boolean ignoreJspFragmentErrors = false;
-    private Set<String> dependents = new HashSet<String>();
+    private Set<String> dependents = new HashSet<>();
     // END SJSAS 6393940
 
     // START GlassFish 750
@@ -293,7 +295,6 @@ public class JspC implements Options {
 
         while ((tok = nextArg()) != null) {
             if (tok.equals(SWITCH_VERBOSE)) {
-                verbose = true;
                 showSuccess = true;
                 listErrors = true;
             } else if (tok.equals(SWITCH_OUTPUT_DIR)) {
@@ -387,8 +388,9 @@ public class JspC implements Options {
         // Add all extra arguments to the list of files
         while (true) {
             String file = nextFile();
-            if (file == null)
+            if (file == null) {
                 break;
+            }
             pages.add(file);
         }
     }
@@ -397,15 +399,18 @@ public class JspC implements Options {
         return dieLevel;
     }
 
+    @Override
     public boolean getKeepGenerated() {
         // isn't this why we are running jspc?
         return true;
     }
 
+    @Override
     public boolean getSaveBytecode() {
         return true;
     }
 
+    @Override
     public boolean getTrimSpaces() {
         return trimSpaces;
     }
@@ -414,6 +419,7 @@ public class JspC implements Options {
         this.trimSpaces = ts;
     }
 
+    @Override
     public boolean isPoolingEnabled() {
         return poolingEnabled;
     }
@@ -422,6 +428,7 @@ public class JspC implements Options {
         this.poolingEnabled = poolingEnabled;
     }
 
+    @Override
     public boolean isXpoweredBy() {
         return xpoweredBy;
     }
@@ -430,6 +437,7 @@ public class JspC implements Options {
         this.xpoweredBy = xpoweredBy;
     }
 
+    @Override
     public boolean getErrorOnUseBeanInvalidClassAttribute() {
         return errorOnUseBeanInvalidClassAttribute;
     }
@@ -446,6 +454,7 @@ public class JspC implements Options {
     /**
      * Gets initial capacity of HashMap which maps JSPs to their corresponding servlets.
      */
+    @Override
     public int getInitialCapacity() {
         return Constants.DEFAULT_INITIAL_CAPACITY;
     }
@@ -454,6 +463,7 @@ public class JspC implements Options {
     /**
      * Are we supporting HTML mapped servlets?
      */
+    @Override
     public boolean getMappedFile() {
         return mappedFile;
     }
@@ -463,6 +473,7 @@ public class JspC implements Options {
         return null;
     }
 
+    @Override
     public boolean getSendErrorToClient() {
         // implied send to System.err
         return true;
@@ -472,6 +483,7 @@ public class JspC implements Options {
         classDebugInfo = b;
     }
 
+    @Override
     public boolean getClassDebugInfo() {
         // compile with debug info
         return classDebugInfo;
@@ -480,6 +492,7 @@ public class JspC implements Options {
     /**
      * Background compilation check intervals in seconds
      */
+    @Override
     public int getCheckInterval() {
         return 0;
     }
@@ -487,6 +500,7 @@ public class JspC implements Options {
     /**
      * Modification test interval.
      */
+    @Override
     public int getModificationTestInterval() {
         return 0;
     }
@@ -494,11 +508,13 @@ public class JspC implements Options {
     /**
      * Is Jasper being used in development mode?
      */
+    @Override
     public boolean getDevelopment() {
         return false;
     }
 
     // BEGIN S1AS 6181923
+    @Override
     public boolean getUsePrecompiled() {
         return false;
     }
@@ -507,6 +523,7 @@ public class JspC implements Options {
     /**
      * Is the generation of SMAP info for JSR45 debugging suppressed?
      */
+    @Override
     public boolean isSmapSuppressed() {
         return smapSuppressed;
     }
@@ -521,6 +538,7 @@ public class JspC implements Options {
     /**
      * Should SMAP info for JSR45 debugging be dumped to a file?
      */
+    @Override
     public boolean isSmapDumped() {
         return smapDumped;
     }
@@ -546,6 +564,7 @@ public class JspC implements Options {
      *
      * @return true if text strings are to be generated as char arrays, false otherwise
      */
+    @Override
     public boolean genStringAsCharArray() {
         return genStringAsCharArray;
     }
@@ -554,10 +573,12 @@ public class JspC implements Options {
         this.genStringAsByteArray = genStringAsByteArray;
     }
 
+    @Override
     public boolean genStringAsByteArray() {
         return genStringAsByteArray;
     }
 
+    @Override
     public boolean isDefaultBufferNone() {
         return defaultBufferNone;
     }
@@ -580,10 +601,12 @@ public class JspC implements Options {
      *
      * @return Class-id value
      */
+    @Override
     public String getIeClassId() {
         return ieClassId;
     }
 
+    @Override
     public File getScratchDir() {
         return scratchDir;
     }
@@ -601,6 +624,7 @@ public class JspC implements Options {
     /**
      * Compiler to use.
      */
+    @Override
     public String getCompiler() {
         return compiler;
     }
@@ -612,6 +636,7 @@ public class JspC implements Options {
     /**
      * @see Options#getCompilerTargetVM
      */
+    @Override
     public String getCompilerTargetVM() {
         return compilerTargetVM;
     }
@@ -645,6 +670,7 @@ public class JspC implements Options {
     /**
      * @see Options#getCompilerSourceVM
      */
+    @Override
     public String getCompilerSourceVM() {
         return compilerSourceVM;
     }
@@ -665,10 +691,12 @@ public class JspC implements Options {
     /**
      * @see Options#getCompilerClassName
      */
+    @Override
     public String getCompilerClassName() {
         return null;
     }
 
+    @Override
     public TldScanner getTldScanner() {
         return tldScanner;
     }
@@ -678,6 +706,7 @@ public class JspC implements Options {
      *
      * @return String The encoding
      */
+    @Override
     public String getJavaEncoding() {
         return javaEncoding;
     }
@@ -691,13 +720,16 @@ public class JspC implements Options {
         javaEncoding = encodingName;
     }
 
+    @Override
     public boolean getFork() {
         return false;
     }
 
+    @Override
     public String getClassPath() {
-        if (classPath != null)
+        if (classPath != null) {
             return classPath;
+        }
         /*
          * PWC 1.2 6311155 return System.getProperty("java.class.path");
          */
@@ -716,6 +748,7 @@ public class JspC implements Options {
      *
      * @return The system class path
      */
+    @Override
     public String getSystemClassPath() {
         if (sysClassPath != null) {
             return sysClassPath;
@@ -784,7 +817,6 @@ public class JspC implements Options {
 
     public void setVerbose(int level) {
         if (level > 0) {
-            verbose = true;
             showSuccess = true;
             listErrors = true;
         }
@@ -804,6 +836,7 @@ public class JspC implements Options {
         isValidationEnabled = b;
     }
 
+    @Override
     public boolean isValidationEnabled() {
         return isValidationEnabled;
     }
@@ -873,10 +906,12 @@ public class JspC implements Options {
     /**
      * Obtain JSP configuration informantion specified in web.xml.
      */
+    @Override
     public JspConfig getJspConfig() {
         return jspConfig;
     }
 
+    @Override
     public TagPluginManager getTagPluginManager() {
         return tagPluginManager;
     }
@@ -925,7 +960,7 @@ public class JspC implements Options {
 
         Collection<JasperException> c = jspErrors.values();
         if (c != null) {
-            ret = new ArrayList<JasperException>();
+            ret = new ArrayList<>();
             Iterator<JasperException> it = c.iterator();
             while (it.hasNext()) {
                 ret.add(it.next());
@@ -977,8 +1012,9 @@ public class JspC implements Options {
             }
             for (int i = 0; i < insertBefore.length; i++) {
                 pos = line.indexOf(insertBefore[i]);
-                if (pos >= 0)
+                if (pos >= 0) {
                     break;
+                }
             }
             if (pos >= 0) {
                 writer.println(line.substring(0, pos));
@@ -1042,7 +1078,7 @@ public class JspC implements Options {
         }
 
         webXml2.delete();
-        (new File(webxmlFile)).delete();
+        new File(webxmlFile).delete();
 
     }
 
@@ -1063,7 +1099,7 @@ public class JspC implements Options {
             JspCompilationContext clctxt = new JspCompilationContext(jspUri, false, this, context, null, rctxt);
 
             /* Override the defaults */
-            if ((targetClassName != null) && (targetClassName.length() > 0)) {
+            if (targetClassName != null && targetClassName.length() > 0) {
                 clctxt.setServletClassName(targetClassName);
                 targetClassName = null;
             }
@@ -1136,7 +1172,7 @@ public class JspC implements Options {
             }
 
         } catch (Exception e) {
-            if ((e instanceof FileNotFoundException) && log.isLoggable(Level.WARNING)) {
+            if (e instanceof FileNotFoundException && log.isLoggable(Level.WARNING)) {
                 log.warning(Localizer.getMessage("jspc.error.fileDoesNotExist", e.getMessage()));
             }
             throw new JasperException(e);
@@ -1152,10 +1188,10 @@ public class JspC implements Options {
      * Locate all jsp files in the webapp. Used if no explicit jsps are specified.
      */
     public void scanFiles(File base) throws JasperException {
-        Stack<String> dirs = new Stack<String>();
+        Stack<String> dirs = new Stack<>();
         dirs.push(base.toString());
         if (extensions == null) {
-            extensions = new ArrayList<String>();
+            extensions = new ArrayList<>();
             extensions.add("jsp");
             extensions.add("jspx");
         }
@@ -1165,7 +1201,7 @@ public class JspC implements Options {
             if (f.exists() && f.isDirectory()) {
                 String[] files = f.list();
                 String ext;
-                for (int i = 0; (files != null) && i < files.length; i++) {
+                for (int i = 0; files != null && i < files.length; i++) {
                     File f2 = new File(s, files[i]);
                     if (f2.isDirectory()) {
                         dirs.push(f2.getPath());
@@ -1208,8 +1244,9 @@ public class JspC implements Options {
                 throw new JasperException(Localizer.getMessage("jsp.error.jspc.no_uriroot"));
             }
 
-            if (context == null)
+            if (context == null) {
                 initServletContext();
+            }
 
             // No explicit pages, we'll process all .jsp in the webapp
             if (pages.size() == 0) {
@@ -1301,7 +1338,7 @@ public class JspC implements Options {
     // ==================== Private utility methods ====================
 
     private String nextArg() {
-        if ((argPos >= args.length) || (fullstop = SWITCH_FULL_STOP.equals(args[argPos]))) {
+        if (argPos >= args.length || (fullstop = SWITCH_FULL_STOP.equals(args[argPos]))) {
             return null;
         } else {
             return args[argPos++];
@@ -1309,8 +1346,9 @@ public class JspC implements Options {
     }
 
     private String nextFile() {
-        if (fullstop)
+        if (fullstop) {
             argPos++;
+        }
         if (argPos >= args.length) {
             return null;
         } else {
@@ -1333,7 +1371,7 @@ public class JspC implements Options {
             if (webxmlLevel >= ALL_WEBXML) {
                 mapout.write(Localizer.getMessage("jspc.webxml.header"));
                 mapout.flush();
-            } else if ((webxmlLevel >= INC_WEBXML) && !addWebXmlMappings) {
+            } else if (webxmlLevel >= INC_WEBXML && !addWebXmlMappings) {
                 mapout.write(Localizer.getMessage("jspc.webinc.header"));
                 mapout.flush();
             }
@@ -1351,7 +1389,7 @@ public class JspC implements Options {
                 mappingout.writeTo(mapout);
                 if (webxmlLevel >= ALL_WEBXML) {
                     mapout.write(Localizer.getMessage("jspc.webxml.footer"));
-                } else if ((webxmlLevel >= INC_WEBXML) && !addWebXmlMappings) {
+                } else if (webxmlLevel >= INC_WEBXML && !addWebXmlMappings) {
                     mapout.write(Localizer.getMessage("jspc.webinc.footer"));
                 }
                 mapout.close();
@@ -1369,10 +1407,10 @@ public class JspC implements Options {
             tldScanner = new TldScanner(context, isValidationEnabled);
 
             // START GlassFish 750
-            taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
+            taglibs = new ConcurrentHashMap<>();
             context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
 
-            tagFileJarUrls = new ConcurrentHashMap<String, URL>();
+            tagFileJarUrls = new ConcurrentHashMap<>();
             context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE, tagFileJarUrls);
             // END GlassFish 750
         } catch (MalformedURLException me) {
@@ -1394,10 +1432,10 @@ public class JspC implements Options {
 
         classPath = getClassPath();
 
-        ClassLoader jspcLoader = getClass().getClassLoader();
+        getClass().getClassLoader();
 
         // Turn the classPath into URLs
-        ArrayList<URL> urls = new ArrayList<URL>();
+        ArrayList<URL> urls = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(classPath, File.pathSeparator);
         while (tokenizer.hasMoreTokens()) {
             String path = tokenizer.nextToken();
@@ -1430,8 +1468,9 @@ public class JspC implements Options {
             if (lib.exists() && lib.isDirectory()) {
                 String[] libs = lib.list();
                 for (int i = 0; i < libs.length; i++) {
-                    if (libs[i].length() < 5)
+                    if (libs[i].length() < 5) {
                         continue;
+                    }
                     String ext = libs[i].substring(libs[i].length() - 4);
                     if (!".jar".equalsIgnoreCase(ext)) {
                         if (".tld".equalsIgnoreCase(ext)) {
@@ -1530,7 +1569,7 @@ public class JspC implements Options {
             return null;
         }
 
-        ArrayList<URL> urls = new ArrayList<URL>();
+        ArrayList<URL> urls = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(sysClassPath, File.pathSeparator);
         while (tokenizer.hasMoreTokens()) {
             urls.add(new File(tokenizer.nextToken()).toURL());

@@ -19,14 +19,14 @@ package org.apache.jasper.compiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.jasper.JasperException;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
 import jakarta.servlet.descriptor.JspPropertyGroupDescriptor;
-
-import org.apache.jasper.JasperException;
 
 /**
  * Handles the jsp-config element in WEB_INF/web.xml. This is used for specifying the JSP configuration information on a
@@ -36,8 +36,6 @@ import org.apache.jasper.JasperException;
  */
 
 public class JspConfig {
-
-    private static final String WEB_XML = "/WEB-INF/web.xml";
 
     // Logger
     private static Logger log = Logger.getLogger(JspConfig.class.getName());
@@ -65,7 +63,7 @@ public class JspConfig {
             return;
         }
 
-        jspProperties = new ArrayList<JspPropertyGroup>();
+        jspProperties = new ArrayList<>();
         for (JspPropertyGroupDescriptor jpg : jspConfig.getJspPropertyGroups()) {
 
             Collection<String> urlPatterns = jpg.getUrlPatterns();
@@ -78,9 +76,9 @@ public class JspConfig {
             String buffer = jpg.getBuffer();
             String defaultContentType = jpg.getDefaultContentType();
             String errorOnUndeclaredNamespace = jpg.getErrorOnUndeclaredNamespace();
-            ArrayList<String> includePrelude = new ArrayList<String>();
+            ArrayList<String> includePrelude = new ArrayList<>();
             includePrelude.addAll(jpg.getIncludePreludes());
-            ArrayList<String> includeCoda = new ArrayList<String>();
+            ArrayList<String> includeCoda = new ArrayList<>();
             includeCoda.addAll(jpg.getIncludeCodas());
 
             // Creates a JspPropertyGroup for each url pattern in the given
@@ -116,7 +114,7 @@ public class JspConfig {
                     // path == null, extension != null: *.ext
                     // path != null, extension == "*": /foo/*
                     boolean isStar = "*".equals(extension);
-                    if ((path == null && (extension == null || isStar)) || (path != null && !isStar)) {
+                    if (path == null && (extension == null || isStar) || path != null && !isStar) {
                         if (log.isLoggable(Level.WARNING)) {
                             log.warning(Localizer.getMessage("jsp.warning.bad.urlpattern.propertygroup", urlPattern));
                         }
@@ -138,7 +136,7 @@ public class JspConfig {
         if (!initialized) {
 
             processWebDotXml(ctxt);
-            if (ctxt.getEffectiveMajorVersion() < 2 || (ctxt.getEffectiveMajorVersion() == 2 && ctxt.getEffectiveMinorVersion() <= 3)) {
+            if (ctxt.getEffectiveMajorVersion() < 2 || ctxt.getEffectiveMajorVersion() == 2 && ctxt.getEffectiveMinorVersion() <= 3) {
                 // for version 2.3 or before, default for el-ignored is true
                 defaultIsELIgnored = "true";
             }
@@ -184,7 +182,7 @@ public class JspConfig {
 
     /**
      * Find a property that best matches the supplied resource.
-     * 
+     *
      * @param uri the resource supplied.
      * @return a JspProperty indicating the best match, or some default.
      */
@@ -208,8 +206,8 @@ public class JspConfig {
             uriExtension = uri.substring(index + 1);
         }
 
-        ArrayList<String> includePreludes = new ArrayList<String>();
-        ArrayList<String> includeCodas = new ArrayList<String>();
+        ArrayList<String> includePreludes = new ArrayList<>();
+        ArrayList<String> includeCodas = new ArrayList<>();
 
         JspPropertyGroup isXmlMatch = null;
         JspPropertyGroup elIgnoredMatch = null;
@@ -352,7 +350,7 @@ public class JspConfig {
 
         for (JspPropertyGroup jpg : jspProperties) {
 
-            JspProperty jp = jpg.getJspProperty();
+            jpg.getJspProperty();
 
             String extension = jpg.getExtension();
             String path = jpg.getPath();

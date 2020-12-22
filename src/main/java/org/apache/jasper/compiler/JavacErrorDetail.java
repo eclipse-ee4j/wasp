@@ -73,7 +73,7 @@ public class JavacErrorDetail {
 
     /**
      * Gets the compilation error line number.
-     * 
+     *
      * @return Compilation error line number
      */
     public int getJavaLineNumber() {

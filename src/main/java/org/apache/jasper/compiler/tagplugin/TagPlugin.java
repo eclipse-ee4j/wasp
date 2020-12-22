@@ -28,7 +28,7 @@ public interface TagPlugin {
 
     /**
      * Generate codes for a custom tag.
-     * 
+     *
      * @param ctxt a TagPluginContext for accessing Jasper functions
      */
     void doTag(TagPluginContext ctxt);

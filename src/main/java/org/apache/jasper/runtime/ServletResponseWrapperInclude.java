@@ -17,15 +17,16 @@
 
 package org.apache.jasper.runtime;
 
-import java.lang.IllegalStateException;
-import java.io.PrintWriter;
 import java.io.IOException;
-
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.jsp.JspWriter;
+import java.io.PrintWriter;
 
 import org.glassfish.jsp.api.ByteWriter;
+
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.jsp.JspWriter;
 
 /**
  * ServletResponseWrapper used by the JSP 'include' action.
@@ -63,17 +64,19 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
         }
 
         // START CR 6466049
-        this.canFlushWriter = (jspWriter instanceof JspWriterImpl);
+        this.canFlushWriter = jspWriter instanceof JspWriterImpl;
         // END CR 6466049
     }
 
     /**
      * Returns a wrapper around the JspWriter of the including page.
      */
+    @Override
     public PrintWriter getWriter() throws IOException {
         return printWriter;
     }
 
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
         throw new IllegalStateException();
     }
@@ -81,6 +84,7 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
     /**
      * Clears the output buffer of the JspWriter associated with the including page.
      */
+    @Override
     public void resetBuffer() {
         try {
             jspWriter.clearBuffer();
@@ -92,6 +96,7 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
     /**
      * Flush the wrapper around the JspWriter of the including page.
      */
+    @Override
     public void flushBuffer() throws IOException {
         printWriter.flush();
     }
@@ -128,6 +133,7 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
             this.jspWriter = jspWriter;
         }
 
+        @Override
         public void write(byte[] buff, int off, int len) throws IOException {
             jspWriter.write(buff, off, len);
         }

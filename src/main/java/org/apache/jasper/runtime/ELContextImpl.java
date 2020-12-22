@@ -38,6 +38,7 @@ public class ELContextImpl extends ELContext {
         this.resolver = resolver;
     }
 
+    @Override
     public ELResolver getELResolver() {
         return resolver;
     }
@@ -46,6 +47,7 @@ public class ELContextImpl extends ELContext {
         functionMapper = fnMapper;
     }
 
+    @Override
     public FunctionMapper getFunctionMapper() {
         return functionMapper;
     }
@@ -54,6 +56,7 @@ public class ELContextImpl extends ELContext {
         variableMapper = varMapper;
     }
 
+    @Override
     public VariableMapper getVariableMapper() {
         return variableMapper;
     }

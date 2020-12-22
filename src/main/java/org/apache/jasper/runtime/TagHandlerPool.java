@@ -17,12 +17,13 @@
 
 package org.apache.jasper.runtime;
 
+import org.apache.jasper.Constants;
+import org.glassfish.jsp.api.ResourceInjector;
+
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.JspTag;
 import jakarta.servlet.jsp.tagext.Tag;
-import jakarta.servlet.ServletConfig;
-import org.apache.jasper.Constants;
-import org.glassfish.jsp.api.ResourceInjector;
 
 /**
  * Pool of tag handlers that can be reused.
@@ -53,8 +54,9 @@ public class TagHandlerPool {
                 result = null;
             }
         }
-        if (result == null)
+        if (result == null) {
             result = new TagHandlerPool();
+        }
         result.init(config);
 
         return result;
@@ -93,6 +95,7 @@ public class TagHandlerPool {
      * @param capacity Tag handler pool capacity
      * @deprecated Use static getTagHandlerPool
      */
+    @Deprecated
     public TagHandlerPool(int capacity) {
         this.handlers = new JspTag[capacity];
         this.current = -1;
@@ -138,7 +141,7 @@ public class TagHandlerPool {
      */
     public void reuse(JspTag handler) {
         synchronized (this) {
-            if (current < (handlers.length - 1)) {
+            if (current < handlers.length - 1) {
                 handlers[++current] = handler;
                 return;
             }
@@ -168,17 +171,21 @@ public class TagHandlerPool {
     }
 
     protected static String getOption(ServletConfig config, String name, String defaultV) {
-        if (config == null)
+        if (config == null) {
             return defaultV;
+        }
 
         String value = config.getInitParameter(name);
-        if (value != null)
+        if (value != null) {
             return value;
-        if (config.getServletContext() == null)
+        }
+        if (config.getServletContext() == null) {
             return defaultV;
+        }
         value = config.getServletContext().getInitParameter(name);
-        if (value != null)
+        if (value != null) {
             return value;
+        }
         return defaultV;
     }
 

@@ -17,11 +17,11 @@
 package org.apache.jasper.compiler;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.FileOutputStream;
-import java.io.Writer;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.List;
 
 import org.apache.jasper.JasperException;
@@ -36,53 +36,58 @@ import org.apache.jasper.JspCompilationContext;
 
 public class NullJavaCompiler implements JavaCompiler {
 
-    private JspCompilationContext ctxt;
     private ErrorDispatcher errDispatcher;
     private String javaFileName;
-    private String javaEncoding;
 
+    @Override
     public void init(JspCompilationContext ctxt, ErrorDispatcher errDispatcher, boolean suppressLogging) {
 
-        this.ctxt = ctxt;
         this.errDispatcher = errDispatcher;
     }
 
+    @Override
     public void release() {
     }
 
+    @Override
     public void setExtdirs(String exts) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setTargetVM(String targetVM) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setSourceVM(String sourceVM) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setClassPath(List<File> cpath) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void saveClassFile(String className, String classFileName) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setDebug(boolean debug) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public long getClassLastModified() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Writer getJavaWriter(String javaFileName, String javaEncoding) throws JasperException {
 
         this.javaFileName = javaFileName;
-        this.javaEncoding = javaEncoding;
-
         Writer writer = null;
         try {
             writer = new OutputStreamWriter(new FileOutputStream(javaFileName), javaEncoding);
@@ -94,10 +99,12 @@ public class NullJavaCompiler implements JavaCompiler {
         return writer;
     }
 
+    @Override
     public JavacErrorDetail[] compile(String className, Node.Nodes pageNodes) throws JasperException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void doJavaFile(boolean keep) {
         if (!keep) {
             File javaFile = new File(javaFileName);

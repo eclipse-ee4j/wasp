@@ -17,9 +17,10 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.Stack;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Stack;
+
 import org.apache.jasper.JspCompilationContext;
 
 /**
@@ -87,7 +88,7 @@ final class Mark {
         this.fileName = name;
         this.baseDir = inBaseDir;
         this.encoding = inEncoding;
-        this.includeStack = new Stack<IncludeState>();
+        this.includeStack = new Stack<>();
     }
 
     /**
@@ -106,7 +107,7 @@ final class Mark {
         this.encoding = other.encoding;
 
         // clone includeStack without cloning contents
-        includeStack = new Stack<IncludeState>();
+        includeStack = new Stack<>();
         for (int i = 0; i < other.includeStack.size(); i++) {
             includeStack.addElement(other.includeStack.elementAt(i));
         }
@@ -131,7 +132,7 @@ final class Mark {
 
     /**
      * Sets this mark's state to a new stream. It will store the current stream in it's includeStack.
-     * 
+     *
      * @param inStream new stream for mark
      * @param inFileid id of new file from which stream comes from
      * @param inBaseDir directory of file
@@ -155,7 +156,7 @@ final class Mark {
 
     /**
      * /* Restores this mark's state to a previously stored stream.
-     * 
+     *
      * @return null if there is no previous stream The previous Makr instance when the stream is pushed.
      */
     public Mark popStream() {
@@ -196,6 +197,7 @@ final class Mark {
         return null;
     }
 
+    @Override
     public String toString() {
         return getFile() + "(" + line + "," + col + ")";
     }
@@ -219,6 +221,7 @@ final class Mark {
         return "(" + line + "," + col + ")";
     }
 
+    @Override
     public boolean equals(Object other) {
         if (other instanceof Mark) {
             Mark m = (Mark) other;
@@ -234,9 +237,7 @@ final class Mark {
 
         boolean greater = false;
 
-        if (this.line > other.line) {
-            greater = true;
-        } else if (this.line == other.line && this.col > other.col) {
+        if ((this.line > other.line) || (this.line == other.line && this.col > other.col)) {
             greater = true;
         }
 

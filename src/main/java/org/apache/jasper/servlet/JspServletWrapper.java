@@ -24,6 +24,14 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.jasper.JasperException;
+import org.apache.jasper.JspCompilationContext;
+import org.apache.jasper.Options;
+import org.apache.jasper.compiler.JspRuntimeContext;
+import org.apache.jasper.compiler.Localizer;
+import org.apache.jasper.runtime.JspSourceDependent;
+import org.glassfish.jsp.api.JspProbeEmitter;
+
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -33,13 +41,6 @@ import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.jsp.tagext.TagInfo;
-import org.apache.jasper.JasperException;
-import org.apache.jasper.JspCompilationContext;
-import org.apache.jasper.Options;
-import org.apache.jasper.compiler.JspRuntimeContext;
-import org.apache.jasper.compiler.Localizer;
-import org.apache.jasper.runtime.JspSourceDependent;
-import org.glassfish.jsp.api.JspProbeEmitter;
 
 /**
  * The JSP engine (a.k.a Jasper).
@@ -280,7 +281,7 @@ public class JspServletWrapper {
                 return;
             }
 
-            if ((available > 0L) && (available < Long.MAX_VALUE)) {
+            if (available > 0L && available < Long.MAX_VALUE) {
                 response.setDateHeader("Retry-After", available);
                 response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, Localizer.getMessage("jsp.error.unavailable"));
             }
@@ -349,7 +350,7 @@ public class JspServletWrapper {
                 if (unavailableSeconds <= 0) {
                     unavailableSeconds = 60; // Arbitrary default
                 }
-                available = System.currentTimeMillis() + (unavailableSeconds * 1000L);
+                available = System.currentTimeMillis() + unavailableSeconds * 1000L;
                 response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, ex.getMessage());
             }
         } catch (ServletException ex) {

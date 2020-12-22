@@ -17,15 +17,17 @@
 
 package org.apache.jasper.compiler;
 
-import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayWriter;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ListIterator;
-import jakarta.servlet.jsp.tagext.PageData;
+
+import org.apache.jasper.JasperException;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
-import org.apache.jasper.JasperException;
+
+import jakarta.servlet.jsp.tagext.PageData;
 
 /**
  * An implementation of <tt>jakarta.servlet.jsp.tagext.PageData</tt> which builds the XML view of a given page.
@@ -74,6 +76,7 @@ class PageDataImpl extends PageData implements TagConstants {
      *
      * @return the input stream of the XML view
      */
+    @Override
     public InputStream getInputStream() {
         // Turn StringBuilder into InputStream
         return new ByteArrayInputStream(buf.toString().getBytes(CHARSET_UTF8));
@@ -110,6 +113,7 @@ class PageDataImpl extends PageData implements TagConstants {
             this.jspIdPrefix = "jsp";
         }
 
+        @Override
         public void visit(Node.Root n) throws JasperException {
             visitBody(n);
             if (n == root) {
@@ -139,6 +143,7 @@ class PageDataImpl extends PageData implements TagConstants {
             }
         }
 
+        @Override
         public void visit(Node.JspRoot n) throws JasperException {
             addRootAttributes(n.getTaglibAttributes());
             addRootAttributes(n.getNonTaglibXmlnsAttributes());
@@ -150,6 +155,7 @@ class PageDataImpl extends PageData implements TagConstants {
         /*
          * Converts taglib directive into "xmlns:..." attribute of jsp:root element.
          */
+        @Override
         public void visit(Node.TaglibDirective n) throws JasperException {
             Attributes attrs = n.getAttributes();
             if (attrs != null) {
@@ -227,6 +233,7 @@ class PageDataImpl extends PageData implements TagConstants {
         /*
          * Visits root node.
          */
+        @Override
         public void visit(Node.Root n) throws JasperException {
             if (n == this.root) {
                 // top-level page
@@ -247,39 +254,48 @@ class PageDataImpl extends PageData implements TagConstants {
          *
          * Any nested jsp:root elements (from pages included via an include directive) are ignored.
          */
+        @Override
         public void visit(Node.JspRoot n) throws JasperException {
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.PageDirective n) throws JasperException {
             appendPageDirective(n);
         }
 
+        @Override
         public void visit(Node.IncludeDirective n) throws JasperException {
             // expand in place
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.Comment n) throws JasperException {
             // Comments are ignored in XML view
         }
 
+        @Override
         public void visit(Node.Declaration n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.Expression n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.Scriptlet n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.JspElement n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.ELExpression n) throws JasperException {
             if (!n.getRoot().isXmlSyntax()) {
                 buf.append("<").append(JSP_TEXT_ACTION);
@@ -297,50 +313,62 @@ class PageDataImpl extends PageData implements TagConstants {
             buf.append("\n");
         }
 
+        @Override
         public void visit(Node.IncludeAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.ForwardAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.GetProperty n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.SetProperty n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.ParamAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.ParamsAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.FallBackAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.UseBean n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.PlugIn n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.NamedAttribute n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.JspBody n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.CustomTag n) throws JasperException {
             n.setJspId(jspId);
             boolean resetDefaultNSSave = resetDefaultNS;
@@ -348,36 +376,44 @@ class PageDataImpl extends PageData implements TagConstants {
             resetDefaultNS = resetDefaultNSSave;
         }
 
+        @Override
         public void visit(Node.UninterpretedTag n) throws JasperException {
             boolean resetDefaultNSSave = resetDefaultNS;
             appendTag(n, resetDefaultNS);
             resetDefaultNS = resetDefaultNSSave;
         }
 
+        @Override
         public void visit(Node.JspText n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.DoBodyAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.InvokeAction n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.TagDirective n) throws JasperException {
             appendTagDirective(n);
         }
 
+        @Override
         public void visit(Node.AttributeDirective n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.VariableDirective n) throws JasperException {
             appendTag(n);
         }
 
+        @Override
         public void visit(Node.TemplateText n) throws JasperException {
             /*
              * If the template text came from a JSP page written in JSP syntax, create a jsp:text element for it (JSP 5.3.2).
@@ -441,7 +477,7 @@ class PageDataImpl extends PageData implements TagConstants {
         private void appendPageDirective(Node.PageDirective n) {
             boolean append = false;
             Attributes attrs = n.getAttributes();
-            int len = (attrs == null) ? 0 : attrs.getLength();
+            int len = attrs == null ? 0 : attrs.getLength();
             for (int i = 0; i < len; i++) {
                 String attrName = attrs.getQName(i);
                 if (!"pageEncoding".equals(attrName) && !"contentType".equals(attrName)) {
@@ -521,7 +557,7 @@ class PageDataImpl extends PageData implements TagConstants {
 
             boolean append = false;
             Attributes attrs = n.getAttributes();
-            int len = (attrs == null) ? 0 : attrs.getLength();
+            int len = attrs == null ? 0 : attrs.getLength();
             for (int i = 0; i < len; i++) {
                 String attrName = attrs.getQName(i);
                 if (!"pageEncoding".equals(attrName)) {
@@ -582,12 +618,13 @@ class PageDataImpl extends PageData implements TagConstants {
          * CDATA section.
          */
         private String escapeCDATA(String text) {
-            if (text == null)
+            if (text == null) {
                 return "";
+            }
             int len = text.length();
             CharArrayWriter result = new CharArrayWriter(len);
             for (int i = 0; i < len; i++) {
-                if (((i + 2) < len) && (text.charAt(i) == ']') && (text.charAt(i + 1) == ']') && (text.charAt(i + 2) == '>')) {
+                if (i + 2 < len && text.charAt(i) == ']' && text.charAt(i + 1) == ']' && text.charAt(i + 2) == '>') {
                     // match found
                     result.write(']');
                     result.write(']');
@@ -612,7 +649,7 @@ class PageDataImpl extends PageData implements TagConstants {
              * Append "xmlns" attributes that represent tag libraries
              */
             Attributes attrs = n.getTaglibAttributes();
-            int len = (attrs == null) ? 0 : attrs.getLength();
+            int len = attrs == null ? 0 : attrs.getLength();
             for (int i = 0; i < len; i++) {
                 String name = attrs.getQName(i);
                 String value = attrs.getValue(i);
@@ -623,7 +660,7 @@ class PageDataImpl extends PageData implements TagConstants {
              * Append "xmlns" attributes that do not represent tag libraries
              */
             attrs = n.getNonTaglibXmlnsAttributes();
-            len = (attrs == null) ? 0 : attrs.getLength();
+            len = attrs == null ? 0 : attrs.getLength();
             boolean defaultNSSeen = false;
             for (int i = 0; i < len; i++) {
                 String name = attrs.getQName(i);
@@ -640,7 +677,7 @@ class PageDataImpl extends PageData implements TagConstants {
              * Append all other attributes
              */
             attrs = n.getAttributes();
-            len = (attrs == null) ? 0 : attrs.getLength();
+            len = attrs == null ? 0 : attrs.getLength();
             for (int i = 0; i < len; i++) {
                 String name = attrs.getQName(i);
                 String value = attrs.getValue(i);

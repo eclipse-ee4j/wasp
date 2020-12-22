@@ -17,9 +17,13 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.*;
-import jakarta.servlet.jsp.tagext.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.jasper.JasperException;
+
+import jakarta.servlet.jsp.tagext.TagVariableInfo;
+import jakarta.servlet.jsp.tagext.VariableInfo;
 
 /**
  * Class responsible for determining the scripting variables that every custom action needs to declare.
@@ -39,6 +43,7 @@ class ScriptingVariabler {
         private int count;
         private Node.CustomTag parent;
 
+        @Override
         public void visit(Node.CustomTag n) throws JasperException {
             n.setCustomTagParent(parent);
             Node.CustomTag tmpParent = parent;
@@ -59,9 +64,10 @@ class ScriptingVariabler {
 
         public ScriptingVariableVisitor(ErrorDispatcher err) {
             this.err = err;
-            scriptVars = new HashMap<String, Integer>();
+            scriptVars = new HashMap<>();
         }
 
+        @Override
         public void visit(Node.CustomTag n) throws JasperException {
             setScriptingVars(n, VariableInfo.AT_BEGIN);
             setScriptingVars(n, VariableInfo.NESTED);
@@ -77,14 +83,15 @@ class ScriptingVariabler {
                 return;
             }
 
-            ArrayList<Object> vec = new ArrayList<Object>();
+            ArrayList<Object> vec = new ArrayList<>();
             Integer ownRange = null;
             if (scope == VariableInfo.AT_BEGIN || scope == VariableInfo.AT_END) {
                 Node.CustomTag parent = n.getCustomTagParent();
-                if (parent == null)
+                if (parent == null) {
                     ownRange = MAX_SCOPE;
-                else
+                } else {
                     ownRange = parent.getNumCount();
+                }
             } else {
                 // NESTED
                 ownRange = n.getNumCount();

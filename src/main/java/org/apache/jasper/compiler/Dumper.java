@@ -17,8 +17,8 @@
 
 package org.apache.jasper.compiler;
 
-import org.xml.sax.Attributes;
 import org.apache.jasper.JasperException;
+import org.xml.sax.Attributes;
 
 class Dumper {
 
@@ -26,8 +26,9 @@ class Dumper {
         private int indent = 0;
 
         private String getAttributes(Attributes attrs) {
-            if (attrs == null)
+            if (attrs == null) {
                 return "";
+            }
 
             StringBuilder buf = new StringBuilder();
             for (int i = 0; i < attrs.getLength(); i++) {
@@ -39,14 +40,6 @@ class Dumper {
         private void printString(String str) {
             printIndent();
             System.out.print(str);
-        }
-
-        private void printString(String prefix, char[] chars, String suffix) {
-            String str = null;
-            if (chars != null) {
-                str = new String(chars);
-            }
-            printString(prefix, str, suffix);
         }
 
         private void printString(String prefix, String str, String suffix) {
@@ -71,103 +64,123 @@ class Dumper {
             }
         }
 
+        @Override
         public void visit(Node.PageDirective n) throws JasperException {
             printAttributes("<%@ page", n.getAttributes(), "%>");
         }
 
+        @Override
         public void visit(Node.TaglibDirective n) throws JasperException {
             printAttributes("<%@ taglib", n.getAttributes(), "%>");
         }
 
+        @Override
         public void visit(Node.IncludeDirective n) throws JasperException {
             printAttributes("<%@ include", n.getAttributes(), "%>");
             dumpBody(n);
         }
 
+        @Override
         public void visit(Node.Comment n) throws JasperException {
             printString("<%--", n.getText(), "--%>");
         }
 
+        @Override
         public void visit(Node.Declaration n) throws JasperException {
             printString("<%!", n.getText(), "%>");
         }
 
+        @Override
         public void visit(Node.Expression n) throws JasperException {
             printString("<%=", n.getText(), "%>");
         }
 
+        @Override
         public void visit(Node.Scriptlet n) throws JasperException {
             printString("<%", n.getText(), "%>");
         }
 
+        @Override
         public void visit(Node.IncludeAction n) throws JasperException {
             printAttributes("<jsp:include", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:include>");
         }
 
+        @Override
         public void visit(Node.ForwardAction n) throws JasperException {
             printAttributes("<jsp:forward", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:forward>");
         }
 
+        @Override
         public void visit(Node.GetProperty n) throws JasperException {
             printAttributes("<jsp:getProperty", n.getAttributes(), "/>");
         }
 
+        @Override
         public void visit(Node.SetProperty n) throws JasperException {
             printAttributes("<jsp:setProperty", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:setProperty>");
         }
 
+        @Override
         public void visit(Node.UseBean n) throws JasperException {
             printAttributes("<jsp:useBean", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:useBean>");
         }
 
+        @Override
         public void visit(Node.PlugIn n) throws JasperException {
             printAttributes("<jsp:plugin", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:plugin>");
         }
 
+        @Override
         public void visit(Node.ParamsAction n) throws JasperException {
             printAttributes("<jsp:params", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:params>");
         }
 
+        @Override
         public void visit(Node.ParamAction n) throws JasperException {
             printAttributes("<jsp:param", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:param>");
         }
 
+        @Override
         public void visit(Node.NamedAttribute n) throws JasperException {
             printAttributes("<jsp:attribute", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:attribute>");
         }
 
+        @Override
         public void visit(Node.JspBody n) throws JasperException {
             printAttributes("<jsp:body", n.getAttributes(), ">");
             dumpBody(n);
             printString("</jsp:body>");
         }
 
+        @Override
         public void visit(Node.ELExpression n) throws JasperException {
             printString(n.getText());
         }
 
+        @Override
         public void visit(Node.CustomTag n) throws JasperException {
             printAttributes("<" + n.getQName(), n.getAttributes(), ">");
             dumpBody(n);
             printString("</" + n.getQName() + ">");
         }
 
+        @Override
         public void visit(Node.UninterpretedTag n) throws JasperException {
             String tag = n.getQName();
             printAttributes("<" + tag, n.getAttributes(), ">");
@@ -175,6 +188,7 @@ class Dumper {
             printString("</" + tag + ">");
         }
 
+        @Override
         public void visit(Node.TemplateText n) throws JasperException {
             printString(n.getText());
         }

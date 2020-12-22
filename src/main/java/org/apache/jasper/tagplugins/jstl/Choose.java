@@ -17,10 +17,12 @@
 
 package org.apache.jasper.tagplugins.jstl;
 
-import org.apache.jasper.compiler.tagplugin.*;
+import org.apache.jasper.compiler.tagplugin.TagPlugin;
+import org.apache.jasper.compiler.tagplugin.TagPluginContext;
 
 public final class Choose implements TagPlugin {
 
+    @Override
     public void doTag(TagPluginContext ctxt) {
 
         // Not much to do here, much of the work will be done in the

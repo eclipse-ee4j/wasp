@@ -25,11 +25,11 @@ package org.glassfish.jsp.api;
 
 public interface JspProbeEmitter {
 
-    public void jspLoadedEvent(String jspUri);
+    void jspLoadedEvent(String jspUri);
 
-    public void jspReloadedEvent(String jspUri);
+    void jspReloadedEvent(String jspUri);
 
-    public void jspDestroyedEvent(String jspUri);
+    void jspDestroyedEvent(String jspUri);
 
-    public void jspErrorEvent(String jspUri);
+    void jspErrorEvent(String jspUri);
 }

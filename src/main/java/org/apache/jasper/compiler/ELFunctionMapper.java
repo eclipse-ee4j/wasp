@@ -17,9 +17,14 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.*;
-import jakarta.servlet.jsp.tagext.FunctionInfo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.jasper.JasperException;
+
+import jakarta.servlet.jsp.tagext.FunctionInfo;
 
 /**
  * This class generates functions mappers for the EL expressions in the page. Instead of a global mapper, a mapper is
@@ -65,39 +70,46 @@ public class ELFunctionMapper {
         /**
          * Use a global name map to facilitate reuse of function maps. The key used is prefix:function:uri.
          */
-        private HashMap<String, String> gMap = new HashMap<String, String>();
+        private HashMap<String, String> gMap = new HashMap<>();
 
+        @Override
         public void visit(Node.ParamAction n) throws JasperException {
             doMap(n.getValue());
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.IncludeAction n) throws JasperException {
             doMap(n.getPage());
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.ForwardAction n) throws JasperException {
             doMap(n.getPage());
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.SetProperty n) throws JasperException {
             doMap(n.getValue());
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.UseBean n) throws JasperException {
             doMap(n.getBeanName());
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.PlugIn n) throws JasperException {
             doMap(n.getHeight());
             doMap(n.getWidth());
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.JspElement n) throws JasperException {
 
             Node.JspAttribute[] attrs = n.getJspAttributes();
@@ -108,6 +120,7 @@ public class ELFunctionMapper {
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.UninterpretedTag n) throws JasperException {
 
             Node.JspAttribute[] attrs = n.getJspAttributes();
@@ -117,6 +130,7 @@ public class ELFunctionMapper {
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.CustomTag n) throws JasperException {
             Node.JspAttribute[] attrs = n.getJspAttributes();
             for (int i = 0; attrs != null && i < attrs.length; i++) {
@@ -125,6 +139,7 @@ public class ELFunctionMapper {
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.ELExpression n) throws JasperException {
             doMap(n.getEL());
         }
@@ -142,9 +157,10 @@ public class ELFunctionMapper {
 
             // Only care about functions in ELNode's
             class Fvisitor extends ELNode.Visitor {
-                ArrayList<ELNode.Function> funcs = new ArrayList<ELNode.Function>();
-                Set<String> keys = new HashSet<String>();
+                ArrayList<ELNode.Function> funcs = new ArrayList<>();
+                Set<String> keys = new HashSet<>();
 
+                @Override
                 public void visit(ELNode.Function n) throws JasperException {
                     if (n.getUri() == null) {
                         // Can be a lambda expresion call
@@ -196,7 +212,7 @@ public class ELFunctionMapper {
 
             // Setup arguments for either getMapForFunction or mapFunction
             for (int i = 0; i < functions.size(); i++) {
-                ELNode.Function f = (ELNode.Function) functions.get(i);
+                ELNode.Function f = functions.get(i);
                 FunctionInfo funcInfo = f.getFunctionInfo();
                 String key = f.getPrefix() + ":" + f.getName();
                 ds.append(funcMethod + "(\"" + key + "\", " + funcInfo.getFunctionClass() + ".class, " + '\"' + f.getMethodName() + "\", " + "new Class[] {");
@@ -237,7 +253,7 @@ public class ELFunctionMapper {
 
         /**
          * Find the name of the function mapper for an EL. Reuse a previously generated one if possible.
-         * 
+         *
          * @param functions An ArrayList of ELNode.Function instances that represents the functions in an EL
          * @return A previous generated function mapper name that can be used by this EL; null if none found.
          */

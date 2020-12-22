@@ -22,32 +22,33 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+
+import org.apache.jasper.JasperException;
+import org.apache.jasper.xmlparser.ParserUtils;
+import org.apache.jasper.xmlparser.TreeNode;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.FilterRegistration;
-import jakarta.servlet.Filter;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
-import jakarta.servlet.descriptor.TaglibDescriptor;
 import jakarta.servlet.descriptor.JspPropertyGroupDescriptor;
-
-import org.apache.jasper.JasperException;
-import org.apache.jasper.xmlparser.TreeNode;
-import org.apache.jasper.xmlparser.ParserUtils;
+import jakarta.servlet.descriptor.TaglibDescriptor;
 
 /**
  * Simple <code>ServletContext</code> implementation without HTTP-specific methods.
@@ -86,7 +87,7 @@ public class JspCServletContext implements ServletContext {
      */
     public JspCServletContext(PrintWriter aLogWriter, URL aResourceBaseURL) {
 
-        myAttributes = new Hashtable<String, Object>();
+        myAttributes = new Hashtable<>();
         myLogWriter = aLogWriter;
         myResourceBaseURL = aResourceBaseURL;
 
@@ -100,24 +101,27 @@ public class JspCServletContext implements ServletContext {
      *
      * @param name Name of the requested attribute
      */
+    @Override
     public Object getAttribute(String name) {
 
-        return (myAttributes.get(name));
+        return myAttributes.get(name);
 
     }
 
     /**
      * Return an enumeration of context attribute names.
      */
+    @Override
     public Enumeration<String> getAttributeNames() {
 
-        return (myAttributes.keys());
+        return myAttributes.keys();
 
     }
 
     /**
      * Returns the context path of the web application.
      */
+    @Override
     public String getContextPath() {
         return null;
     }
@@ -127,9 +131,10 @@ public class JspCServletContext implements ServletContext {
      *
      * @param uripath Server-relative path starting with '/'
      */
+    @Override
     public ServletContext getContext(String uripath) {
 
-        return (null);
+        return null;
 
     }
 
@@ -138,24 +143,27 @@ public class JspCServletContext implements ServletContext {
      *
      * @param name Name of the requested parameter
      */
+    @Override
     public String getInitParameter(String name) {
 
-        return (null);
+        return null;
 
     }
 
     /**
      * Return an enumeration of the names of context initialization parameters.
      */
+    @Override
     public Enumeration<String> getInitParameterNames() {
 
-        return (new Vector<String>().elements());
+        return new Vector<String>().elements();
 
     }
 
     /**
      * Return the Servlet API major version number.
      */
+    @Override
     public int getMajorVersion() {
         return 3;
     }
@@ -165,22 +173,26 @@ public class JspCServletContext implements ServletContext {
      *
      * @param file Filename whose MIME type is requested
      */
+    @Override
     public String getMimeType(String file) {
-        return (null);
+        return null;
     }
 
     /**
      * Return the Servlet API minor version number.
      */
+    @Override
     public int getMinorVersion() {
         return 0;
     }
 
+    @Override
     public int getEffectiveMajorVersion() {
         // TODO: get it from web.xml
         return 3;
     }
 
+    @Override
     public int getEffectiveMinorVersion() {
         // TODO: get it from web.xml
         return 0;
@@ -191,9 +203,10 @@ public class JspCServletContext implements ServletContext {
      *
      * @param name Name of the requested servlet
      */
+    @Override
     public RequestDispatcher getNamedDispatcher(String name) {
 
-        return (null);
+        return null;
 
     }
 
@@ -202,16 +215,19 @@ public class JspCServletContext implements ServletContext {
      *
      * @param path The context-relative virtual path to resolve
      */
+    @Override
     public String getRealPath(String path) {
 
-        if (!myResourceBaseURL.getProtocol().equals("file"))
-            return (null);
-        if (!path.startsWith("/"))
-            return (null);
+        if (!myResourceBaseURL.getProtocol().equals("file")) {
+            return null;
+        }
+        if (!path.startsWith("/")) {
+            return null;
+        }
         try {
-            return (getResource(path).getFile().replace('/', File.separatorChar));
+            return getResource(path).getFile().replace('/', File.separatorChar);
         } catch (Throwable t) {
-            return (null);
+            return null;
         }
 
     }
@@ -221,9 +237,10 @@ public class JspCServletContext implements ServletContext {
      *
      * @param path Context-relative path for which to acquire a dispatcher
      */
+    @Override
     public RequestDispatcher getRequestDispatcher(String path) {
 
-        return (null);
+        return null;
 
     }
 
@@ -234,10 +251,12 @@ public class JspCServletContext implements ServletContext {
      *
      * @exception MalformedURLException if the resource path is not properly formed
      */
+    @Override
     public URL getResource(String path) throws MalformedURLException {
 
-        if (!path.startsWith("/"))
+        if (!path.startsWith("/")) {
             throw new MalformedURLException("Path '" + path + "' does not start with '/'");
+        }
         URL url = new URL(myResourceBaseURL, path.substring(1));
         InputStream is = null;
         try {
@@ -261,12 +280,13 @@ public class JspCServletContext implements ServletContext {
      *
      * @param path Context-relative path of the desired resource
      */
+    @Override
     public InputStream getResourceAsStream(String path) {
 
         try {
-            return (getResource(path).openStream());
+            return getResource(path).openStream();
         } catch (Throwable t) {
-            return (null);
+            return null;
         }
 
     }
@@ -276,35 +296,41 @@ public class JspCServletContext implements ServletContext {
      *
      * @param path Context-relative base path
      */
+    @Override
     public Set<String> getResourcePaths(String path) {
 
-        Set<String> thePaths = new HashSet<String>();
-        if (!path.endsWith("/"))
+        Set<String> thePaths = new HashSet<>();
+        if (!path.endsWith("/")) {
             path += "/";
+        }
         String basePath = getRealPath(path);
-        if (basePath == null)
-            return (thePaths);
+        if (basePath == null) {
+            return thePaths;
+        }
         File theBaseDir = new File(basePath);
-        if (!theBaseDir.exists() || !theBaseDir.isDirectory())
-            return (thePaths);
+        if (!theBaseDir.exists() || !theBaseDir.isDirectory()) {
+            return thePaths;
+        }
         String theFiles[] = theBaseDir.list();
         for (int i = 0; i < theFiles.length; i++) {
             File testFile = new File(basePath + File.separator + theFiles[i]);
-            if (testFile.isFile())
+            if (testFile.isFile()) {
                 thePaths.add(path + theFiles[i]);
-            else if (testFile.isDirectory())
+            } else if (testFile.isDirectory()) {
                 thePaths.add(path + theFiles[i] + "/");
+            }
         }
-        return (thePaths);
+        return thePaths;
 
     }
 
     /**
      * Return descriptive information about this server.
      */
+    @Override
     public String getServerInfo() {
 
-        return ("JspCServletContext/1.0");
+        return "JspCServletContext/1.0";
 
     }
 
@@ -315,18 +341,21 @@ public class JspCServletContext implements ServletContext {
      *
      * @deprecated This method has been deprecated with no replacement
      */
+    @Deprecated
+    @Override
     public Servlet getServlet(String name) throws ServletException {
 
-        return (null);
+        return null;
 
     }
 
     /**
      * Return the name of this servlet context.
      */
+    @Override
     public String getServletContextName() {
 
-        return (getServerInfo());
+        return getServerInfo();
 
     }
 
@@ -335,9 +364,11 @@ public class JspCServletContext implements ServletContext {
      *
      * @deprecated This method has been deprecated with no replacement
      */
+    @Deprecated
+    @Override
     public Enumeration<String> getServletNames() {
 
-        return (new Vector<String>().elements());
+        return new Vector<String>().elements();
 
     }
 
@@ -346,9 +377,11 @@ public class JspCServletContext implements ServletContext {
      *
      * @deprecated This method has been deprecated with no replacement
      */
+    @Deprecated
+    @Override
     public Enumeration<Servlet> getServlets() {
 
-        return (new Vector<Servlet>().elements());
+        return new Vector<Servlet>().elements();
 
     }
 
@@ -357,6 +390,7 @@ public class JspCServletContext implements ServletContext {
      *
      * @param message The message to be logged
      */
+    @Override
     public void log(String message) {
 
         myLogWriter.println(message);
@@ -371,6 +405,8 @@ public class JspCServletContext implements ServletContext {
      *
      * @deprecated Use log(String,Throwable) instead
      */
+    @Deprecated
+    @Override
     public void log(Exception exception, String message) {
 
         log(message, exception);
@@ -383,6 +419,7 @@ public class JspCServletContext implements ServletContext {
      * @param message The message to be logged
      * @param exception The exception to be logged
      */
+    @Override
     public void log(String message, Throwable exception) {
 
         myLogWriter.println(message);
@@ -395,6 +432,7 @@ public class JspCServletContext implements ServletContext {
      *
      * @param name Name of the attribute to remove
      */
+    @Override
     public void removeAttribute(String name) {
 
         myAttributes.remove(name);
@@ -407,6 +445,7 @@ public class JspCServletContext implements ServletContext {
      * @param name Name of the context attribute to set
      * @param value Corresponding attribute value
      */
+    @Override
     public void setAttribute(String name, Object value) {
 
         myAttributes.put(name, value);
@@ -438,18 +477,22 @@ public class JspCServletContext implements ServletContext {
         return;
     }
 
+    @Override
     public boolean setInitParameter(String name, String value) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ServletRegistration.Dynamic addServlet(String servletName, String className) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
         throw new UnsupportedOperationException();
     }
@@ -459,82 +502,102 @@ public class JspCServletContext implements ServletContext {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ServletRegistration getServletRegistration(String servletName) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Map<String, ServletRegistration> getServletRegistrations() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public FilterRegistration.Dynamic addFilter(String filterName, String className) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <T extends Filter> T createFilter(Class<T> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public FilterRegistration getFilterRegistration(String filterName) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Map<String, FilterRegistration> getFilterRegistrations() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public SessionCookieConfig getSessionCookieConfig() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addListener(String className) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <T extends EventListener> void addListener(T t) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addListener(Class<? extends EventListener> listenerClass) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public JspConfigDescriptor getJspConfigDescriptor() {
         return jspConfigDescriptor;
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void declareRoles(String... roleNames) {
         throw new UnsupportedOperationException();
     }
@@ -593,8 +656,8 @@ public class JspCServletContext implements ServletContext {
             return;
         }
 
-        ArrayList<TaglibDescriptor> taglibs = new ArrayList<TaglibDescriptor>();
-        ArrayList<JspPropertyGroupDescriptor> jspPropertyGroups = new ArrayList<JspPropertyGroupDescriptor>();
+        ArrayList<TaglibDescriptor> taglibs = new ArrayList<>();
+        ArrayList<JspPropertyGroupDescriptor> jspPropertyGroups = new ArrayList<>();
 
         Iterator<TreeNode> children = jspConfig.findChildren("taglib");
         while (children.hasNext()) {
@@ -602,11 +665,13 @@ public class JspCServletContext implements ServletContext {
             String tagUri = null;
             String tagLoc = null;
             TreeNode child = taglib.findChild("taglib-uri");
-            if (child != null)
+            if (child != null) {
                 tagUri = child.getBody();
+            }
             child = taglib.findChild("taglib-location");
-            if (child != null)
+            if (child != null) {
                 tagLoc = child.getBody();
+            }
             if (tagUri == null || tagLoc == null) {
                 return;
             }
@@ -616,13 +681,13 @@ public class JspCServletContext implements ServletContext {
         children = jspConfig.findChildren("jsp-property-group");
         while (children.hasNext()) {
 
-            ArrayList<String> urlPatterns = new ArrayList<String>();
+            ArrayList<String> urlPatterns = new ArrayList<>();
             String pageEncoding = null;
             String scriptingInvalid = null;
             String elIgnored = null;
             String isXml = null;
-            ArrayList<String> includePrelude = new ArrayList<String>();
-            ArrayList<String> includeCoda = new ArrayList<String>();
+            ArrayList<String> includePrelude = new ArrayList<>();
+            ArrayList<String> includeCoda = new ArrayList<>();
             String trimSpaces = null;
             String poundAllowed = null;
             String buffer = null;
@@ -638,30 +703,31 @@ public class JspCServletContext implements ServletContext {
                 // url-patterns, preludes, and codas and accumulative, other
                 // properties keep last.
 
-                if ("url-pattern".equals(tname))
+                if ("url-pattern".equals(tname)) {
                     urlPatterns.add(element.getBody());
-                else if ("page-encoding".equals(tname))
+                } else if ("page-encoding".equals(tname)) {
                     pageEncoding = element.getBody();
-                else if ("is-xml".equals(tname))
+                } else if ("is-xml".equals(tname)) {
                     isXml = element.getBody();
-                else if ("el-ignored".equals(tname))
+                } else if ("el-ignored".equals(tname)) {
                     elIgnored = element.getBody();
-                else if ("scripting-invalid".equals(tname))
+                } else if ("scripting-invalid".equals(tname)) {
                     scriptingInvalid = element.getBody();
-                else if ("include-prelude".equals(tname))
+                } else if ("include-prelude".equals(tname)) {
                     includePrelude.add(element.getBody());
-                else if ("include-coda".equals(tname))
+                } else if ("include-coda".equals(tname)) {
                     includeCoda.add(element.getBody());
-                else if ("trim-directive-whitespaces".equals(tname))
+                } else if ("trim-directive-whitespaces".equals(tname)) {
                     trimSpaces = element.getBody();
-                else if ("deferred-syntax-allowed-as-literal".equals(tname))
+                } else if ("deferred-syntax-allowed-as-literal".equals(tname)) {
                     poundAllowed = element.getBody();
-                else if ("default-content-type".equals(tname))
+                } else if ("default-content-type".equals(tname)) {
                     defaultContentType = element.getBody();
-                else if ("buffer".equals(tname))
+                } else if ("buffer".equals(tname)) {
                     buffer = element.getBody();
-                else if ("error-on-undeclared-namespace".equals(tname))
+                } else if ("error-on-undeclared-namespace".equals(tname)) {
                     errorOnUndeclaredNamespace = element.getBody();
+                }
             }
             jspPropertyGroups.add(new JspPropertyGroupDescriptorImpl(urlPatterns, isXml, elIgnored, scriptingInvalid, trimSpaces, poundAllowed, pageEncoding,
                     includePrelude, includeCoda, defaultContentType, buffer, errorOnUndeclaredNamespace));
@@ -769,13 +835,15 @@ public class JspCServletContext implements ServletContext {
         public TaglibDescriptorImpl(String uri, String loc) {
             this.uri = uri;
             this.loc = loc;
-            ;
+
         }
 
+        @Override
         public String getTaglibURI() {
             return uri;
         }
 
+        @Override
         public String getTaglibLocation() {
             return loc;
         }
@@ -791,10 +859,12 @@ public class JspCServletContext implements ServletContext {
             this.jspPropertyGroups = jspPropertyGroups;
         }
 
+        @Override
         public Collection<TaglibDescriptor> getTaglibs() {
             return this.taglibs;
         }
 
+        @Override
         public Collection<JspPropertyGroupDescriptor> getJspPropertyGroups() {
             return this.jspPropertyGroups;
         }

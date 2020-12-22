@@ -17,13 +17,13 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a source map (SMAP), which serves to associate lines of the input JSP file(s) to lines in the generated
  * servlet in the final .class file, according to the JSR-045 spec.
- * 
+ *
  * @author Shawn Bayern
  */
 public class SmapGenerator {
@@ -42,8 +42,8 @@ public class SmapGenerator {
 
     private String outputFileName;
     private String defaultStratum = "Java";
-    private List<SmapStratum> strata = new ArrayList<SmapStratum>();
-    private List<String> embedded = new ArrayList<String>();
+    private List<SmapStratum> strata = new ArrayList<>();
+    private List<String> embedded = new ArrayList<>();
     private boolean doEmbedded = true;
 
     // *********************************************************************
@@ -67,8 +67,9 @@ public class SmapGenerator {
      */
     public synchronized void addStratum(SmapStratum stratum, boolean defaultStratum) {
         strata.add(stratum);
-        if (defaultStratum)
+        if (defaultStratum) {
             this.defaultStratum = stratum.getStratumName();
+        }
     }
 
     /**
@@ -96,8 +97,9 @@ public class SmapGenerator {
 
     public synchronized String getString() {
         // check state and initialize buffer
-        if (outputFileName == null)
+        if (outputFileName == null) {
             throw new IllegalStateException();
+        }
         StringBuilder out = new StringBuilder();
 
         // start the SMAP
@@ -126,6 +128,7 @@ public class SmapGenerator {
         return out.toString();
     }
 
+    @Override
     public String toString() {
         return getString();
     }

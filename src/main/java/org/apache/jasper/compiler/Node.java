@@ -17,10 +17,14 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.jasper.JasperException;
+import org.apache.jasper.compiler.tagplugin.TagPluginContext;
+import org.xml.sax.Attributes;
 
 import jakarta.servlet.jsp.tagext.BodyTag;
 import jakarta.servlet.jsp.tagext.DynamicAttributes;
@@ -33,10 +37,6 @@ import jakarta.servlet.jsp.tagext.TagInfo;
 import jakarta.servlet.jsp.tagext.TagVariableInfo;
 import jakarta.servlet.jsp.tagext.TryCatchFinally;
 import jakarta.servlet.jsp.tagext.VariableInfo;
-
-import org.apache.jasper.JasperException;
-import org.apache.jasper.compiler.tagplugin.TagPluginContext;
-import org.xml.sax.Attributes;
 
 /**
  * An internal data representation of a JSP page or a JSP docuement (XML). Also included here is a visitor class for
@@ -95,7 +95,7 @@ abstract class Node implements TagConstants {
      */
     public Node(Mark start, Node parent) {
         this.startMark = start;
-        this.isDummy = (start == null);
+        this.isDummy = start == null;
         addToParent(parent);
     }
 
@@ -111,7 +111,7 @@ abstract class Node implements TagConstants {
         this.qName = qName;
         this.localName = localName;
         this.startMark = start;
-        this.isDummy = (start == null);
+        this.isDummy = start == null;
         addToParent(parent);
     }
 
@@ -129,7 +129,7 @@ abstract class Node implements TagConstants {
         this.localName = localName;
         this.attrs = attrs;
         this.startMark = start;
-        this.isDummy = (start == null);
+        this.isDummy = start == null;
         addToParent(parent);
     }
 
@@ -151,7 +151,7 @@ abstract class Node implements TagConstants {
         this.nonTaglibXmlnsAttrs = nonTaglibXmlnsAttrs;
         this.taglibAttrs = taglibAttrs;
         this.startMark = start;
-        this.isDummy = (start == null);
+        this.isDummy = start == null;
         addToParent(parent);
     }
 
@@ -159,13 +159,13 @@ abstract class Node implements TagConstants {
      * Constructor.
      *
      * @param qName The action's qualified name
-     * 
+     *
      * @param localName The action's local name
-     * 
+     *
      * @param text The text associated with this node
-     * 
+     *
      * @param start The location of the jsp page
-     * 
+     *
      * @param parent The enclosing node
      */
     public Node(String qName, String localName, String text, Mark start, Node parent) {
@@ -173,7 +173,7 @@ abstract class Node implements TagConstants {
         this.localName = localName;
         this.text = text;
         this.startMark = start;
-        this.isDummy = (start == null);
+        this.isDummy = start == null;
         addToParent(parent);
     }
 
@@ -217,7 +217,7 @@ abstract class Node implements TagConstants {
     }
 
     public String getAttributeValue(String name) {
-        return (attrs == null) ? null : attrs.getValue(name);
+        return attrs == null ? null : attrs.getValue(name);
     }
 
     /**
@@ -362,7 +362,7 @@ abstract class Node implements TagConstants {
     /**
      * Selects and invokes a method in the visitor class based on the node type. This is abstract and should be overrode by
      * the extending classes.
-     * 
+     *
      * @param v The visitor class
      */
     abstract void accept(Visitor v) throws JasperException;
@@ -430,11 +430,13 @@ abstract class Node implements TagConstants {
 
             // Figure out and set the parent root
             Node r = parent;
-            while ((r != null) && !(r instanceof Node.Root))
+            while (r != null && !(r instanceof Node.Root)) {
                 r = r.getParent();
+            }
             parentRoot = (Node.Root) r;
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -506,6 +508,7 @@ abstract class Node implements TagConstants {
             super(qName, ROOT_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -524,9 +527,10 @@ abstract class Node implements TagConstants {
 
         public PageDirective(String qName, Attributes attrs, Attributes nonTaglibXmlnsAttrs, Attributes taglibAttrs, Mark start, Node parent) {
             super(qName, PAGE_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
-            imports = new ArrayList<String>();
+            imports = new ArrayList<>();
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -534,7 +538,7 @@ abstract class Node implements TagConstants {
         /**
          * Parses the comma-separated list of class or package names in the given attribute value and adds each component to
          * this PageDirective's vector of imported classes and packages.
-         * 
+         *
          * @param value A comma-separated string of imports.
          */
         public void addImport(String value) {
@@ -570,6 +574,7 @@ abstract class Node implements TagConstants {
             super(qName, INCLUDE_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -584,6 +589,7 @@ abstract class Node implements TagConstants {
             super(JSP_TAGLIB_DIRECTIVE_ACTION, TAGLIB_DIRECTIVE_ACTION, attrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -601,9 +607,10 @@ abstract class Node implements TagConstants {
 
         public TagDirective(String qName, Attributes attrs, Attributes nonTaglibXmlnsAttrs, Attributes taglibAttrs, Mark start, Node parent) {
             super(qName, TAG_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
-            imports = new ArrayList<String>();
+            imports = new ArrayList<>();
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -611,7 +618,7 @@ abstract class Node implements TagConstants {
         /**
          * Parses the comma-separated list of class or package names in the given attribute value and adds each component to
          * this PageDirective's vector of imported classes and packages.
-         * 
+         *
          * @param value A comma-separated string of imports.
          */
         public void addImport(String value) {
@@ -647,6 +654,7 @@ abstract class Node implements TagConstants {
             super(qName, ATTRIBUTE_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -665,6 +673,7 @@ abstract class Node implements TagConstants {
             super(qName, VARIABLE_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -683,6 +692,7 @@ abstract class Node implements TagConstants {
             super(qName, INVOKE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -701,6 +711,7 @@ abstract class Node implements TagConstants {
             super(qName, DOBODY_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -715,6 +726,7 @@ abstract class Node implements TagConstants {
             super(null, null, text, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -737,12 +749,13 @@ abstract class Node implements TagConstants {
          * When this node was created from a JSP page in JSP syntax, its text was stored as a String in the "text" field,
          * whereas when this node was created from a JSP document, its text was stored as one or more TemplateText nodes in its
          * body. This method handles either case.
-         * 
+         *
          * @return The text string
          */
+        @Override
         public String getText() {
             String ret = text;
-            if ((ret == null) && (body != null)) {
+            if (ret == null && body != null) {
                 StringBuilder buf = new StringBuilder();
                 for (int i = 0; i < body.size(); i++) {
                     buf.append(body.getNode(i).getText());
@@ -755,6 +768,7 @@ abstract class Node implements TagConstants {
         /**
          * For the same reason as above, the source line information in the contained TemplateText node should be used.
          */
+        @Override
         public Mark getStart() {
             if (text == null && body != null && body.size() > 0) {
                 return body.getNode(0).getStart();
@@ -777,6 +791,7 @@ abstract class Node implements TagConstants {
             super(qName, DECLARATION_ACTION, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -795,6 +810,7 @@ abstract class Node implements TagConstants {
             super(qName, EXPRESSION_ACTION, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -813,6 +829,7 @@ abstract class Node implements TagConstants {
             super(qName, SCRIPTLET_ACTION, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -829,6 +846,7 @@ abstract class Node implements TagConstants {
             super(null, null, text, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -857,6 +875,7 @@ abstract class Node implements TagConstants {
             super(qName, PARAM_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -883,6 +902,7 @@ abstract class Node implements TagConstants {
             super(qName, PARAMS_ACTION, null, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -901,6 +921,7 @@ abstract class Node implements TagConstants {
             super(qName, FALLBACK_ACTION, null, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -921,6 +942,7 @@ abstract class Node implements TagConstants {
             super(qName, INCLUDE_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -949,6 +971,7 @@ abstract class Node implements TagConstants {
             super(qName, FORWARD_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -975,6 +998,7 @@ abstract class Node implements TagConstants {
             super(qName, GET_PROPERTY_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -995,6 +1019,7 @@ abstract class Node implements TagConstants {
             super(qName, SET_PROPERTY_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1023,6 +1048,7 @@ abstract class Node implements TagConstants {
             super(qName, USE_BEAN_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1052,6 +1078,7 @@ abstract class Node implements TagConstants {
             super(qName, PLUGIN_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1085,6 +1112,7 @@ abstract class Node implements TagConstants {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1114,6 +1142,7 @@ abstract class Node implements TagConstants {
             super(qName, ELEMENT_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1150,6 +1179,7 @@ abstract class Node implements TagConstants {
             super(qName, OUTPUT_ACTION, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1319,6 +1349,7 @@ abstract class Node implements TagConstants {
             this.implementsDynamicAttributes = tagInfo.hasDynamicAttributes();
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1542,17 +1573,17 @@ abstract class Node implements TagConstants {
          * inside itself.
          *
          * Example:
-         * 
+         *
          * <g:h> <a:b> -- nesting level 0 <c:d> <e:f> <a:b> -- nesting level 1 <a:b> -- nesting level 2 </a:b> </a:b> <a:b> --
          * nesting level 1 </a:b> </e:f> </c:d> </a:b> </g:h>
-         * 
+         *
          * @return Custom tag's nesting level
          */
         private int makeCustomNestingLevel() {
             int n = 0;
             Node p = parent;
             while (p != null) {
-                if ((p instanceof Node.CustomTag) && qName.equals(((Node.CustomTag) p).qName)) {
+                if (p instanceof Node.CustomTag && qName.equals(((Node.CustomTag) p).qName)) {
                     n++;
                 }
                 p = p.parent;
@@ -1575,7 +1606,7 @@ abstract class Node implements TagConstants {
                     Node n = nodes.getNode(i);
                     if (!(n instanceof NamedAttribute)) {
                         if (n instanceof JspBody) {
-                            hasEmptyBody = (n.getBody() == null);
+                            hasEmptyBody = n.getBody() == null;
                         } else {
                             hasEmptyBody = false;
                         }
@@ -1596,7 +1627,7 @@ abstract class Node implements TagConstants {
 
         public void setTempScriptingVar(String scriptingVar, String tempScriptingVar) {
             if (tempVars == null) {
-                tempVars = new HashMap<String, String>();
+                tempVars = new HashMap<>();
             }
             tempVars.put(scriptingVar, tempScriptingVar);
         }
@@ -1615,6 +1646,7 @@ abstract class Node implements TagConstants {
             this.tag = tag;
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1637,6 +1669,7 @@ abstract class Node implements TagConstants {
             super(qName, TEXT_ACTION, null, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1686,6 +1719,7 @@ abstract class Node implements TagConstants {
             }
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1694,6 +1728,7 @@ abstract class Node implements TagConstants {
             return this.name;
         }
 
+        @Override
         public String getLocalName() {
             return this.localName;
         }
@@ -1730,11 +1765,13 @@ abstract class Node implements TagConstants {
          * Get the attribute value from this named attribute (<jsp:attribute>). Since this method is only for attributes that
          * are not rtexpr, we can assume the body of the jsp:attribute is a template text.
          */
+        @Override
         public String getText() {
 
             class AttributeVisitor extends Visitor {
                 String attrValue = null;
 
+                @Override
                 public void visit(TemplateText txt) {
                     attrValue = new String(txt.getText());
                 }
@@ -1777,6 +1814,7 @@ abstract class Node implements TagConstants {
             this.childInfo = new ChildInfo();
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1797,6 +1835,7 @@ abstract class Node implements TagConstants {
             super(null, null, text, start, parent);
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -1806,7 +1845,7 @@ abstract class Node implements TagConstants {
          */
         public void ltrim() {
             int index = 0;
-            while ((index < text.length()) && (text.charAt(index) <= ' ')) {
+            while (index < text.length() && text.charAt(index) <= ' ') {
                 index++;
             }
             text = text.substring(index);
@@ -1821,7 +1860,7 @@ abstract class Node implements TagConstants {
          */
         public void rtrim() {
             int index = text.length();
-            while ((index > 0) && (text.charAt(index - 1) <= ' ')) {
+            while (index > 0 && text.charAt(index - 1) <= ' ') {
                 index--;
             }
             text = text.substring(0, index);
@@ -1843,13 +1882,13 @@ abstract class Node implements TagConstants {
 
         /**
          * Add a source to Java line mapping
-         * 
+         *
          * @param srcLine The postion of the source line, relative to the line at the start of this node. The corresponding java
          * line is assumed to be consecutive, i.e. one more than the last.
          */
         public void addSmap(int srcLine) {
             if (extraSmap == null) {
-                extraSmap = new ArrayList<Integer>();
+                extraSmap = new ArrayList<>();
             }
             extraSmap.add(Integer.valueOf(srcLine));
         }
@@ -2001,7 +2040,7 @@ abstract class Node implements TagConstants {
          * @return true if the value is a string literal known at translation time.
          */
         public boolean isLiteral() {
-            return !(expression || (el != null && el.containsEL()) || namedAttribute);
+            return (!expression && ((el == null) || !el.containsEL()) && !namedAttribute);
         }
 
         /**
@@ -2038,18 +2077,18 @@ abstract class Node implements TagConstants {
         private boolean generatedInBuffer;
 
         public Nodes() {
-            list = new ArrayList<Node>();
+            list = new ArrayList<>();
         }
 
         public Nodes(Node.Root root) {
             this.root = root;
-            list = new ArrayList<Node>();
+            list = new ArrayList<>();
             list.add(root);
         }
 
         /**
          * Appends a node to the list
-         * 
+         *
          * @param n The node to add
          */
         public void add(Node n) {
@@ -2059,7 +2098,7 @@ abstract class Node implements TagConstants {
 
         /**
          * Removes the given node from the list.
-         * 
+         *
          * @param n The node to be removed
          */
         public void remove(Node n) {
@@ -2068,7 +2107,7 @@ abstract class Node implements TagConstants {
 
         /**
          * Visit the nodes in the list with the supplied visitor
-         * 
+         *
          * @param v The visitor used
          */
         public void visit(Visitor v) throws JasperException {

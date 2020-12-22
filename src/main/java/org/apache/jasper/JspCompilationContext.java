@@ -22,11 +22,8 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.jsp.tagext.TagInfo;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspRuntimeContext;
@@ -36,6 +33,9 @@ import org.apache.jasper.compiler.ServletWriter;
 import org.apache.jasper.compiler.TagLibraryInfoImpl;
 import org.apache.jasper.servlet.JasperLoader;
 import org.apache.jasper.servlet.JspServletWrapper;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.jsp.tagext.TagInfo;
 
 /**
  * A place holder for various things that are used through out the JSP engine. This is a per-request/per-context data
@@ -169,8 +169,9 @@ public class JspCompilationContext {
      * The classpath that is passed off to the Java compiler.
      */
     public String getClassPath() {
-        if (classPath != null)
+        if (classPath != null) {
             return classPath;
+        }
         return rctxt.getClassPath();
     }
 
@@ -185,8 +186,9 @@ public class JspCompilationContext {
      * What class loader to use for loading classes while compiling this JSP?
      */
     public ClassLoader getClassLoader() {
-        if (loader == null)
+        if (loader == null) {
             loader = rctxt.getParentClassLoader();
+        }
         return loader;
     }
 
@@ -249,7 +251,7 @@ public class JspCompilationContext {
 
     /**
      * Gets a resource as a stream, relative to the meanings of this context's implementation.
-     * 
+     *
      * @return a null if the resource cannot be found or represented as an InputStream.
      */
     public java.io.InputStream getResourceAsStream(String res) throws JasperException {
@@ -407,7 +409,7 @@ public class JspCompilationContext {
     private String getDerivedPackageName() {
         if (derivedPackageName == null) {
             int iSep = jspUri.lastIndexOf('/');
-            derivedPackageName = (iSep > 0) ? JspUtil.makeJavaPackage(jspUri.substring(1, iSep)) : "";
+            derivedPackageName = iSep > 0 ? JspUtil.makeJavaPackage(jspUri.substring(1, iSep)) : "";
         }
         return derivedPackageName;
     }
@@ -502,7 +504,7 @@ public class JspCompilationContext {
 
     /**
      * Gets the 'location' of the TLD associated with the given taglib 'uri'.
-     * 
+     *
      * @return An array of two Strings: The first element denotes the real path to the TLD. If the path to the TLD points to
      * a jar file, then the second element denotes the name of the TLD entry in the jar file. Returns null if the given uri
      * is not associated with any tag library 'exposed' in the web application.
@@ -526,8 +528,9 @@ public class JspCompilationContext {
             if (jspCompiler != null) {
                 jspCompiler.removeGeneratedFiles();
             }
-            if (rctxt != null)
+            if (rctxt != null) {
                 rctxt.removeWrapper(jspUri);
+            }
         }
         removed++;
     }
@@ -625,12 +628,13 @@ public class JspCompilationContext {
     }
 
     private static final boolean isPathSeparator(char c) {
-        return (c == '/' || c == '\\');
+        return c == '/' || c == '\\';
     }
 
     private static final String canonicalURI(String s) throws JasperException {
-        if (s == null)
+        if (s == null) {
             return null;
+        }
         StringBuilder result = new StringBuilder();
         final int len = s.length();
         int pos = 0;
@@ -648,8 +652,9 @@ public class JspCompilationContext {
                     /*
                      * a single dot at the end of the path - we are done.
                      */
-                    if (pos + 2 >= len)
+                    if (pos + 2 >= len) {
                         break;
+                    }
 
                     switch (s.charAt(pos + 2)) {
                     /*
@@ -674,8 +679,9 @@ public class JspCompilationContext {
                             while (separatorPos >= 0 && !isPathSeparator(result.charAt(separatorPos))) {
                                 --separatorPos;
                             }
-                            if (separatorPos >= 0)
+                            if (separatorPos >= 0) {
                                 result.setLength(separatorPos);
+                            }
                             continue;
                         }
                     }

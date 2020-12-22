@@ -17,20 +17,22 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.*;
-import java.io.*;
-import jakarta.servlet.ServletContext;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
-import org.apache.jasper.xmlparser.ParserUtils;
-import org.apache.jasper.xmlparser.TreeNode;
 import org.apache.jasper.compiler.tagplugin.TagPlugin;
 import org.apache.jasper.compiler.tagplugin.TagPluginContext;
+import org.apache.jasper.xmlparser.ParserUtils;
+import org.apache.jasper.xmlparser.TreeNode;
+
+import jakarta.servlet.ServletContext;
 
 /**
  * Manages tag plugin optimizations.
- * 
+ *
  * @author Kin-man Chung
  */
 
@@ -58,6 +60,7 @@ public class TagPluginManager {
         this.pageInfo = pageInfo;
 
         page.visit(new Node.Visitor() {
+            @Override
             public void visit(Node.CustomTag n) throws JasperException {
                 invokePlugin(n);
                 visitBody(n);
@@ -67,15 +70,17 @@ public class TagPluginManager {
     }
 
     private void init(ErrorDispatcher err) throws JasperException {
-        if (initialized)
+        if (initialized) {
             return;
+        }
 
         InputStream is = ctxt.getResourceAsStream(TAG_PLUGINS_XML);
-        if (is == null)
+        if (is == null) {
             return;
+        }
 
         boolean blockExternal = Boolean.parseBoolean(ctxt.getInitParameter(Constants.XML_BLOCK_EXTERNAL_INIT_PARAM));
-        TreeNode root = (new ParserUtils(blockExternal)).parseXMLDocument(TAG_PLUGINS_XML, is);
+        TreeNode root = new ParserUtils(blockExternal).parseXMLDocument(TAG_PLUGINS_XML, is);
         if (root == null) {
             return;
         }
@@ -84,7 +89,7 @@ public class TagPluginManager {
             err.jspError("jsp.error.plugin.wrongRootElement", TAG_PLUGINS_XML, TAG_PLUGINS_ROOT_ELEM);
         }
 
-        tagPlugins = new HashMap<String, TagPlugin>();
+        tagPlugins = new HashMap<>();
         Iterator pluginList = root.findChildren("tag-plugin");
         while (pluginList.hasNext()) {
             TreeNode pluginNode = (TreeNode) pluginList.next();
@@ -146,9 +151,10 @@ public class TagPluginManager {
             curNodes = new Node.Nodes();
             n.setAtSTag(curNodes);
             n.setUseTagPlugin(true);
-            pluginAttributes = new HashMap<String, Object>();
+            pluginAttributes = new HashMap<>();
         }
 
+        @Override
         public TagPluginContext getParentContext() {
             Node parent = node.getParent();
             if (!(parent instanceof Node.CustomTag)) {
@@ -157,44 +163,55 @@ public class TagPluginManager {
             return ((Node.CustomTag) parent).getTagPluginContext();
         }
 
+        @Override
         public void setPluginAttribute(String key, Object value) {
             pluginAttributes.put(key, value);
         }
 
+        @Override
         public Object getPluginAttribute(String key) {
             return pluginAttributes.get(key);
         }
 
+        @Override
         public boolean isScriptless() {
             return node.getChildInfo().isScriptless();
         }
 
+        @Override
         public boolean isConstantAttribute(String attribute) {
             Node.JspAttribute attr = getNodeAttribute(attribute);
-            if (attr == null)
+            if (attr == null) {
                 return false;
+            }
             return attr.isLiteral();
         }
 
+        @Override
         public String getConstantAttribute(String attribute) {
             Node.JspAttribute attr = getNodeAttribute(attribute);
-            if (attr == null)
+            if (attr == null) {
                 return null;
+            }
             return attr.getValue();
         }
 
+        @Override
         public boolean isAttributeSpecified(String attribute) {
             return getNodeAttribute(attribute) != null;
         }
 
+        @Override
         public String getTemporaryVariableName() {
             return JspUtil.nextTemporaryVariableName();
         }
 
+        @Override
         public void generateImport(String imp) {
             pageInfo.addImport(imp);
         }
 
+        @Override
         public void generateDeclaration(String id, String text) {
             if (pageInfo.isPluginDeclared(id)) {
                 return;
@@ -202,18 +219,22 @@ public class TagPluginManager {
             curNodes.add(new Node.Declaration(text, node.getStart(), null));
         }
 
+        @Override
         public void generateJavaSource(String sourceCode) {
             curNodes.add(new Node.Scriptlet(sourceCode, node.getStart(), null));
         }
 
+        @Override
         public void generateAttribute(String attributeName) {
             curNodes.add(new Node.AttributeGenerator(node.getStart(), attributeName, node));
         }
 
+        @Override
         public void dontUseTagPlugin() {
             node.setUseTagPlugin(false);
         }
 
+        @Override
         public void generateBody() {
             // Since we'll generate the body anyway, this is really a nop,
             // except for the fact that it lets us put the Java sources the

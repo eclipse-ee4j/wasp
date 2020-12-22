@@ -19,25 +19,23 @@ package org.apache.jasper.compiler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilePermission;
 import java.io.FileOutputStream;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.security.CodeSource;
-import java.security.cert.Certificate;
 import java.security.PermissionCollection;
 import java.security.Policy;
+import java.security.cert.Certificate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.*;
-import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.jsp.JspFactory;
 import javax.tools.JavaFileObject;
 
 import org.apache.jasper.Constants;
@@ -46,6 +44,9 @@ import org.apache.jasper.Options;
 import org.apache.jasper.runtime.JspFactoryImpl;
 import org.apache.jasper.security.SecurityClassLoad;
 import org.apache.jasper.servlet.JspServletWrapper;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.jsp.JspFactory;
 
 /**
  * Class for tracking JSP compile time file dependencies when the &060;%@include file="..."%&062; directive is used.
@@ -105,11 +106,11 @@ public final class JspRuntimeContext implements Runnable {
         this.options = options;
 
         int hashSize = options.getInitialCapacity();
-        jsps = new ConcurrentHashMap<String, JspServletWrapper>(hashSize);
+        jsps = new ConcurrentHashMap<>(hashSize);
 
-        bytecodes = new ConcurrentHashMap<String, byte[]>(hashSize);
-        bytecodeBirthTimes = new ConcurrentHashMap<String, Long>(hashSize);
-        packageMap = new ConcurrentHashMap<String, Map<String, JavaFileObject>>();
+        bytecodes = new ConcurrentHashMap<>(hashSize);
+        bytecodeBirthTimes = new ConcurrentHashMap<>(hashSize);
+        packageMap = new ConcurrentHashMap<>();
 
         if (log.isLoggable(Level.FINEST)) {
             ClassLoader parentClassLoader = getParentClassLoader();
@@ -297,7 +298,7 @@ public final class JspRuntimeContext implements Runnable {
 
     /**
      * Save the bytecode for the class in a map. The current time is noted.
-     * 
+     *
      * @param name The name of the class
      * @param bytecode The bytecode in byte array
      */
@@ -313,8 +314,9 @@ public final class JspRuntimeContext implements Runnable {
 
     public void adjustBytecodeTime(String name, long reference) {
         Long time = bytecodeBirthTimes.get(name);
-        if (time == null)
+        if (time == null) {
             return;
+        }
 
         if (time.longValue() < reference) {
             bytecodeBirthTimes.put(name, Long.valueOf(reference));
@@ -340,7 +342,7 @@ public final class JspRuntimeContext implements Runnable {
      */
     public long getBytecodeBirthTime(String name) {
         Long time = bytecodeBirthTimes.get(name);
-        return (time != null ? time.longValue() : 0);
+        return time != null ? time.longValue() : 0;
     }
 
     /**
@@ -435,8 +437,9 @@ public final class JspRuntimeContext implements Runnable {
             try {
                 classpath = URLDecoder.decode(classpath, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                if (log.isLoggable(Level.FINE))
+                if (log.isLoggable(Level.FINE)) {
                     log.log(Level.FINE, "Exception decoding classpath : " + classpath, e);
+                }
             }
         }
         // END GlassFish Issue 845
@@ -510,8 +513,9 @@ public final class JspRuntimeContext implements Runnable {
                         permissionCollection.add(new FilePermission(jarUrl, "read"));
                         permissionCollection.add(new FilePermission(jarUrl.substring(4), "read"));
                     }
-                    if (jndiUrl != null)
+                    if (jndiUrl != null) {
                         permissionCollection.add(new FilePermission(jndiUrl, "read"));
+                    }
                 }
             } catch (Exception e) {
                 context.log("Security Init for context failed", e);
@@ -555,7 +559,7 @@ public final class JspRuntimeContext implements Runnable {
         try {
             thread.join();
         } catch (InterruptedException e) {
-            ;
+
         }
 
         thread = null;
@@ -570,7 +574,7 @@ public final class JspRuntimeContext implements Runnable {
         try {
             Thread.sleep(options.getCheckInterval() * 1000L);
         } catch (InterruptedException e) {
-            ;
+
         }
 
     }
@@ -580,6 +584,7 @@ public final class JspRuntimeContext implements Runnable {
     /**
      * The background thread that checks for changes to files included by a JSP and flags that a recompile is required.
      */
+    @Override
     public void run() {
 
         // Loop until the termination semaphore is set

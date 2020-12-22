@@ -18,14 +18,15 @@
 package org.apache.jasper.runtime;
 
 import java.util.HashMap;
-import jakarta.el.VariableMapper;
+
 import jakarta.el.ValueExpression;
+import jakarta.el.VariableMapper;
 
 /**
  * <p>
  * This is the implementation of VariableMapper. The compiler creates an empty variable mapper when an ELContext is
  * created. The variable mapper will be updated by tag handlers, if necessary.
- * 
+ *
  * @author Kin-man Chung
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
@@ -36,17 +37,19 @@ public class VariableMapperImpl extends VariableMapper {
      * Constructor
      */
     public VariableMapperImpl() {
-        map = new HashMap<String, ValueExpression>();
+        map = new HashMap<>();
     }
 
     // -------------------------------------
     /**
      * Resolves the specified variable within the given context. Returns null if the variable is not found.
      */
+    @Override
     public ValueExpression resolveVariable(String variable) {
         return map.get(variable);
     }
 
+    @Override
     public ValueExpression setVariable(String variable, ValueExpression expression) {
         ValueExpression prev = null;
         if (expression == null) {

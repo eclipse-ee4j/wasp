@@ -28,13 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 import org.apache.jasper.Constants;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
@@ -43,6 +36,14 @@ import org.apache.jasper.compiler.JspUtil;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.runtime.JspApplicationContextImpl;
 import org.glassfish.jsp.api.JspProbeEmitter;
+
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 /**
  * The JSP engine (a.k.a Jasper).
@@ -59,10 +60,13 @@ import org.glassfish.jsp.api.JspProbeEmitter;
  */
 public class JspServlet extends HttpServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static Logger log = Logger.getLogger(JspServlet.class.getName());
-
-    private static final int CHAR_LIMIT = 256;
 
     private ServletContext context;
     private ServletConfig config;
@@ -89,6 +93,7 @@ public class JspServlet extends HttpServlet {
     /*
      * Initializes this JspServlet.
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
 
         super.init(config);
@@ -103,7 +108,7 @@ public class JspServlet extends HttpServlet {
         // Determine which HTTP methods to service ("*" means all)
         httpMethodsString = config.getInitParameter("httpMethods");
         if (httpMethodsString != null && !httpMethodsString.equals("*")) {
-            httpMethodsSet = new HashSet<String>();
+            httpMethodsSet = new HashSet<>();
             StringTokenizer tokenizer = new StringTokenizer(httpMethodsString, ", \t\n\r\f");
             while (tokenizer.hasMoreTokens()) {
                 httpMethodsSet.add(tokenizer.nextToken());
@@ -112,10 +117,10 @@ public class JspServlet extends HttpServlet {
         // END SJSWS 6232180
 
         // START GlassFish 750
-        taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
+        taglibs = new ConcurrentHashMap<>();
         context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
 
-        tagFileJarUrls = new ConcurrentHashMap<String, URL>();
+        tagFileJarUrls = new ConcurrentHashMap<>();
         context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE, tagFileJarUrls);
         // END GlassFish 750
 
@@ -189,21 +194,21 @@ public class JspServlet extends HttpServlet {
 
         String queryString = request.getQueryString();
         if (queryString == null) {
-            return (false);
+            return false;
         }
         int start = queryString.indexOf(Constants.PRECOMPILE);
         if (start < 0) {
-            return (false);
+            return false;
         }
         queryString = queryString.substring(start + Constants.PRECOMPILE.length());
         if (queryString.length() == 0) {
-            return (true); // ?jsp_precompile
+            return true; // ?jsp_precompile
         }
         if (queryString.startsWith("&")) {
-            return (true); // ?jsp_precompile&foo=bar...
+            return true; // ?jsp_precompile&foo=bar...
         }
         if (!queryString.startsWith("=")) {
-            return (false); // part of some other name or value
+            return false; // part of some other name or value
         }
         int limit = queryString.length();
         int ampersand = queryString.indexOf("&");
@@ -211,21 +216,15 @@ public class JspServlet extends HttpServlet {
             limit = ampersand;
         }
         String value = queryString.substring(1, limit);
-        if (value.equals("true")) {
-            return (true); // ?jsp_precompile=true
-        } else if (value.equals("false")) {
-            // Spec says if jsp_precompile=false, the request should not
-            // be delivered to the JSP page; the easiest way to implement
-            // this is to set the flag to true, and precompile the page anyway.
-            // This still conforms to the spec, since it says the
-            // precompilation request can be ignored.
-            return (true); // ?jsp_precompile=false
+        if (value.equals("true") || value.equals("false")) {
+            return true; // ?jsp_precompile=true
         } else {
             throw new ServletException("Cannot have request parameter " + Constants.PRECOMPILE + " set to " + value);
         }
 
     }
 
+    @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         // START SJSWS 6232180
@@ -321,6 +320,7 @@ public class JspServlet extends HttpServlet {
 
     }
 
+    @Override
     public void destroy() {
         if (log.isLoggable(Level.FINE)) {
             log.fine("JspServlet.destroy()");
@@ -347,10 +347,10 @@ public class JspServlet extends HttpServlet {
     private void serviceJspFile(HttpServletRequest request, HttpServletResponse response, String jspUri, Throwable exception, boolean precompile)
             throws ServletException, IOException {
 
-        JspServletWrapper wrapper = (JspServletWrapper) rctxt.getWrapper(jspUri);
+        JspServletWrapper wrapper = rctxt.getWrapper(jspUri);
         if (wrapper == null) {
             synchronized (this) {
-                wrapper = (JspServletWrapper) rctxt.getWrapper(jspUri);
+                wrapper = rctxt.getWrapper(jspUri);
                 if (wrapper == null) {
                     // Check if the requested JSP page exists, to avoid
                     // creating unnecessary directories and files.

@@ -17,12 +17,14 @@
 
 package org.apache.jasper.tagplugins.jstl;
 
-import org.apache.jasper.compiler.tagplugin.*;
+import org.apache.jasper.compiler.tagplugin.TagPlugin;
+import org.apache.jasper.compiler.tagplugin.TagPluginContext;
 
 public final class ForEach implements TagPlugin {
 
     private boolean hasVar, hasBegin, hasEnd, hasStep;
 
+    @Override
     public void doTag(TagPluginContext ctxt) {
 
         String index = null;

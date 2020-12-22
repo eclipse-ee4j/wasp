@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
@@ -257,8 +257,8 @@ public class Compiler {
         String sep = System.getProperty("path.separator");
 
         // Initializing classpath
-        ArrayList<File> cpath = new ArrayList<File>();
-        HashSet<String> paths = new HashSet<String>();
+        ArrayList<File> cpath = new ArrayList<>();
+        HashSet<String> paths = new HashSet<>();
 
         // Process classpath, which includes system classpath from compiler
         // options, plus the context classpath from the classloader
@@ -424,16 +424,16 @@ public class Compiler {
      * Determine if a compilation is necessary by checking the time stamp of the JSP page with that of the corresponding
      * .class or .java file. If the page has dependencies, the check is also extended to its dependeants, and so on. This
      * method can by overidden by a subclasses of Compiler.
-     * 
+     *
      * @param checkClass If true, check against .class file, if false, check against .java file.
      */
     public boolean isOutDated(boolean checkClass) {
 
         String jsp = ctxt.getJspFile();
 
-        if (jsw != null && (ctxt.getOptions().getModificationTestInterval() > 0)) {
+        if (jsw != null && ctxt.getOptions().getModificationTestInterval() > 0) {
 
-            if (jsw.getLastModificationTest() + (ctxt.getOptions().getModificationTestInterval() * 1000) > System.currentTimeMillis()) {
+            if (jsw.getLastModificationTest() + ctxt.getOptions().getModificationTestInterval() * 1000 > System.currentTimeMillis()) {
                 return false;
             } else {
                 jsw.setLastModificationTest(System.currentTimeMillis());
@@ -468,8 +468,9 @@ public class Compiler {
             }
         }
 
-        if (targetLastModified == 0L)
+        if (targetLastModified == 0L) {
             return true;
+        }
 
         // Check if the jsp exists in the filesystem (instead of a jar
         // or a remote location). If yes, then do a File.lastModified()
@@ -508,12 +509,12 @@ public class Compiler {
         // END PWC 6468930
         /*
          * PWC 6468930 long targetLastModified = 0; File targetFile;
-         * 
+         *
          * if( checkClass ) { targetFile = new File(ctxt.getClassFileName()); } else { targetFile = new
          * File(ctxt.getServletJavaFileName()); }
-         * 
+         *
          * if (!targetFile.exists()) { return true; }
-         * 
+         *
          * targetLastModified = targetFile.lastModified();
          */
         if (checkClass && jsw != null) {
@@ -608,8 +609,9 @@ public class Compiler {
             String classFileName = ctxt.getClassFileName();
             if (classFileName != null) {
                 File classFile = new File(classFileName);
-                if (log.isLoggable(Level.FINE))
+                if (log.isLoggable(Level.FINE)) {
                     log.fine("Deleting " + classFile);
+                }
                 classFile.delete();
             }
         } catch (Exception e) {
@@ -619,8 +621,9 @@ public class Compiler {
             String javaFileName = ctxt.getServletJavaFileName();
             if (javaFileName != null) {
                 File javaFile = new File(javaFileName);
-                if (log.isLoggable(Level.FINE))
+                if (log.isLoggable(Level.FINE)) {
                     log.fine("Deleting " + javaFile);
+                }
                 javaFile.delete();
             }
         } catch (Exception e) {
@@ -633,8 +636,9 @@ public class Compiler {
             String classFileName = ctxt.getClassFileName();
             if (classFileName != null) {
                 File classFile = new File(classFileName);
-                if (log.isLoggable(Level.FINE))
+                if (log.isLoggable(Level.FINE)) {
                     log.fine("Deleting " + classFile);
+                }
                 classFile.delete();
             }
         } catch (Exception e) {

@@ -17,14 +17,16 @@
 
 package org.apache.jasper.runtime;
 
-import java.util.HashMap;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
-import java.lang.reflect.Method;
-import jakarta.el.FunctionMapper;
+import java.security.PrivilegedExceptionAction;
+import java.util.HashMap;
+
 import org.apache.jasper.security.SecurityUtil;
+
+import jakarta.el.FunctionMapper;
 
 /**
  * Maps EL functions to their Java method counterparts. Keeps the actual Method objects protected so that JSP pages
@@ -61,15 +63,11 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
     public static ProtectedFunctionMapper getInstance() {
         ProtectedFunctionMapper funcMapper;
         if (SecurityUtil.isPackageProtectionEnabled()) {
-            funcMapper = AccessController.doPrivileged(new PrivilegedAction<ProtectedFunctionMapper>() {
-                public ProtectedFunctionMapper run() {
-                    return new ProtectedFunctionMapper();
-                }
-            });
+            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) () -> new ProtectedFunctionMapper());
         } else {
             funcMapper = new ProtectedFunctionMapper();
         }
-        funcMapper.fnmap = new java.util.HashMap<String, Method>();
+        funcMapper.fnmap = new java.util.HashMap<>();
         return funcMapper;
     }
 
@@ -86,11 +84,7 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
         java.lang.reflect.Method method;
         if (SecurityUtil.isPackageProtectionEnabled()) {
             try {
-                method = AccessController.doPrivileged(new PrivilegedExceptionAction<Method>() {
-                    public Method run() throws Exception {
-                        return c.getDeclaredMethod(methodName, args);
-                    }
-                });
+                method = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> c.getDeclaredMethod(methodName, args));
             } catch (PrivilegedActionException ex) {
                 throw new RuntimeException("Invalid function mapping - no such method: " + ex.getException().getMessage());
             }
@@ -119,18 +113,10 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
         java.lang.reflect.Method method;
         ProtectedFunctionMapper funcMapper;
         if (SecurityUtil.isPackageProtectionEnabled()) {
-            funcMapper = AccessController.doPrivileged(new PrivilegedAction<ProtectedFunctionMapper>() {
-                public ProtectedFunctionMapper run() {
-                    return new ProtectedFunctionMapper();
-                }
-            });
+            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) () -> new ProtectedFunctionMapper());
 
             try {
-                method = AccessController.doPrivileged(new PrivilegedExceptionAction<Method>() {
-                    public Method run() throws Exception {
-                        return c.getDeclaredMethod(methodName, args);
-                    }
-                });
+                method = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> c.getDeclaredMethod(methodName, args));
             } catch (PrivilegedActionException ex) {
                 throw new RuntimeException("Invalid function mapping - no such method: " + ex.getException().getMessage());
             }
@@ -149,11 +135,12 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
     /**
      * Resolves the specified local name and prefix into a Java.lang.Method. Returns null if the prefix and local name are
      * not found.
-     * 
+     *
      * @param prefix the prefix of the function
      * @param localName the short name of the function
      * @return the result of the method mapping. Null means no entry found.
      */
+    @Override
     public Method resolveFunction(String prefix, String localName) {
         if (this.fnmap != null) {
             return this.fnmap.get(prefix + ":" + localName);

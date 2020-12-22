@@ -17,8 +17,8 @@
 
 package org.apache.jasper.security;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Static class used to preload java classes when using the Java SecurityManager so that the defineClassInPackage

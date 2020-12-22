@@ -28,5 +28,5 @@ public interface JspSourceDependent {
     /**
      * Returns a list of files names that the current page has a source dependency on.
      */
-    public java.util.List<String> getDependants();
+    java.util.List<String> getDependants();
 }

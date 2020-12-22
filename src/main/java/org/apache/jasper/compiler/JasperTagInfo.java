@@ -17,7 +17,11 @@
 
 package org.apache.jasper.compiler;
 
-import jakarta.servlet.jsp.tagext.*;
+import jakarta.servlet.jsp.tagext.TagAttributeInfo;
+import jakarta.servlet.jsp.tagext.TagExtraInfo;
+import jakarta.servlet.jsp.tagext.TagInfo;
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
+import jakarta.servlet.jsp.tagext.TagVariableInfo;
 
 /**
  * TagInfo extension used by tag handlers that are implemented via tag files. This class provides access to the name of
@@ -39,6 +43,7 @@ class JasperTagInfo extends TagInfo {
         return dynamicAttrsMapName;
     }
 
+    @Override
     public boolean hasDynamicAttributes() {
         return dynamicAttrsMapName != null;
     }

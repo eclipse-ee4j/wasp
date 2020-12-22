@@ -19,16 +19,22 @@ package org.apache.jasper.compiler;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
-import jakarta.servlet.jsp.tagext.FunctionInfo;
-import jakarta.servlet.jsp.tagext.TagLibraryInfo;
-import jakarta.servlet.jsp.tagext.TagInfo;
-import jakarta.servlet.jsp.tagext.TagFileInfo;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.apache.jasper.Constants;
-import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.JasperException;
+import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
+
+import jakarta.servlet.jsp.tagext.FunctionInfo;
+import jakarta.servlet.jsp.tagext.TagFileInfo;
+import jakarta.servlet.jsp.tagext.TagInfo;
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 /**
  * Class responsible for generating an implicit tag library containing tag handlers corresponding to the tag files in
@@ -62,8 +68,8 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
         this.pc = pc;
         this.err = err;
         this.pageInfo = pc.getCompiler().getPageInfo();
-        this.tagFileMap = new HashMap<String, String>();
-        this.vec = new ArrayList<TagFileInfo>();
+        this.tagFileMap = new HashMap<>();
+        this.vec = new ArrayList<>();
 
         // Implicit tag libraries have no functions:
         this.functions = new FunctionInfo[0];
@@ -121,6 +127,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
      *
      * @since 2.1
      */
+    @Override
     public TagLibraryInfo[] getTagLibraryInfos() {
 
         TagLibraryInfo[] taglibs = null;
@@ -145,6 +152,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
      * @return The TagFileInfo corresponding to the given tag name, or null if the given tag name is not implemented as a
      * tag file
      */
+    @Override
     public TagFileInfo getTagFile(String shortName) {
 
         TagFileInfo tagFile = super.getTagFile(shortName);

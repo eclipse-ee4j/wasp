@@ -18,44 +18,44 @@
 package org.apache.jasper.runtime;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.ServletContainerInitializer;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.descriptor.TaglibDescriptor;
-import jakarta.servlet.descriptor.JspConfigDescriptor;
+import java.util.logging.Logger;
 
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
+import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
-import org.apache.jasper.compiler.Localizer;
+
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.descriptor.JspConfigDescriptor;
+import jakarta.servlet.descriptor.TaglibDescriptor;
 
 /**
  * A container for all tag libraries that are defined "globally" for the web application.
- * 
+ *
  * Tag Libraries can be defined globally in one of two ways: 1. Via <taglib> elements in web.xml: the uri and location
  * of the tag-library are specified in the <taglib> element. 2. Via packaged jar files that contain .tld files within
  * the META-INF directory, or some subdirectory of it. The taglib is 'global' if it has the <uri> element defined.
@@ -87,18 +87,17 @@ public class TldScanner implements ServletContainerInitializer {
     public static final int ROOT_REL_URI = 1;
     public static final int NOROOT_REL_URI = 2;
 
-    private static final String WEB_XML = "/WEB-INF/web.xml";
     private static final String FILE_PROTOCOL = "file:";
     private static final String JAR_FILE_SUFFIX = ".jar";
 
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
-    private static HashSet<String> systemUris = new HashSet<String>();
-    private static HashSet<String> systemUrisJsf = new HashSet<String>();
+    private static HashSet<String> systemUris = new HashSet<>();
+    private static HashSet<String> systemUrisJsf = new HashSet<>();
 
     // A Cache is used for system jar files.
     // The key is the name of the jar file, the value is an array of
     // TldInfo, one for each of the TLD in the jar file
-    private static Map<String, TldInfo[]> jarTldCache = new ConcurrentHashMap<String, TldInfo[]>();
+    private static Map<String, TldInfo[]> jarTldCache = new ConcurrentHashMap<>();
 
     private static final String EAR_LIB_CLASSLOADER = "org.glassfish.javaee.full.deployment.EarLibClassLoader";
 
@@ -114,7 +113,7 @@ public class TldScanner implements ServletContainerInitializer {
     /**
      * A local cache for keeping track which jars have been scanned.
      */
-    private Map<String, TldInfo[]> jarTldCacheLocal = new HashMap<String, TldInfo[]>();
+    private Map<String, TldInfo[]> jarTldCacheLocal = new HashMap<>();
 
     private ServletContext ctxt;
     private boolean isValidationEnabled;
@@ -155,6 +154,7 @@ public class TldScanner implements ServletContainerInitializer {
         blockExternal = Boolean.parseBoolean(ctxt.getInitParameter(Constants.XML_BLOCK_EXTERNAL_INIT_PARAM));
     }
 
+    @Override
     public void onStartup(java.util.Set<java.lang.Class<?>> c, ServletContext ctxt) throws ServletException {
         this.ctxt = ctxt;
         Boolean b = (Boolean) ctxt.getAttribute("com.sun.faces.useMyFaces");
@@ -180,7 +180,7 @@ public class TldScanner implements ServletContainerInitializer {
      * Returns null if the uri is not associated with any tag library 'exposed' in the web application. A tag library is
      * 'exposed' either explicitly in web.xml or implicitly via the uri tag in the TLD of a taglib deployed in a jar file
      * (WEB-INF/lib).
-     * 
+     *
      * @param uri The taglib uri
      *
      * @return An array of two Strings: The first element denotes the real path to the TLD. If the path to the TLD points to
@@ -256,7 +256,7 @@ public class TldScanner implements ServletContainerInitializer {
      */
     private void scanTlds() throws JasperException {
 
-        mappings = new HashMap<String, String[]>();
+        mappings = new HashMap<>();
 
         // Make a local copy of the system jar cache
         jarTldCacheLocal.putAll(jarTldCache);
@@ -298,12 +298,13 @@ public class TldScanner implements ServletContainerInitializer {
                 continue;
             }
             // Ignore system tlds in web.xml, for backward compatibility
-            if (systemUris.contains(tagUri) || (!useMyFaces && systemUrisJsf.contains(tagUri))) {
+            if (systemUris.contains(tagUri) || !useMyFaces && systemUrisJsf.contains(tagUri)) {
                 continue;
             }
             // Save this location if appropriate
-            if (uriType(tagLoc) == NOROOT_REL_URI)
+            if (uriType(tagLoc) == NOROOT_REL_URI) {
                 tagLoc = "/WEB-INF/" + tagLoc;
+            }
             String tagLoc2 = null;
             if (tagLoc.endsWith(JAR_FILE_SUFFIX)) {
                 tagLoc = ctxt.getResource(tagLoc).toString();
@@ -343,7 +344,7 @@ public class TldScanner implements ServletContainerInitializer {
         // scan the tld if the jar has not been cached.
         if (tldInfos == null) {
             JarFile jarFile = null;
-            ArrayList<TldInfo> tldInfoA = new ArrayList<TldInfo>();
+            ArrayList<TldInfo> tldInfoA = new ArrayList<>();
             try {
                 jarFile = conn.getJarFile();
                 if (tldNames != null) {
@@ -357,16 +358,18 @@ public class TldScanner implements ServletContainerInitializer {
                     while (entries.hasMoreElements()) {
                         JarEntry entry = entries.nextElement();
                         String name = entry.getName();
-                        if (!name.startsWith("META-INF/"))
+                        if (!name.startsWith("META-INF/")) {
                             continue;
-                        if (!name.endsWith(".tld"))
+                        }
+                        if (!name.endsWith(".tld")) {
                             continue;
+                        }
                         InputStream stream = jarFile.getInputStream(entry);
                         tldInfoA.add(scanTld(resourcePath, name, stream));
                     }
                 }
             } catch (IOException ex) {
-                if (resourcePath.startsWith(FILE_PROTOCOL) && !((new File(resourcePath)).exists())) {
+                if (resourcePath.startsWith(FILE_PROTOCOL) && !new File(resourcePath).exists()) {
                     if (log.isLoggable(Level.WARNING)) {
                         log.log(Level.WARNING, Localizer.getMessage("jsp.warn.nojar", resourcePath), ex);
                     }
@@ -402,7 +405,7 @@ public class TldScanner implements ServletContainerInitializer {
 
     private void addListener(TldInfo tldInfo, boolean isLocal) {
         String uri = tldInfo.getUri();
-        if (!systemUrisJsf.contains(uri) || (isLocal && useMyFaces) || (!isLocal && !useMyFaces)) {
+        if (!systemUrisJsf.contains(uri) || isLocal && useMyFaces || !isLocal && !useMyFaces) {
             for (String listenerClassName : tldInfo.getListeners()) {
                 if (log.isLoggable(Level.FINE)) {
                     log.fine("Add tld listener " + listenerClassName);
@@ -419,14 +422,14 @@ public class TldScanner implements ServletContainerInitializer {
             return;
         }
 
-        if ((isLocal
+        if (isLocal
                 // Local tld files override the tlds in the jar files,
                 // unless it is in a system jar (except when using myfaces)
-                && mappings.get(uri) == null && !systemUris.contains(uri) && (!systemUrisJsf.contains(uri) || useMyFaces))
-                || (!isLocal
+                && mappings.get(uri) == null && !systemUris.contains(uri) && (!systemUrisJsf.contains(uri) || useMyFaces)
+                || !isLocal
                         // Jars are scanned bottom up, so jars in WEB-INF override
                         // thos in the system (except when using myfaces)
-                        && (mappings.get(uri) == null || systemUris.contains(uri) || (systemUrisJsf.contains(uri) && !useMyFaces)))) {
+                        && (mappings.get(uri) == null || systemUris.contains(uri) || systemUrisJsf.contains(uri) && !useMyFaces)) {
             String entryName = tldInfo.getEntryName();
             if (log.isLoggable(Level.FINE)) {
                 log.fine("Add tld map from tld in " + (isLocal ? "WEB-INF" : "jar: ") + uri + "=>" + resourcePath + "," + entryName);
@@ -484,7 +487,7 @@ public class TldScanner implements ServletContainerInitializer {
                 uri = uriNode.getBody();
             }
 
-            ArrayList<String> listeners = new ArrayList<String>();
+            ArrayList<String> listeners = new ArrayList<>();
 
             Iterator<TreeNode> listenerNodes = tld.findChildren("listener");
             while (listenerNodes.hasNext()) {
@@ -513,7 +516,7 @@ public class TldScanner implements ServletContainerInitializer {
 
     /*
      * Scans all JARs accessible to the webapp's classloader and its parent classloaders for TLDs.
-     * 
+     *
      * The list of JARs always includes the JARs under WEB-INF/lib, as well as all shared JARs in the classloader delegation
      * chain of the webapp's classloader.
      *
@@ -537,9 +540,9 @@ public class TldScanner implements ServletContainerInitializer {
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
-                boolean isLocal = (loader == webappLoader);
+                boolean isLocal = loader == webappLoader;
                 URL[] urls = ((URLClassLoader) loader).getURLs();
-                List<String> extraJars = new ArrayList<String>();
+                List<String> extraJars = new ArrayList<>();
 
                 for (int i = 0; i < urls.length; i++) {
                     URLConnection conn = urls[i].openConnection();
@@ -569,7 +572,7 @@ public class TldScanner implements ServletContainerInitializer {
                 if (extraJars.size() > 0) {
                     List<String> newJars;
                     do {
-                        newJars = new ArrayList<String>();
+                        newJars = new ArrayList<>();
                         for (String jar : extraJars) {
                             URL jarURL = new URL("jar:" + jar + "!/");
                             JarURLConnection jconn = (JarURLConnection) jarURL.openConnection();
@@ -584,14 +587,8 @@ public class TldScanner implements ServletContainerInitializer {
             }
 
             if (tldMap != null && isStandalone != null) {
-                if (isStandalone.booleanValue()) {
+                if (isStandalone.booleanValue() || EAR_LIB_CLASSLOADER.equals(loader.getClass().getName())) {
                     break;
-                } else {
-                    if (EAR_LIB_CLASSLOADER.equals(loader.getClass().getName())) {
-                        // Do not walk up classloader delegation chain beyond
-                        // EarLibClassLoader
-                        break;
-                    }
                 }
             }
 
@@ -608,11 +605,11 @@ public class TldScanner implements ServletContainerInitializer {
 
     /*
      * Add the jars in the manifest Class-Path to the list "jars"
-     * 
+     *
      * @param scannedJars List of jars that has been previously scanned
-     * 
+     *
      * @param newJars List of jars from Manifest Class-Path
-     * 
+     *
      * @return true is the jar file exists
      */
     private boolean addManifestClassPath(List<String> scannedJars, List<String> newJars, JarURLConnection jconn) {
@@ -631,13 +628,15 @@ public class TldScanner implements ServletContainerInitializer {
             return true;
         }
 
-        if (manifest == null)
+        if (manifest == null) {
             return true;
+        }
 
         java.util.jar.Attributes attrs = manifest.getMainAttributes();
-        String cp = (String) attrs.getValue("Class-Path");
-        if (cp == null)
+        String cp = attrs.getValue("Class-Path");
+        if (cp == null) {
             return true;
+        }
 
         String[] paths = cp.split(" ");
         int lastIndex = file.lastIndexOf('/');

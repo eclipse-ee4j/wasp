@@ -17,9 +17,13 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.*;
-import jakarta.servlet.jsp.tagext.FunctionInfo;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.jasper.JasperException;
+
+import jakarta.servlet.jsp.tagext.FunctionInfo;
 
 /**
  * This class defines internal representation for an EL Expression
@@ -50,6 +54,7 @@ abstract class ELNode {
             this.isDollarExpr = isDollarExpr;
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -70,6 +75,7 @@ abstract class ELNode {
             this.text = text;
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -90,6 +96,7 @@ abstract class ELNode {
             this.text = text;
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -116,6 +123,7 @@ abstract class ELNode {
             this.name = name;
         }
 
+        @Override
         public void accept(Visitor v) throws JasperException {
             v.visit(this);
         }
@@ -173,7 +181,7 @@ abstract class ELNode {
         private List<ELNode> list;
 
         public Nodes() {
-            list = new ArrayList<ELNode>();
+            list = new ArrayList<>();
         }
 
         public void add(ELNode en) {
@@ -182,7 +190,7 @@ abstract class ELNode {
 
         /**
          * Visit the nodes in the list with the supplied visitor
-         * 
+         *
          * @param v The visitor used
          */
         public void visit(Visitor v) throws JasperException {

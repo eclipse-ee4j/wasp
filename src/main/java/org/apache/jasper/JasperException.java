@@ -24,6 +24,11 @@ package org.apache.jasper;
  */
 public class JasperException extends jakarta.servlet.ServletException {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     public JasperException(String reason) {
         super(reason);
     }

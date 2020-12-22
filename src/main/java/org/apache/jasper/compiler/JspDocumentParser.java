@@ -21,26 +21,22 @@ import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
-// START GlassFish 750
-import java.util.concurrent.ConcurrentHashMap;
+import java.security.AccessController;
 // START GlassFish 750
 import java.util.Iterator;
 import java.util.List;
+// START GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarFile;
-import java.security.AccessController;
 
-import jakarta.servlet.jsp.tagext.TagFileInfo;
-import jakarta.servlet.jsp.tagext.TagInfo;
-import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.jasper.JasperException;
 import org.apache.jasper.Constants;
+import org.apache.jasper.JasperException;
+import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.security.PrivilegedGetTccl;
 import org.apache.jasper.security.PrivilegedSetTccl;
-import org.apache.jasper.JspCompilationContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -51,6 +47,10 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
 
+import jakarta.servlet.jsp.tagext.TagFileInfo;
+import jakarta.servlet.jsp.tagext.TagInfo;
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
+
 /**
  * Class implementing a parser for a JSP document, that is, a JSP page in XML syntax.
  *
@@ -60,7 +60,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagConstants {
 
-    private static final String JSP_VERSION = "version";
     private static final String LEXICAL_HANDLER_PROPERTY = "http://xml.org/sax/properties/lexical-handler";
     private static final String JSP_URI = "http://java.sun.com/JSP/Page";
 
@@ -221,13 +220,14 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * Receives notification of the start of an element.
      *
      * This method assigns the given tag attributes to one of 3 buckets:
-     * 
+     *
      * - "xmlns" attributes that represent (standard or custom) tag libraries. - "xmlns" attributes that do not represent
      * tag libraries. - all remaining attributes.
      *
      * For each "xmlns" attribute that represents a custom tag library, the corresponding TagLibraryInfo object is added to
      * the set of custom tag libraries.
      */
+    @Override
     public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
 
         AttributesImpl taglibAttrs = null;
@@ -238,7 +238,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
 
         checkPrefixes(uri, qName, attrs);
 
-        if (directivesOnly && !(JSP_URI.equals(uri) && (localName.startsWith(DIRECTIVE_ACTION) || localName.startsWith(ROOT_ACTION)))) {
+        if (directivesOnly && (!JSP_URI.equals(uri) || (!localName.startsWith(DIRECTIVE_ACTION) && !localName.startsWith(ROOT_ACTION)))) {
             return;
         }
 
@@ -337,13 +337,14 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * later (at beginTag and endTag)
      *
      * @param buf The characters
-     * 
+     *
      * @param offset The start position in the character array
-     * 
+     *
      * @param len The number of characters to use from the character array
      *
      * @throws SAXException
      */
+    @Override
     public void characters(char[] buf, int offset, int len) {
 
         if (charBuffer == null) {
@@ -366,7 +367,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
         boolean isAllSpace = true;
         if (!(current instanceof Node.JspText) && !(current instanceof Node.NamedAttribute)) {
             for (int i = 0; i < charBuffer.length(); i++) {
-                if (!(charBuffer.charAt(i) == ' ' || charBuffer.charAt(i) == '\n' || charBuffer.charAt(i) == '\r' || charBuffer.charAt(i) == '\t')) {
+                if (((charBuffer.charAt(i) != ' ') && (charBuffer.charAt(i) != '\n') && (charBuffer.charAt(i) != '\r') && (charBuffer.charAt(i) != '\t'))) {
                     isAllSpace = false;
                     break;
                 }
@@ -387,7 +388,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
             return;
         }
 
-        if ((current instanceof Node.JspText) || (current instanceof Node.NamedAttribute) || !isAllSpace) {
+        if (current instanceof Node.JspText || current instanceof Node.NamedAttribute || !isAllSpace) {
 
             int line = startMark.getLineNumber();
             int column = startMark.getColumnNumber();
@@ -442,10 +443,11 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
                             startMark = new Mark(ctxt, path, line, column);
                             break;
                         }
-                        if (ch == '"')
+                        if (ch == '"') {
                             doubleQ = !doubleQ;
-                        else if (ch == '\'')
+                        } else if (ch == '\'') {
                             singleQ = !singleQ;
+                        }
 
                         ttext.write(ch);
                         lastCh = ch;
@@ -478,11 +480,12 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * Receives notification of the end of an element.
      */
+    @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
         processChars();
 
-        if (directivesOnly && !(JSP_URI.equals(uri) && localName.startsWith(DIRECTIVE_ACTION))) {
+        if (directivesOnly && (!JSP_URI.equals(uri) || !localName.startsWith(DIRECTIVE_ACTION))) {
             return;
         }
 
@@ -539,6 +542,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      *
      * @param locator the document locator
      */
+    @Override
     public void setDocumentLocator(Locator locator) {
         this.locator = locator;
     }
@@ -546,6 +550,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void comment(char[] buf, int offset, int len) throws SAXException {
 
         processChars(); // Flush char buffer and remove white spaces
@@ -560,6 +565,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void startCDATA() throws SAXException {
 
         processChars(); // Flush char buffer and remove white spaces
@@ -569,6 +575,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void endCDATA() throws SAXException {
         processChars(); // Flush char buffer and remove white spaces
     }
@@ -576,6 +583,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void startEntity(String name) throws SAXException {
         // do nothing
     }
@@ -583,6 +591,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void endEntity(String name) throws SAXException {
         // do nothing
     }
@@ -590,6 +599,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
         if (!isValidating) {
             fatalError(ENABLE_DTD_VALIDATION_EXCEPTION);
@@ -601,6 +611,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * See org.xml.sax.ext.LexicalHandler.
      */
+    @Override
     public void endDTD() throws SAXException {
         inDTD = false;
     }
@@ -608,6 +619,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * Receives notification of a non-recoverable error.
      */
+    @Override
     public void fatalError(SAXParseException e) throws SAXException {
         throw e;
     }
@@ -615,6 +627,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * Receives notification of a recoverable error.
      */
+    @Override
     public void error(SAXParseException e) throws SAXException {
         throw e;
     }
@@ -622,9 +635,10 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * Receives notification of the start of a Namespace mapping.
      */
+    @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
 
-        if (directivesOnly && !(JSP_URI.equals(uri))) {
+        if (directivesOnly && !JSP_URI.equals(uri)) {
             return;
         }
 
@@ -638,6 +652,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
     /*
      * Receives notification of the end of a Namespace mapping.
      */
+    @Override
     public void endPrefixMapping(String prefix) throws SAXException {
 
         if (directivesOnly) {
@@ -821,7 +836,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * If the tag library does not exist, it is created.
      *
      * @param prefix The prefix of the xmlns attribute
-     * 
+     *
      * @param uri The uri namespace (value of the xmlns attribute)
      */
     private void addTaglibInfo(String prefix, String uri) throws JasperException {
@@ -895,10 +910,12 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
                 Node n = body.getNode(i);
                 if (!(n instanceof Node.TemplateText)) {
                     String elemType = SCRIPTLET_ACTION;
-                    if (scriptingElem instanceof Node.Declaration)
+                    if (scriptingElem instanceof Node.Declaration) {
                         elemType = DECLARATION_ACTION;
-                    if (scriptingElem instanceof Node.Expression)
+                    }
+                    if (scriptingElem instanceof Node.Expression) {
                         elemType = EXPRESSION_ACTION;
+                    }
                     String msg = Localizer.getMessage("jsp.error.parse.xml.scripting.invalid.body", elemType);
                     throw new SAXException(msg);
                 }
@@ -910,7 +927,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * Parses the given file included via an include directive.
      *
      * @param fname The path to the included resource, as specified by the 'file' attribute of the include directive
-     * 
+     *
      * @param parent The Node representing the include directive
      */
     private void processIncludeDirective(String fname, Node parent) throws SAXException {
@@ -933,9 +950,9 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * to a namespace other than http://java.sun.com/JSP/Page.
      *
      * @param uri The element's URI
-     * 
+     *
      * @param qName The element's qname
-     * 
+     *
      * @param attrs The element's attributes
      */
     private void checkPrefixes(String uri, String qName, Attributes attrs) {
@@ -953,7 +970,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * 'jsp' prefix and uri was different from http://java.sun.com/JSP/Page.
      *
      * @param uri The URI to check
-     * 
+     *
      * @param qName The qname to check
      */
     private void checkPrefix(String uri, String qName) {
@@ -972,7 +989,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * Gets SAXParser.
      *
      * @param validating Indicates whether the requested SAXParser should be validating
-     * 
+     *
      * @param jspDocParser The JSP document parser
      *
      * @return The SAXParser
@@ -1022,6 +1039,11 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      * Exception indicating that a DOCTYPE declaration is present, but validation is turned off.
      */
     private static class EnableDTDValidationException extends SAXParseException {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 1L;
 
         EnableDTDValidationException(String message, Locator loc) {
             super(message, loc);

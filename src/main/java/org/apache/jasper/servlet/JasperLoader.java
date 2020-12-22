@@ -65,9 +65,10 @@ public class JasperLoader extends URLClassLoader {
      *
      * @exception ClassNotFoundException if the class was not found
      */
+    @Override
     public Class loadClass(String name) throws ClassNotFoundException {
 
-        return (loadClass(name, false));
+        return loadClass(name, false);
     }
 
     /**
@@ -83,12 +84,13 @@ public class JasperLoader extends URLClassLoader {
      * </ul>
      * If the class was found using the above steps, and the <code>resolve</code> flag is <code>true</code>, this method
      * will then call <code>resolveClass(Class)</code> on the resulting Class object.
-     * 
+     *
      * @param name Name of the class to be loaded
      * @param resolve If <code>true</code> then resolve the class
-     * 
+     *
      * @exception ClassNotFoundException if the class was not found
      */
+    @Override
     public synchronized Class loadClass(final String name, boolean resolve) throws ClassNotFoundException {
 
         Class clazz = null;
@@ -96,9 +98,10 @@ public class JasperLoader extends URLClassLoader {
         // (0) Check our previously loaded class cache
         clazz = findLoadedClass(name);
         if (clazz != null) {
-            if (resolve)
+            if (resolve) {
                 resolveClass(clazz);
-            return (clazz);
+            }
+            return clazz;
         }
 
         // (.5) Permission to access this class when using a SecurityManager
@@ -122,8 +125,9 @@ public class JasperLoader extends URLClassLoader {
             // Class is not in org.apache.jsp, therefore, have our
             // parent load it
             clazz = parent.loadClass(name);
-            if (resolve)
+            if (resolve) {
                 resolveClass(clazz);
+            }
             return clazz;
         }
 
@@ -131,6 +135,7 @@ public class JasperLoader extends URLClassLoader {
     }
 
     // START OF IASRI 4709374
+    @Override
     public Class findClass(String className) throws ClassNotFoundException {
 
         // If the class file is in memory, use it
@@ -176,11 +181,7 @@ public class JasperLoader extends URLClassLoader {
             InputStream in = null;
 
             if (SecurityUtil.isPackageProtectionEnabled()) {
-                in = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
-                    public InputStream run() {
-                        return getResourceAsStream(fileName);
-                    }
-                });
+                in = AccessController.doPrivileged((PrivilegedAction<InputStream>) () -> getResourceAsStream(fileName));
             } else {
                 in = getResourceAsStream(fileName);
             }
@@ -213,6 +214,7 @@ public class JasperLoader extends URLClassLoader {
      * @param codeSource Code source where the code was loaded from
      * @return PermissionCollection for CodeSource
      */
+    @Override
     public final PermissionCollection getPermissions(CodeSource codeSource) {
         return permissionCollection;
     }

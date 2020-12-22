@@ -32,12 +32,12 @@ public interface ResourceInjector {
      *
      * @throws Exception if an error has occurred during instantiation or injection
      */
-    public <T extends JspTag> T createTagHandlerInstance(Class<T> clazz) throws Exception;
+    <T extends JspTag> T createTagHandlerInstance(Class<T> clazz) throws Exception;
 
     /**
      * Invokes any @PreDestroy methods defined on the instance's class (and super-classes).
      *
      * @param handler The tag handler instance whose @PreDestroy methods to call
      */
-    public void preDestroy(JspTag handler);
+    void preDestroy(JspTag handler);
 }

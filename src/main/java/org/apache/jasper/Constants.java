@@ -17,10 +17,6 @@
 
 package org.apache.jasper;
 
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
-import java.text.MessageFormat;
-
 /**
  * Some constants and other global data that are used by the compiler and the runtime.
  *
@@ -197,7 +193,7 @@ public class Constants {
     /**
      * Has security been turned on?
      */
-    public static final boolean IS_SECURITY_ENABLED = (System.getSecurityManager() != null);
+    public static final boolean IS_SECURITY_ENABLED = System.getSecurityManager() != null;
 
     /**
      * The name of the JSP engine. Used for X-Powered-By identification in the response header

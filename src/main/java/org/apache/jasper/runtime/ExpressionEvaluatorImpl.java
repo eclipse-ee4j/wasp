@@ -21,20 +21,19 @@ import java.util.Iterator;
 
 import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
-import jakarta.el.ValueExpression;
 import jakarta.el.ExpressionFactory;
-
+import jakarta.el.ValueExpression;
 import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.el.Expression;
 import jakarta.servlet.jsp.el.ELException;
-import jakarta.servlet.jsp.el.FunctionMapper;
+import jakarta.servlet.jsp.el.Expression;
 import jakarta.servlet.jsp.el.ExpressionEvaluator;
+import jakarta.servlet.jsp.el.FunctionMapper;
 import jakarta.servlet.jsp.el.VariableResolver;
 
 /**
  * <p>
  * This is the implementation of ExpreesioEvaluator using implementation of JSP2.1.
- * 
+ *
  * @author Kin-man Chung
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
@@ -51,6 +50,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator {
     }
 
     // -------------------------------------
+    @Override
     public Expression parseExpression(String expression, Class expectedType, FunctionMapper fMapper) throws ELException {
 
         ExpressionFactory fac = ExpressionFactory.newInstance();
@@ -66,6 +66,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator {
         return new ExpressionImpl(expr, pageContext);
     }
 
+    @Override
     public Object evaluate(String expression, Class expectedType, VariableResolver vResolver, FunctionMapper fMapper) throws ELException {
 
         ELContextImpl elContext;
@@ -100,6 +101,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator {
             this.pageContext = pageContext;
         }
 
+        @Override
         public Object evaluate(VariableResolver vResolver) throws ELException {
 
             ELContext elContext;
@@ -126,6 +128,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator {
             this.mapper = mapper;
         }
 
+        @Override
         public java.lang.reflect.Method resolveFunction(String prefix, String localName) {
             return mapper.resolveFunction(prefix, localName);
         }
@@ -138,6 +141,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator {
             this.vResolver = vResolver;
         }
 
+        @Override
         public Object getValue(ELContext context, Object base, Object property) throws jakarta.el.ELException {
             if (base == null) {
                 context.setPropertyResolved(true);
@@ -150,21 +154,26 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator {
             return null;
         }
 
+        @Override
         public Class getType(ELContext context, Object base, Object property) throws jakarta.el.ELException {
             return null;
         }
 
+        @Override
         public void setValue(ELContext context, Object base, Object property, Object value) throws jakarta.el.ELException {
         }
 
+        @Override
         public boolean isReadOnly(ELContext context, Object base, Object property) throws jakarta.el.ELException {
             return false;
         }
 
+        @Override
         public Iterator<java.beans.FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
             return null;
         }
 
+        @Override
         public Class<?> getCommonPropertyType(ELContext context, Object base) {
             return null;
         }

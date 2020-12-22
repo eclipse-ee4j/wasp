@@ -36,72 +36,72 @@ public interface Options {
      * Returns true if Jasper issues a compilation error instead of a runtime Instantiation error if the class attribute
      * specified in useBean action is invalid.
      */
-    public boolean getErrorOnUseBeanInvalidClassAttribute();
+    boolean getErrorOnUseBeanInvalidClassAttribute();
 
     /**
      * Are we keeping generated code around?
      */
-    public boolean getKeepGenerated();
+    boolean getKeepGenerated();
 
     /**
      * Returns true if tag handler pooling is enabled, false otherwise.
      */
-    public boolean isPoolingEnabled();
+    boolean isPoolingEnabled();
 
     /**
      * Are we supporting HTML mapped servlets?
      */
-    public boolean getMappedFile();
+    boolean getMappedFile();
 
     /**
      * Should errors be sent to client or thrown into stderr?
      */
-    public boolean getSendErrorToClient();
+    boolean getSendErrorToClient();
 
     /**
      * Should we include debug information in compiled class?
      */
-    public boolean getClassDebugInfo();
+    boolean getClassDebugInfo();
 
     /**
      * Background compile thread check interval in seconds
      */
-    public int getCheckInterval();
+    int getCheckInterval();
 
     /**
      * Is Jasper being used in development mode?
      */
-    public boolean getDevelopment();
+    boolean getDevelopment();
 
     /**
      * Is the generation of SMAP info for JSR45 debugging suppressed?
      */
-    public boolean isSmapSuppressed();
+    boolean isSmapSuppressed();
 
     /**
      * Indicates whether SMAP info for JSR45 debugging should be dumped to a file. Ignored is suppressSmap() is true
      */
-    public boolean isSmapDumped();
+    boolean isSmapDumped();
 
     /**
      * Should white spaces between directives or actions be trimmed?
      */
-    public boolean getTrimSpaces();
+    boolean getTrimSpaces();
 
     /**
      * Class ID for use in the plugin tag when the browser is IE.
      */
-    public String getIeClassId();
+    String getIeClassId();
 
     /**
      * What is my scratch dir?
      */
-    public File getScratchDir();
+    File getScratchDir();
 
     /**
      * What classpath should I use while compiling the servlets generated from JSP files?
      */
-    public String getClassPath();
+    String getClassPath();
 
     // START PWC 1.2 6311155
     /**
@@ -109,28 +109,28 @@ public interface Options {
      *
      * @return The system class path
      */
-    public String getSystemClassPath();
+    String getSystemClassPath();
     // END PWC 1.2 6311155
 
     /**
      * Compiler to use.
      */
-    public String getCompiler();
+    String getCompiler();
 
     /**
      * The compiler target VM, e.g. 1.1, 1.2, 1.3, 1.4, or 1.5.
      */
-    public String getCompilerTargetVM();
+    String getCompilerTargetVM();
 
     /**
      * Compiler source VM, e.g. 1.3, 1.4, or 1.5.
      */
-    public String getCompilerSourceVM();
+    String getCompilerSourceVM();
 
     /**
      * The name of class that implements JavaCompiler, used for Java compilations.
      */
-    public String getCompilerClassName();
+    String getCompilerClassName();
 
     /**
      * The cache for the location of the TLD's for the various tag libraries 'exposed' by the web application. A tag library
@@ -139,75 +139,75 @@ public interface Options {
      *
      * @return the instance of the TldScanner for the web-application.
      */
-    public TldScanner getTldScanner();
+    TldScanner getTldScanner();
 
     /**
      * Java platform encoding to generate the JSP page servlet.
      */
-    public String getJavaEncoding();
+    String getJavaEncoding();
 
     /**
      * boolean flag to tell Ant whether to fork JSP page compilations.
      */
-    public boolean getFork();
+    boolean getFork();
 
     /**
      * Obtain JSP configuration informantion specified in web.xml.
      */
-    public JspConfig getJspConfig();
+    JspConfig getJspConfig();
 
     /**
      * Is generation of X-Powered-By response header enabled/disabled?
      */
-    public boolean isXpoweredBy();
+    boolean isXpoweredBy();
 
     /**
      * Obtain a Tag Plugin Manager
      */
-    public TagPluginManager getTagPluginManager();
+    TagPluginManager getTagPluginManager();
 
     /**
      * Are Text strings to be generated as char arrays?
      */
-    public boolean genStringAsCharArray();
+    boolean genStringAsCharArray();
 
     /**
      * Are text strings to be generated as byte arrays, if the page is unbuffered?
      */
-    public boolean genStringAsByteArray();
+    boolean genStringAsByteArray();
 
     /**
      * If the buffer attribute for the page directive is not specified, is the default "none"?
      */
-    public boolean isDefaultBufferNone();
+    boolean isDefaultBufferNone();
 
     /**
      * Modification test interval.
      */
-    public int getModificationTestInterval();
+    int getModificationTestInterval();
 
     // BEGIN S1AS 6181923
     /**
      * Returns the value of the usePrecompiled (or use-precompiled) init param.
      */
-    public boolean getUsePrecompiled();
+    boolean getUsePrecompiled();
     // END S1AS 6181923
 
     // START SJSWS
     /**
      * Gets initial capacity of HashMap which maps JSPs to their corresponding servlets.
      */
-    public int getInitialCapacity();
+    int getInitialCapacity();
     // END SJSWS
 
     // START SJSAS 6384538
-    public boolean isValidationEnabled();
+    boolean isValidationEnabled();
     // END SJSAS 6384538
 
     /**
      * If class files are generated as byte arrays, should they be saved to disk at the end of compilations?
      */
 
-    public boolean getSaveBytecode();
+    boolean getSaveBytecode();
 
 }

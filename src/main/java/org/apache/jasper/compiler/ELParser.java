@@ -49,7 +49,7 @@ public class ELParser {
 
     /**
      * Parse an EL expression
-     * 
+     *
      * @param expression The input expression string of the form ( (Char* | (('${' | '#{') Char* '}') )+
      * @return Parsed EL expression in ELNode.Nodes
      */
@@ -70,7 +70,7 @@ public class ELParser {
 
     /**
      * Parse an EL expression string '${...} or #{...}'
-     * 
+     *
      * @return An ELNode.Nodes representing the EL expression TODO: Currently only parsed into functions and text strings.
      * This should be rewritten for a full parser.
      */
@@ -115,7 +115,7 @@ public class ELParser {
         String s2 = curToken.toString(); // Function name
         int mark = getIndex();
         if (hasNext()) {
-            boolean nodotSeen = prevToken == null || (prevToken.toChar() != '.');
+            boolean nodotSeen = prevToken == null || prevToken.toChar() != '.';
             Token t = nextToken();
             if (t.toChar() == ':') {
                 if (hasNext()) {
@@ -163,7 +163,7 @@ public class ELParser {
 
     /**
      * Skip until an EL expression ('${' or '#{') is reached, allowing escape sequences '\\', '\$', and '\#'.
-     * 
+     *
      * @return The text string up to the EL expression
      */
     private String skipUntilEL() {
@@ -175,15 +175,16 @@ public class ELParser {
                 prev = 0;
                 if (ch == '\\') {
                     buf.append('\\');
-                    if (!escapeBS)
+                    if (!escapeBS) {
                         prev = '\\';
+                    }
                 } else if (ch == '$' || ch == '#') {
                     buf.append(ch);
                 }
                 // else error!
             } else if (prev == '$' || prev == '#') {
                 if (ch == '{') {
-                    this.isDollarExpr = (prev == '$');
+                    this.isDollarExpr = prev == '$';
                     prev = 0;
                     break;
                 }
@@ -228,7 +229,7 @@ public class ELParser {
                     buf.append(ch);
                     nextChar();
                 }
-                return (curToken = new Id(buf.toString()));
+                return curToken = new Id(buf.toString());
             }
 
             if (ch == '\'' || ch == '"') {
@@ -271,8 +272,9 @@ public class ELParser {
 
     private void skipSpaces() {
         while (hasNextChar()) {
-            if (expression.charAt(index) > ' ')
+            if (expression.charAt(index) > ' ') {
                 break;
+            }
             index++;
         }
     }
@@ -312,6 +314,7 @@ public class ELParser {
             return 0;
         }
 
+        @Override
         public String toString() {
             return "";
         }
@@ -327,6 +330,7 @@ public class ELParser {
             this.id = id;
         }
 
+        @Override
         public String toString() {
             return id;
         }
@@ -343,12 +347,14 @@ public class ELParser {
             this.ch = ch;
         }
 
+        @Override
         char toChar() {
             return ch;
         }
 
+        @Override
         public String toString() {
-            return (Character.valueOf(ch)).toString();
+            return Character.valueOf(ch).toString();
         }
     }
 
@@ -363,6 +369,7 @@ public class ELParser {
             this.value = v;
         }
 
+        @Override
         public String toString() {
             return value;
         }

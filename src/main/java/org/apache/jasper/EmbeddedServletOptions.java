@@ -18,18 +18,19 @@
 package org.apache.jasper;
 
 import java.io.File;
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.text.MessageFormat;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.jasper.compiler.JspConfig;
+import org.apache.jasper.compiler.Localizer;
+import org.apache.jasper.compiler.TagPluginManager;
+import org.apache.jasper.runtime.TldScanner;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
-
-import org.apache.jasper.runtime.TldScanner;
-import org.apache.jasper.compiler.JspConfig;
-import org.apache.jasper.compiler.TagPluginManager;
-import org.apache.jasper.compiler.Localizer;
 
 /**
  * A class to hold all init parameters specific to the JSP engine.
@@ -216,10 +217,12 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Are we keeping generated code around?
      */
+    @Override
     public boolean getKeepGenerated() {
         return keepGenerated;
     }
 
+    @Override
     public boolean getSaveBytecode() {
         return this.saveBytecode;
     }
@@ -227,10 +230,12 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Should white spaces between directives or actions be trimmed?
      */
+    @Override
     public boolean getTrimSpaces() {
         return trimSpaces;
     }
 
+    @Override
     public boolean isPoolingEnabled() {
         return isPoolingEnabled;
     }
@@ -238,6 +243,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Are we supporting HTML mapped servlets?
      */
+    @Override
     public boolean getMappedFile() {
         return mappedFile;
     }
@@ -245,6 +251,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Should errors be sent to client or thrown into stderr?
      */
+    @Override
     public boolean getSendErrorToClient() {
         return sendErrorToClient;
     }
@@ -252,6 +259,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Should class files be compiled with debug information?
      */
+    @Override
     public boolean getClassDebugInfo() {
         return classDebugInfo;
     }
@@ -259,6 +267,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Background JSP compile thread check intervall
      */
+    @Override
     public int getCheckInterval() {
         return checkInterval;
     }
@@ -266,6 +275,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Modification test interval.
      */
+    @Override
     public int getModificationTestInterval() {
         return modificationTestInterval;
     }
@@ -273,6 +283,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Is Jasper being used in development mode?
      */
+    @Override
     public boolean getDevelopment() {
         return development;
     }
@@ -280,6 +291,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Is the generation of SMAP info for JSR45 debuggin suppressed?
      */
+    @Override
     public boolean isSmapSuppressed() {
         return isSmapSuppressed;
     }
@@ -287,6 +299,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Should SMAP info for JSR45 debugging be dumped to a file?
      */
+    @Override
     public boolean isSmapDumped() {
         return isSmapDumped;
     }
@@ -294,14 +307,17 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Are Text strings to be generated as char arrays?
      */
+    @Override
     public boolean genStringAsCharArray() {
         return this.genStringAsCharArray;
     }
 
+    @Override
     public boolean genStringAsByteArray() {
         return this.genStringAsByteArray;
     }
 
+    @Override
     public boolean isDefaultBufferNone() {
         return defaultBufferNone;
     }
@@ -309,6 +325,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Class ID for use in the plugin tag when the browser is IE.
      */
+    @Override
     public String getIeClassId() {
         return ieClassId;
     }
@@ -316,6 +333,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * What is my scratch dir?
      */
+    @Override
     public File getScratchDir() {
         return scratchDir;
     }
@@ -323,6 +341,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * What classpath should I use while compiling the servlets generated from JSP files?
      */
+    @Override
     public String getClassPath() {
         return classpath;
     }
@@ -333,6 +352,7 @@ public final class EmbeddedServletOptions implements Options {
      *
      * @return The system class path
      */
+    @Override
     public String getSystemClassPath() {
         return sysClassPath;
     }
@@ -341,6 +361,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Is generation of X-Powered-By response header enabled/disabled?
      */
+    @Override
     public boolean isXpoweredBy() {
         return xpoweredBy;
     }
@@ -348,6 +369,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Compiler to use.
      */
+    @Override
     public String getCompiler() {
         return compiler;
     }
@@ -355,6 +377,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * @see Options#getCompilerTargetVM
      */
+    @Override
     public String getCompilerTargetVM() {
         return compilerTargetVM;
     }
@@ -362,6 +385,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * @see Options#getCompilerSourceVM
      */
+    @Override
     public String getCompilerSourceVM() {
         return compilerSourceVM;
     }
@@ -369,10 +393,12 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * @see Options#getCompiler
      */
+    @Override
     public String getCompilerClassName() {
         return compilerClassName;
     }
 
+    @Override
     public boolean getErrorOnUseBeanInvalidClassAttribute() {
         return errorOnUseBeanInvalidClassAttribute;
     }
@@ -381,22 +407,27 @@ public final class EmbeddedServletOptions implements Options {
         errorOnUseBeanInvalidClassAttribute = b;
     }
 
+    @Override
     public TldScanner getTldScanner() {
         return tldScanner;
     }
 
+    @Override
     public String getJavaEncoding() {
         return javaEncoding;
     }
 
+    @Override
     public boolean getFork() {
         return fork;
     }
 
+    @Override
     public JspConfig getJspConfig() {
         return jspConfig;
     }
 
+    @Override
     public TagPluginManager getTagPluginManager() {
         return tagPluginManager;
     }
@@ -405,6 +436,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Gets initial capacity of HashMap which maps JSPs to their corresponding servlets.
      */
+    @Override
     public int getInitialCapacity() {
         return initialCapacity;
     }
@@ -414,12 +446,14 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Returns the value of the usePrecompiled (or use-precompiled) init param.
      */
+    @Override
     public boolean getUsePrecompiled() {
         return usePrecompiled;
     }
     // END S1AS 6181923
 
     // START SJSAS 6384538
+    @Override
     public boolean isValidationEnabled() {
         return isValidationEnabled;
     }
@@ -492,18 +526,21 @@ public final class EmbeddedServletOptions implements Options {
         }
 
         String ieClassId = config.getInitParameter("ieClassId");
-        if (ieClassId != null)
+        if (ieClassId != null) {
             this.ieClassId = ieClassId;
+        }
 
         String classpath = config.getInitParameter("classpath");
-        if (classpath != null)
+        if (classpath != null) {
             this.classpath = classpath;
+        }
 
         // START PWC 1.2 6311155
         String sysClassPath = config.getInitParameter("com.sun.appserv.jsp.classpath");
-        if (sysClassPath != null)
+        if (sysClassPath != null) {
             this.sysClassPath = sysClassPath;
-        // END PWC 1.2 6311155
+            // END PWC 1.2 6311155
+        }
 
         /*
          * scratchdir
@@ -518,8 +555,9 @@ public final class EmbeddedServletOptions implements Options {
                 // Not running in a Servlet 2.2 container.
                 // Try to get the JDK 1.2 java.io.tmpdir property
                 dir = System.getProperty("java.io.tmpdir");
-                if (dir != null)
+                if (dir != null) {
                     scratchDir = new File(dir);
+                }
             }
         }
         if (this.scratchDir == null) {
@@ -527,8 +565,9 @@ public final class EmbeddedServletOptions implements Options {
             return;
         }
 
-        if (scratchDir.exists() && !(scratchDir.canRead() && scratchDir.canWrite() && scratchDir.isDirectory()))
+        if (scratchDir.exists() && (!scratchDir.canRead() || !scratchDir.canWrite() || !scratchDir.isDirectory())) {
             log.severe(Localizer.getMessage("jsp.error.bad.scratch.dir", scratchDir.getAbsolutePath()));
+        }
 
         this.compiler = config.getInitParameter("compiler");
 
@@ -612,7 +651,7 @@ public final class EmbeddedServletOptions implements Options {
             } catch (NumberFormatException nfe) {
                 if (log.isLoggable(Level.WARNING)) {
                     String msg = Localizer.getMessage("jsp.warning.initialcapacity");
-                    msg = MessageFormat.format(msg, new Object[] { capacity, Integer.valueOf(Constants.DEFAULT_INITIAL_CAPACITY) });
+                    msg = MessageFormat.format(msg, capacity, Integer.valueOf(Constants.DEFAULT_INITIAL_CAPACITY));
                     log.warning(msg);
                 }
             }
@@ -628,7 +667,7 @@ public final class EmbeddedServletOptions implements Options {
                 // use default, issue warning
                 if (log.isLoggable(Level.WARNING)) {
                     String msg = Localizer.getMessage("jsp.warning.unsupportedJavaCompiler");
-                    msg = MessageFormat.format(msg, new Object[] { jspCompilerPlugin });
+                    msg = MessageFormat.format(msg, jspCompilerPlugin);
                     log.warning(msg);
                 }
             }
@@ -677,7 +716,7 @@ public final class EmbeddedServletOptions implements Options {
                 return false;
             }
             if (log.isLoggable(Level.WARNING)) {
-                log.warning(Localizer.getMessage("jsp.warning.boolean", param, (init ? "true" : "false")));
+                log.warning(Localizer.getMessage("jsp.warning.boolean", param, init ? "true" : "false"));
             }
         }
         return init;

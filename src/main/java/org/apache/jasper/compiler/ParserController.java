@@ -228,15 +228,13 @@ class ParserController implements TagConstants {
             }
         }
 
-        if (hasBom) {
-            /*
-             * Make sure the encoding specified in the BOM matches that in the JSP config element, treating "UTF-16", "UTF-16BE",
-             * and "UTF-16LE" as identical.
-             */
-            if (!jspConfigPageEnc.equalsIgnoreCase(sourceEnc)
-                    && (!jspConfigPageEnc.toLowerCase().startsWith("utf-16") || !sourceEnc.toLowerCase().startsWith("utf-16"))) {
-                err.jspError("jsp.error.bom_config_encoding_mismatch", sourceEnc, jspConfigPageEnc);
-            }
+        /*
+         * Make sure the encoding specified in the BOM matches that in the JSP config element, treating "UTF-16", "UTF-16BE",
+         * and "UTF-16LE" as identical.
+         */
+        if (hasBom && (!jspConfigPageEnc.equalsIgnoreCase(sourceEnc)
+                && (!jspConfigPageEnc.toLowerCase().startsWith("utf-16") || !sourceEnc.toLowerCase().startsWith("utf-16")))) {
+            err.jspError("jsp.error.bom_config_encoding_mismatch", sourceEnc, jspConfigPageEnc);
         }
     }
 
@@ -298,7 +296,7 @@ class ParserController implements TagConstants {
             // XML syntax or unknown, (auto)detect encoding ...
             Object[] ret = XMLEncodingDetector.getEncoding(absFileName, jarFile, ctxt, err);
             sourceEnc = (String) ret[0];
-            if (((Boolean) ret[1]).booleanValue()) {
+            if (((Boolean) ret[1])) {
                 isEncodingSpecifiedInProlog = true;
             }
             if (ret[2] != null && ((Boolean) ret[2]).booleanValue()) {

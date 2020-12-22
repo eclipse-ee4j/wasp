@@ -718,7 +718,7 @@ public class XMLChar {
      * @param c The character to check.
      */
     public static boolean isSupplemental(int c) {
-        return (c >= 0x10000 && c <= 0x10FFFF);
+        return c >= 0x10000 && c <= 0x10FFFF;
     }
 
     /**
@@ -728,7 +728,7 @@ public class XMLChar {
      * @param l The low surrogate.
      */
     public static int supplemental(char h, char l) {
-        return (h - 0xD800) * 0x400 + (l - 0xDC00) + 0x10000;
+        return (h - 0xD800) * 0x400 + l - 0xDC00 + 0x10000;
     }
 
     /**
@@ -737,7 +737,7 @@ public class XMLChar {
      * @param c The supplemental character to "split".
      */
     public static char highSurrogate(int c) {
-        return (char) (((c - 0x00010000) >> 10) + 0xD800);
+        return (char) ((c - 0x00010000 >> 10) + 0xD800);
     }
 
     /**
@@ -746,7 +746,7 @@ public class XMLChar {
      * @param c The supplemental character to "split".
      */
     public static char lowSurrogate(int c) {
-        return (char) (((c - 0x00010000) & 0x3FF) + 0xDC00);
+        return (char) ((c - 0x00010000 & 0x3FF) + 0xDC00);
     }
 
     /**
@@ -755,7 +755,7 @@ public class XMLChar {
      * @param c The character to check.
      */
     public static boolean isHighSurrogate(int c) {
-        return (0xD800 <= c && c <= 0xDBFF);
+        return 0xD800 <= c && c <= 0xDBFF;
     }
 
     /**
@@ -764,7 +764,7 @@ public class XMLChar {
      * @param c The character to check.
      */
     public static boolean isLowSurrogate(int c) {
-        return (0xDC00 <= c && c <= 0xDFFF);
+        return 0xDC00 <= c && c <= 0xDFFF;
     }
 
     /**
@@ -777,7 +777,7 @@ public class XMLChar {
      * @param c The character to check.
      */
     public static boolean isValid(int c) {
-        return (c < 0x10000 && (CHARS[c] & MASK_VALID) != 0) || (0x10000 <= c && c <= 0x10FFFF);
+        return c < 0x10000 && (CHARS[c] & MASK_VALID) != 0 || 0x10000 <= c && c <= 0x10FFFF;
     } // isValid(int):boolean
 
     /**
@@ -795,7 +795,7 @@ public class XMLChar {
      * @param c The character to check.
      */
     public static boolean isContent(int c) {
-        return (c < 0x10000 && (CHARS[c] & MASK_CONTENT) != 0) || (0x10000 <= c && c <= 0x10FFFF);
+        return c < 0x10000 && (CHARS[c] & MASK_CONTENT) != 0 || 0x10000 <= c && c <= 0x10FFFF;
     } // isContent(int):boolean
 
     /**
@@ -877,11 +877,13 @@ public class XMLChar {
      * @return true if name is a valid Name
      */
     public static boolean isValidName(String name) {
-        if (name.length() == 0)
+        if (name.length() == 0) {
             return false;
+        }
         char ch = name.charAt(0);
-        if (isNameStart(ch) == false)
+        if (isNameStart(ch) == false) {
             return false;
+        }
         for (int i = 1; i < name.length(); i++) {
             ch = name.charAt(i);
             if (isName(ch) == false) {
@@ -901,11 +903,13 @@ public class XMLChar {
      * @return true if name is a valid NCName
      */
     public static boolean isValidNCName(String ncName) {
-        if (ncName.length() == 0)
+        if (ncName.length() == 0) {
             return false;
+        }
         char ch = ncName.charAt(0);
-        if (isNCNameStart(ch) == false)
+        if (isNCNameStart(ch) == false) {
             return false;
+        }
         for (int i = 1; i < ncName.length(); i++) {
             ch = ncName.charAt(i);
             if (isNCName(ch) == false) {
@@ -925,8 +929,9 @@ public class XMLChar {
      * @return true if nmtoken is a valid Nmtoken
      */
     public static boolean isValidNmtoken(String nmtoken) {
-        if (nmtoken.length() == 0)
+        if (nmtoken.length() == 0) {
             return false;
+        }
         for (int i = 0; i < nmtoken.length(); i++) {
             char ch = nmtoken.charAt(i);
             if (!isName(ch)) {
@@ -949,7 +954,7 @@ public class XMLChar {
             int length = ianaEncoding.length();
             if (length > 0) {
                 char c = ianaEncoding.charAt(0);
-                if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+                if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {
                     for (int i = 1; i < length; i++) {
                         c = ianaEncoding.charAt(i);
                         if ((c < 'A' || c > 'Z') && (c < 'a' || c > 'z') && (c < '0' || c > '9') && c != '.' && c != '_' && c != '-') {

@@ -18,11 +18,11 @@
 package org.apache.jasper.xmlparser;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Simplified implementation of a Node from a Document Object Model (DOM) parse of an XML document. This class is used
@@ -59,11 +59,11 @@ public class TreeNode {
      */
     public TreeNode(String name, TreeNode parent) {
 
-        super();
         this.name = name;
         this.parent = parent;
-        if (this.parent != null)
+        if (this.parent != null) {
             this.parent.addChild(this);
+        }
 
     }
 
@@ -104,8 +104,9 @@ public class TreeNode {
      */
     public void addAttribute(String name, String value) {
 
-        if (attributes == null)
-            attributes = new HashMap<String, String>();
+        if (attributes == null) {
+            attributes = new HashMap<>();
+        }
         attributes.put(name, value);
 
     }
@@ -117,8 +118,9 @@ public class TreeNode {
      */
     public void addChild(TreeNode node) {
 
-        if (children == null)
-            children = new ArrayList<TreeNode>();
+        if (children == null) {
+            children = new ArrayList<>();
+        }
         children.add(node);
 
     }
@@ -130,10 +132,11 @@ public class TreeNode {
      */
     public String findAttribute(String name) {
 
-        if (attributes == null)
-            return (null);
-        else
-            return (attributes.get(name));
+        if (attributes == null) {
+            return null;
+        } else {
+            return attributes.get(name);
+        }
 
     }
 
@@ -143,10 +146,11 @@ public class TreeNode {
     public Iterator<String> findAttributes() {
 
         Set<String> attrs;
-        if (attributes == null)
+        if (attributes == null) {
             attrs = Collections.emptySet();
-        else
+        } else {
             attrs = attributes.keySet();
+        }
         return attrs.iterator();
 
     }
@@ -159,13 +163,15 @@ public class TreeNode {
      */
     public TreeNode findChild(String name) {
 
-        if (children == null)
-            return (null);
-        for (TreeNode item : children) {
-            if (name.equals(item.getName()))
-                return (item);
+        if (children == null) {
+            return null;
         }
-        return (null);
+        for (TreeNode item : children) {
+            if (name.equals(item.getName())) {
+                return item;
+            }
+        }
+        return null;
 
     }
 
@@ -175,10 +181,11 @@ public class TreeNode {
     public Iterator<TreeNode> findChildren() {
 
         List<TreeNode> nodes;
-        if (children == null)
+        if (children == null) {
             nodes = Collections.emptyList();
-        else
+        } else {
             nodes = children;
+        }
         return nodes.iterator();
     }
 
@@ -191,13 +198,14 @@ public class TreeNode {
     public Iterator<TreeNode> findChildren(String name) {
 
         List<TreeNode> results;
-        if (children == null)
+        if (children == null) {
             results = Collections.emptyList();
-        else {
-            results = new ArrayList<TreeNode>();
+        } else {
+            results = new ArrayList<>();
             for (TreeNode item : children) {
-                if (name.equals(item.getName()))
+                if (name.equals(item.getName())) {
                     results.add(item);
+                }
             }
         }
         return results.iterator();
@@ -208,7 +216,7 @@ public class TreeNode {
      */
     public String getBody() {
 
-        return (this.body);
+        return this.body;
 
     }
 
@@ -217,7 +225,7 @@ public class TreeNode {
      */
     public String getName() {
 
-        return (this.name);
+        return this.name;
 
     }
 
@@ -228,8 +236,9 @@ public class TreeNode {
      */
     public void removeAttribute(String name) {
 
-        if (attributes != null)
+        if (attributes != null) {
             attributes.remove(name);
+        }
 
     }
 
@@ -240,8 +249,9 @@ public class TreeNode {
      */
     public void removeNode(TreeNode node) {
 
-        if (children != null)
+        if (children != null) {
             children.remove(node);
+        }
 
     }
 
@@ -259,11 +269,12 @@ public class TreeNode {
     /**
      * Return a String representation of this TreeNode.
      */
+    @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
         toString(sb, 0, this);
-        return (sb.toString());
+        return sb.toString();
 
     }
 
@@ -282,8 +293,9 @@ public class TreeNode {
         int indent2 = indent + 2;
 
         // Reconstruct an opening node
-        for (int i = 0; i < indent; i++)
+        for (int i = 0; i < indent; i++) {
             sb.append(' ');
+        }
         sb.append('<');
         sb.append(node.getName());
         Iterator names = node.findAttributes();
@@ -300,9 +312,10 @@ public class TreeNode {
 
         // Reconstruct the body text of this node (if any)
         String body = node.getBody();
-        if ((body != null) && (body.length() > 0)) {
-            for (int i = 0; i < indent2; i++)
+        if (body != null && body.length() > 0) {
+            for (int i = 0; i < indent2; i++) {
                 sb.append(' ');
+            }
             sb.append(body);
             sb.append("\n");
         }
@@ -315,8 +328,9 @@ public class TreeNode {
         }
 
         // Reconstruct a closing node marker
-        for (int i = 0; i < indent; i++)
+        for (int i = 0; i < indent; i++) {
             sb.append(' ');
+        }
         sb.append("</");
         sb.append(node.getName());
         sb.append(">\n");

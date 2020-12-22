@@ -238,7 +238,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
 
         checkPrefixes(uri, qName, attrs);
 
-        if (directivesOnly && (!JSP_URI.equals(uri) || (!localName.startsWith(DIRECTIVE_ACTION) && !localName.startsWith(ROOT_ACTION)))) {
+        if (directivesOnly && (!JSP_URI.equals(uri) || !localName.startsWith(DIRECTIVE_ACTION) && !localName.startsWith(ROOT_ACTION))) {
             return;
         }
 
@@ -367,7 +367,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
         boolean isAllSpace = true;
         if (!(current instanceof Node.JspText) && !(current instanceof Node.NamedAttribute)) {
             for (int i = 0; i < charBuffer.length(); i++) {
-                if (((charBuffer.charAt(i) != ' ') && (charBuffer.charAt(i) != '\n') && (charBuffer.charAt(i) != '\r') && (charBuffer.charAt(i) != '\t'))) {
+                if (charBuffer.charAt(i) != ' ' && charBuffer.charAt(i) != '\n' && charBuffer.charAt(i) != '\r' && charBuffer.charAt(i) != '\t') {
                     isAllSpace = false;
                     break;
                 }

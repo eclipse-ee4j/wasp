@@ -32,7 +32,7 @@ import jakarta.servlet.jsp.tagext.VariableInfo;
  */
 class ScriptingVariabler {
 
-    private static final Integer MAX_SCOPE = Integer.valueOf(Integer.MAX_VALUE);
+    private static final Integer MAX_SCOPE = Integer.MAX_VALUE;
 
     /*
      * Assigns an identifier (of type integer) to every custom tag, in order to help identify, for every custom tag, the
@@ -50,7 +50,7 @@ class ScriptingVariabler {
             parent = n;
             visitBody(n);
             parent = tmpParent;
-            n.setNumCount(Integer.valueOf(count++));
+            n.setNumCount(count++);
         }
     }
 

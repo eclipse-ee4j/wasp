@@ -78,7 +78,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return false;
         } else {
-            return Boolean.valueOf(s).booleanValue();
+            return Boolean.valueOf(s);
         }
     }
 
@@ -86,7 +86,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return (byte) 0;
         } else {
-            return Byte.valueOf(s).byteValue();
+            return Byte.valueOf(s);
         }
     }
 
@@ -95,7 +95,7 @@ public class JspRuntimeLibrary {
             return (char) 0;
         } else {
             // this trick avoids escaping issues
-            return (char) s.charAt(0);
+            return s.charAt(0);
         }
     }
 
@@ -103,7 +103,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return 0;
         } else {
-            return Double.valueOf(s).doubleValue();
+            return Double.valueOf(s);
         }
     }
 
@@ -111,7 +111,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return 0;
         } else {
-            return Float.valueOf(s).floatValue();
+            return Float.valueOf(s);
         }
     }
 
@@ -119,7 +119,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return 0;
         } else {
-            return Integer.valueOf(s).intValue();
+            return Integer.valueOf(s);
         }
     }
 
@@ -127,7 +127,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return (short) 0;
         } else {
-            return Short.valueOf(s).shortValue();
+            return Short.valueOf(s);
         }
     }
 
@@ -135,7 +135,7 @@ public class JspRuntimeLibrary {
         if (s == null || s.length() == 0) {
             return 0;
         } else {
-            return Long.valueOf(s).longValue();
+            return Long.valueOf(s);
         }
     }
 
@@ -416,7 +416,7 @@ public class JspRuntimeLibrary {
             } else if (t.equals(Character.class)) {
                 Character[] tmpval = new Character[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    tmpval[i] = Character.valueOf(values[i].charAt(0));
+                    tmpval[i] = values[i].charAt(0);
                 }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(int.class)) {
@@ -434,7 +434,7 @@ public class JspRuntimeLibrary {
             } else if (t.equals(boolean.class)) {
                 boolean[] tmpval = new boolean[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    tmpval[i] = Boolean.valueOf(values[i]).booleanValue();
+                    tmpval[i] = Boolean.valueOf(values[i]);
                 }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(short.class)) {
@@ -452,13 +452,13 @@ public class JspRuntimeLibrary {
             } else if (t.equals(double.class)) {
                 double[] tmpval = new double[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    tmpval[i] = Double.valueOf(values[i]).doubleValue();
+                    tmpval[i] = Double.valueOf(values[i]);
                 }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(float.class)) {
                 float[] tmpval = new float[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    tmpval[i] = Float.valueOf(values[i]).floatValue();
+                    tmpval[i] = Float.valueOf(values[i]);
                 }
                 method.invoke(bean, new Object[] { tmpval });
             } else if (t.equals(char.class)) {
@@ -735,10 +735,8 @@ public class JspRuntimeLibrary {
         String uri = (String) request.getAttribute("jakarta.servlet.include.servlet_path");
         if (uri != null) {
             String pathInfo = (String) request.getAttribute("jakarta.servlet.include.path_info");
-            if (pathInfo == null) {
-                if (uri.lastIndexOf('/') >= 0) {
-                    uri = uri.substring(0, uri.lastIndexOf('/'));
-                }
+            if ((pathInfo == null) && (uri.lastIndexOf('/') >= 0)) {
+                uri = uri.substring(0, uri.lastIndexOf('/'));
             }
         } else {
             uri = hrequest.getServletPath();

@@ -616,7 +616,7 @@ class Validator {
                 // less, #{} is not an error
                 if (ctxt.isTagFile()) {
                     String versionString = ctxt.getTagInfo().getTagLibrary().getRequiredVersion();
-                    Double version = Double.valueOf(versionString).doubleValue();
+                    Double version = Double.valueOf(versionString);
                     if (version < 2.1) {
                         return;
                     }
@@ -904,7 +904,6 @@ class Validator {
                 if (!"jakarta.el.MethodExpression".equals(typeName)) {
                     err.jspError(n, "jsp.error.setter.notmethodexpression", handlerName, property);
                 }
-                return;
             }
             /*
              * Temporarily removed, as it breaks some JSF applications. Should be able to refine the check. String tldType =
@@ -1206,13 +1205,11 @@ class Validator {
             }
             StringBuilder buf = new StringBuilder(value.length() + 2);
             for (int i = 0; i < value.length(); i++) {
-                if (value.charAt(i) == '#') {
-                    if (i + 1 < value.length() && value.charAt(i + 1) == '{') {
-                        if (i - 1 >= 0 && value.charAt(i - 1) == '\\') {
-                            buf.append('\\');
-                        }
+                if ((value.charAt(i) == '#') && (i + 1 < value.length() && value.charAt(i + 1) == '{')) {
+                    if (i - 1 >= 0 && value.charAt(i - 1) == '\\') {
                         buf.append('\\');
                     }
+                    buf.append('\\');
                 }
                 buf.append(value.charAt(i));
             }

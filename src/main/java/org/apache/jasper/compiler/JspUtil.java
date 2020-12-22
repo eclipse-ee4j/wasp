@@ -379,7 +379,7 @@ public class JspUtil {
             if (s.equalsIgnoreCase("yes")) {
                 b = true;
             } else {
-                b = Boolean.valueOf(s).booleanValue();
+                b = Boolean.valueOf(s);
             }
         }
         return b;

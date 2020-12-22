@@ -17,10 +17,11 @@
 
 package org.apache.jasper.xmlparser;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.UTFDataFormatException;
+
 import org.apache.jasper.compiler.Localizer;
 
 /**
@@ -84,6 +85,7 @@ public class UTF8Reader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read() throws IOException {
 
         // decode character
@@ -115,7 +117,7 @@ public class UTF8Reader extends Reader {
                 if ((b1 & 0xC0) != 0x80) {
                     invalidByte(2, 2, b1);
                 }
-                c = ((b0 << 6) & 0x07C0) | (b1 & 0x003F);
+                c = b0 << 6 & 0x07C0 | b1 & 0x003F;
             }
 
             // UTF-8: [1110 zzzz] [10yy yyyy] [10xx xxxx]
@@ -135,7 +137,7 @@ public class UTF8Reader extends Reader {
                 if ((b2 & 0xC0) != 0x80) {
                     invalidByte(3, 3, b2);
                 }
-                c = ((b0 << 12) & 0xF000) | ((b1 << 6) & 0x0FC0) | (b2 & 0x003F);
+                c = b0 << 12 & 0xF000 | b1 << 6 & 0x0FC0 | b2 & 0x003F;
             }
 
             // UTF-8: [1111 0uuu] [10uu zzzz] [10yy yyyy] [10xx xxxx]*
@@ -164,13 +166,13 @@ public class UTF8Reader extends Reader {
                 if ((b3 & 0xC0) != 0x80) {
                     invalidByte(4, 4, b3);
                 }
-                int uuuuu = ((b0 << 2) & 0x001C) | ((b1 >> 4) & 0x0003);
+                int uuuuu = b0 << 2 & 0x001C | b1 >> 4 & 0x0003;
                 if (uuuuu > 0x10) {
                     invalidSurrogate(uuuuu);
                 }
                 int wwww = uuuuu - 1;
-                int hs = 0xD800 | ((wwww << 6) & 0x03C0) | ((b1 << 2) & 0x003C) | ((b2 >> 4) & 0x0003);
-                int ls = 0xDC00 | ((b2 << 6) & 0x03C0) | (b3 & 0x003F);
+                int hs = 0xD800 | wwww << 6 & 0x03C0 | b1 << 2 & 0x003C | b2 >> 4 & 0x0003;
+                int ls = 0xDC00 | b2 << 6 & 0x03C0 | b3 & 0x003F;
                 c = hs;
                 fSurrogate = ls;
             }
@@ -203,6 +205,7 @@ public class UTF8Reader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read(char ch[], int offset, int length) throws IOException {
 
         // handle surrogate
@@ -281,7 +284,7 @@ public class UTF8Reader extends Reader {
                     }
                     invalidByte(2, 2, b1);
                 }
-                int c = ((b0 << 6) & 0x07C0) | (b1 & 0x003F);
+                int c = b0 << 6 & 0x07C0 | b1 & 0x003F;
                 ch[out++] = (char) c;
                 count -= 1;
                 continue;
@@ -340,7 +343,7 @@ public class UTF8Reader extends Reader {
                     }
                     invalidByte(3, 3, b2);
                 }
-                int c = ((b0 << 12) & 0xF000) | ((b1 << 6) & 0x0FC0) | (b2 & 0x003F);
+                int c = b0 << 12 & 0xF000 | b1 << 6 & 0x0FC0 | b2 & 0x003F;
                 ch[out++] = (char) c;
                 count -= 2;
                 continue;
@@ -431,7 +434,7 @@ public class UTF8Reader extends Reader {
                 }
 
                 // decode bytes into surrogate characters
-                int uuuuu = ((b0 << 2) & 0x001C) | ((b1 >> 4) & 0x0003);
+                int uuuuu = b0 << 2 & 0x001C | b1 >> 4 & 0x0003;
                 if (uuuuu > 0x10) {
                     invalidSurrogate(uuuuu);
                 }
@@ -439,8 +442,8 @@ public class UTF8Reader extends Reader {
                 int zzzz = b1 & 0x000F;
                 int yyyyyy = b2 & 0x003F;
                 int xxxxxx = b3 & 0x003F;
-                int hs = 0xD800 | ((wwww << 6) & 0x03C0) | (zzzz << 2) | (yyyyyy >> 4);
-                int ls = 0xDC00 | ((yyyyyy << 6) & 0x03C0) | xxxxxx;
+                int hs = 0xD800 | wwww << 6 & 0x03C0 | zzzz << 2 | yyyyyy >> 4;
+                int ls = 0xDC00 | yyyyyy << 6 & 0x03C0 | xxxxxx;
 
                 // set characters
                 ch[out++] = (char) hs;
@@ -473,6 +476,7 @@ public class UTF8Reader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public long skip(long n) throws IOException {
 
         long remaining = n;
@@ -500,6 +504,7 @@ public class UTF8Reader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public boolean ready() throws IOException {
         return false;
     } // ready()
@@ -507,6 +512,7 @@ public class UTF8Reader extends Reader {
     /**
      * Tell whether this stream supports the mark() operation.
      */
+    @Override
     public boolean markSupported() {
         return false;
     } // markSupported()
@@ -520,6 +526,7 @@ public class UTF8Reader extends Reader {
      *
      * @exception IOException If the stream does not support mark(), or if some other I/O error occurs
      */
+    @Override
     public void mark(int readAheadLimit) throws IOException {
         throw new IOException(Localizer.getMessage("jsp.error.xml.operationNotSupported", "mark()", "UTF-8"));
     }
@@ -533,6 +540,7 @@ public class UTF8Reader extends Reader {
      * @exception IOException If the stream has not been marked, or if the mark has been invalidated, or if the stream does
      * not support reset(), or if some other I/O error occurs
      */
+    @Override
     public void reset() throws IOException {
         fOffset = 0;
         fSurrogate = -1;
@@ -544,6 +552,7 @@ public class UTF8Reader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public void close() throws IOException {
         fInputStream.close();
     } // close()

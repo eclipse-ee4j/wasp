@@ -17,9 +17,10 @@
 
 package org.apache.jasper.xmlparser;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+
 import org.apache.jasper.compiler.Localizer;
 
 /**
@@ -80,6 +81,7 @@ public class ASCIIReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read() throws IOException {
         int b0 = fInputStream.read();
         if (b0 > 0x80) {
@@ -100,6 +102,7 @@ public class ASCIIReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read(char ch[], int offset, int length) throws IOException {
         if (length > fBuffer.length) {
             length = fBuffer.length;
@@ -125,6 +128,7 @@ public class ASCIIReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public long skip(long n) throws IOException {
         return fInputStream.skip(n);
     } // skip(long):long
@@ -137,6 +141,7 @@ public class ASCIIReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public boolean ready() throws IOException {
         return false;
     } // ready()
@@ -144,6 +149,7 @@ public class ASCIIReader extends Reader {
     /**
      * Tell whether this stream supports the mark() operation.
      */
+    @Override
     public boolean markSupported() {
         return fInputStream.markSupported();
     } // markSupported()
@@ -157,6 +163,7 @@ public class ASCIIReader extends Reader {
      *
      * @exception IOException If the stream does not support mark(), or if some other I/O error occurs
      */
+    @Override
     public void mark(int readAheadLimit) throws IOException {
         fInputStream.mark(readAheadLimit);
     } // mark(int)
@@ -170,6 +177,7 @@ public class ASCIIReader extends Reader {
      * @exception IOException If the stream has not been marked, or if the mark has been invalidated, or if the stream does
      * not support reset(), or if some other I/O error occurs
      */
+    @Override
     public void reset() throws IOException {
         fInputStream.reset();
     } // reset()
@@ -180,6 +188,7 @@ public class ASCIIReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public void close() throws IOException {
         fInputStream.close();
     } // close()

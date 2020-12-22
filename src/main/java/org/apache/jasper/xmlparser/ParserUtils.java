@@ -17,15 +17,20 @@
 
 package org.apache.jasper.xmlparser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.security.AccessController;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.AccessController;
+import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,13 +38,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.XMLConstants;
 
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
+import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.security.PrivilegedGetTccl;
 import org.apache.jasper.security.PrivilegedSetTccl;
-import org.apache.jasper.compiler.Localizer;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,8 +51,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.w3c.dom.ls.LSResourceResolver;
 import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -87,7 +91,7 @@ public class ParserUtils {
 
     private static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
 
-    private static HashMap<String, Schema> schemaCache = new HashMap<String, Schema>();
+    private static HashMap<String, Schema> schemaCache = new HashMap<>();
 
     /**
      * List of the Public IDs that we cache, and their associated location. This is used by an EntityResolver to return the
@@ -100,12 +104,12 @@ public class ParserUtils {
     private static final String[] DEFAULT_DTD_RESOURCE_PATHS = { Constants.TAGLIB_DTD_RESOURCE_PATH_11, Constants.TAGLIB_DTD_RESOURCE_PATH_12,
             Constants.WEBAPP_DTD_RESOURCE_PATH_22, Constants.WEBAPP_DTD_RESOURCE_PATH_23, };
 
-    static final String[] CACHED_DTD_RESOURCE_PATHS = (String[]) DEFAULT_DTD_RESOURCE_PATHS;
+    static final String[] CACHED_DTD_RESOURCE_PATHS = DEFAULT_DTD_RESOURCE_PATHS;
 
     private static final String[] DEFAULT_SCHEMA_RESOURCE_PATHS = { Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20, Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
             Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24, Constants.WEBAPP_SCHEMA_RESOURCE_PATH_25, };
 
-    static final String[] CACHED_SCHEMA_RESOURCE_PATHS = (String[]) DEFAULT_SCHEMA_RESOURCE_PATHS;
+    static final String[] CACHED_SCHEMA_RESOURCE_PATHS = DEFAULT_SCHEMA_RESOURCE_PATHS;
     // END PWC 6386258
 
     // --------------------------------------------------------- Constructors
@@ -281,7 +285,7 @@ public class ParserUtils {
         // END 6412405
 
         // Convert the resulting document to a graph of TreeNodes
-        return (convert(null, document.getDocumentElement()));
+        return convert(null, document.getDocumentElement());
     }
 
     /**
@@ -341,23 +345,25 @@ public class ParserUtils {
             int n = children.getLength();
             for (int i = 0; i < n; i++) {
                 Node child = children.item(i);
-                if (child instanceof Comment)
+                if (child instanceof Comment) {
                     continue;
+                }
                 if (child instanceof Text) {
                     String body = ((Text) child).getData();
                     if (body != null) {
                         body = body.trim();
-                        if (body.length() > 0)
+                        if (body.length() > 0) {
                             treeNode.setBody(body);
+                        }
                     }
                 } else {
-                    TreeNode treeChild = convert(treeNode, child);
+                    convert(treeNode, child);
                 }
             }
         }
 
         // Return the completed TreeNode graph
-        return (treeNode);
+        return treeNode;
     }
 
     // -------------------------------------------------------- Private Methods
@@ -465,6 +471,7 @@ class MyEntityResolver implements EntityResolver {
         this.blockExternal = blockExternal;
     }
 
+    @Override
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
         for (int i = 0; i < ParserUtils.CACHED_DTD_PUBLIC_IDS.length; i++) {
             String cachedDtdPublicId = ParserUtils.CACHED_DTD_PUBLIC_IDS[i];
@@ -510,16 +517,20 @@ class MyEntityResolver implements EntityResolver {
 }
 
 class MyErrorHandler implements ErrorHandler {
+    @Override
     public void warning(SAXParseException ex) throws SAXException {
-        if (ParserUtils.log.isLoggable(Level.FINE))
+        if (ParserUtils.log.isLoggable(Level.FINE)) {
             ParserUtils.log.log(Level.FINE, "ParserUtils: warning ", ex);
-        // We ignore warnings
+            // We ignore warnings
+        }
     }
 
+    @Override
     public void error(SAXParseException ex) throws SAXException {
         throw ex;
     }
 
+    @Override
     public void fatalError(SAXParseException ex) throws SAXException {
         throw ex;
     }
@@ -527,6 +538,7 @@ class MyErrorHandler implements ErrorHandler {
 
 class MyLSResourceResolver implements LSResourceResolver {
 
+    @Override
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
 
         InputStream is = null;
@@ -536,7 +548,7 @@ class MyLSResourceResolver implements LSResourceResolver {
         if (index != -1) {
             resourceName = systemId.substring(index + 1);
         }
-        String resourcePath = (ParserUtils.schemaResourcePrefix != null) ? (ParserUtils.schemaResourcePrefix + resourceName) : resourceName;
+        String resourcePath = ParserUtils.schemaResourcePrefix != null ? ParserUtils.schemaResourcePrefix + resourceName : resourceName;
 
         if (ParserUtils.isSchemaResourcePrefixFileUrl) {
             try {
@@ -570,66 +582,82 @@ class MyLSInput implements LSInput {
     private String encoding;
     private boolean certifiedText;
 
+    @Override
     public Reader getCharacterStream() {
         return charStream;
     }
 
+    @Override
     public void setCharacterStream(Reader charStream) {
         this.charStream = charStream;
     }
 
+    @Override
     public InputStream getByteStream() {
         return byteStream;
     }
 
+    @Override
     public void setByteStream(InputStream byteStream) {
         this.byteStream = byteStream;
     }
 
+    @Override
     public String getStringData() {
         return stringData;
     }
 
+    @Override
     public void setStringData(String stringData) {
         this.stringData = stringData;
     }
 
+    @Override
     public String getSystemId() {
         return systemId;
     }
 
+    @Override
     public void setSystemId(String systemId) {
         this.systemId = systemId;
     }
 
+    @Override
     public String getPublicId() {
         return publicId;
     }
 
+    @Override
     public void setPublicId(String publicId) {
         this.publicId = publicId;
     }
 
+    @Override
     public String getBaseURI() {
         return baseURI;
     }
 
+    @Override
     public void setBaseURI(String baseURI) {
         this.baseURI = baseURI;
     }
 
+    @Override
     public String getEncoding() {
         return encoding;
     }
 
+    @Override
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
 
+    @Override
     public boolean getCertifiedText() {
         return certifiedText;
     }
 
+    @Override
     public void setCertifiedText(boolean certifiedText) {
         this.certifiedText = certifiedText;
     }

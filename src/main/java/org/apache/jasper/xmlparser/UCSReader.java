@@ -17,11 +17,11 @@
 
 package org.apache.jasper.xmlparser;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Reader for UCS-2 and UCS-4 encodings. (i.e., encodings from ISO-10646-UCS-(2|4)).
@@ -107,31 +107,39 @@ public class UCSReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read() throws IOException {
         int b0 = fInputStream.read() & 0xff;
-        if (b0 == 0xff)
+        if (b0 == 0xff) {
             return -1;
+        }
         int b1 = fInputStream.read() & 0xff;
-        if (b1 == 0xff)
+        if (b1 == 0xff) {
             return -1;
+        }
         if (fEncoding >= 4) {
             int b2 = fInputStream.read() & 0xff;
-            if (b2 == 0xff)
+            if (b2 == 0xff) {
                 return -1;
+            }
             int b3 = fInputStream.read() & 0xff;
-            if (b3 == 0xff)
+            if (b3 == 0xff) {
                 return -1;
-            if (log.isLoggable(Level.FINE))
+            }
+            if (log.isLoggable(Level.FINE)) {
                 log.fine("b0 is " + (b0 & 0xff) + " b1 " + (b1 & 0xff) + " b2 " + (b2 & 0xff) + " b3 " + (b3 & 0xff));
-            if (fEncoding == UCS4BE)
+            }
+            if (fEncoding == UCS4BE) {
                 return (b0 << 24) + (b1 << 16) + (b2 << 8) + b3;
-            else
+            } else {
                 return (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
+            }
         } else { // UCS-2
-            if (fEncoding == UCS2BE)
+            if (fEncoding == UCS2BE) {
                 return (b0 << 8) + b1;
-            else
+            } else {
                 return (b1 << 8) + b0;
+            }
         }
     } // read():int
 
@@ -147,23 +155,26 @@ public class UCSReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read(char ch[], int offset, int length) throws IOException {
-        int byteLength = length << ((fEncoding >= 4) ? 2 : 1);
+        int byteLength = length << (fEncoding >= 4 ? 2 : 1);
         if (byteLength > fBuffer.length) {
             byteLength = fBuffer.length;
         }
         int count = fInputStream.read(fBuffer, 0, byteLength);
-        if (count == -1)
+        if (count == -1) {
             return -1;
+        }
         // try and make count be a multiple of the number of bytes we're looking for
         if (fEncoding >= 4) { // BigEndian
             // this looks ugly, but it avoids an if at any rate...
-            int numToRead = (4 - (count & 3) & 3);
+            int numToRead = 4 - (count & 3) & 3;
             for (int i = 0; i < numToRead; i++) {
                 int charRead = fInputStream.read();
                 if (charRead == -1) { // end of input; something likely went wrong!A Pad buffer with nulls.
-                    for (int j = i; j < numToRead; j++)
+                    for (int j = i; j < numToRead; j++) {
                         fBuffer[count + j] = 0;
+                    }
                     break;
                 } else {
                     fBuffer[count + i] = (byte) charRead;
@@ -184,7 +195,7 @@ public class UCSReader extends Reader {
         }
 
         // now count is a multiple of the right number of bytes
-        int numChars = count >> ((fEncoding >= 4) ? 2 : 1);
+        int numChars = count >> (fEncoding >= 4 ? 2 : 1);
         int curPos = 0;
         for (int i = 0; i < numChars; i++) {
             int b0 = fBuffer[curPos++] & 0xff;
@@ -192,15 +203,17 @@ public class UCSReader extends Reader {
             if (fEncoding >= 4) {
                 int b2 = fBuffer[curPos++] & 0xff;
                 int b3 = fBuffer[curPos++] & 0xff;
-                if (fEncoding == UCS4BE)
+                if (fEncoding == UCS4BE) {
                     ch[offset + i] = (char) ((b0 << 24) + (b1 << 16) + (b2 << 8) + b3);
-                else
+                } else {
                     ch[offset + i] = (char) ((b3 << 24) + (b2 << 16) + (b1 << 8) + b0);
+                }
             } else { // UCS-2
-                if (fEncoding == UCS2BE)
+                if (fEncoding == UCS2BE) {
                     ch[offset + i] = (char) ((b0 << 8) + b1);
-                else
+                } else {
                     ch[offset + i] = (char) ((b1 << 8) + b0);
+                }
             }
         }
         return numChars;
@@ -216,6 +229,7 @@ public class UCSReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public long skip(long n) throws IOException {
         // charWidth will represent the number of bits to move
         // n leftward to get num of bytes to skip, and then move the result rightward
@@ -223,10 +237,11 @@ public class UCSReader extends Reader {
         // The trick with &'ing, as with elsewhere in this dcode, is
         // intended to avoid an expensive use of / that might not be optimized
         // away.
-        int charWidth = (fEncoding >= 4) ? 2 : 1;
+        int charWidth = fEncoding >= 4 ? 2 : 1;
         long bytesSkipped = fInputStream.skip(n << charWidth);
-        if ((bytesSkipped & (charWidth | 1)) == 0)
+        if ((bytesSkipped & (charWidth | 1)) == 0) {
             return bytesSkipped >> charWidth;
+        }
         return (bytesSkipped >> charWidth) + 1;
     } // skip(long):long
 
@@ -238,6 +253,7 @@ public class UCSReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public boolean ready() throws IOException {
         return false;
     } // ready()
@@ -245,6 +261,7 @@ public class UCSReader extends Reader {
     /**
      * Tell whether this stream supports the mark() operation.
      */
+    @Override
     public boolean markSupported() {
         return fInputStream.markSupported();
     } // markSupported()
@@ -258,6 +275,7 @@ public class UCSReader extends Reader {
      *
      * @exception IOException If the stream does not support mark(), or if some other I/O error occurs
      */
+    @Override
     public void mark(int readAheadLimit) throws IOException {
         fInputStream.mark(readAheadLimit);
     } // mark(int)
@@ -271,6 +289,7 @@ public class UCSReader extends Reader {
      * @exception IOException If the stream has not been marked, or if the mark has been invalidated, or if the stream does
      * not support reset(), or if some other I/O error occurs
      */
+    @Override
     public void reset() throws IOException {
         fInputStream.reset();
     } // reset()
@@ -281,6 +300,7 @@ public class UCSReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public void close() throws IOException {
         fInputStream.close();
     } // close()

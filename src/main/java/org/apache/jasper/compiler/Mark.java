@@ -237,7 +237,7 @@ final class Mark {
 
         boolean greater = false;
 
-        if ((this.line > other.line) || (this.line == other.line && this.col > other.col)) {
+        if (this.line > other.line || this.line == other.line && this.col > other.col) {
             greater = true;
         }
 

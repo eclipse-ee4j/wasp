@@ -248,7 +248,7 @@ class Generator {
              * @return The name of the tag handler pool
              */
             private String createTagHandlerPoolName(String prefix, String shortName, Attributes attrs, boolean hasEmptyBody) {
-                String poolName = null;
+                String poolName;
 
                 poolName = "_jspx_tagPool_" + prefix + "_" + shortName;
                 if (attrs != null) {
@@ -408,13 +408,11 @@ class Generator {
      */
     private void genPreambleClassVariableDeclarations(String className) throws JasperException {
 
-        if (isPoolingEnabled) {
-            if (!tagHandlerPoolNames.isEmpty()) {
-                for (String tagHandlerPoolName : tagHandlerPoolNames) {
-                    out.printil("private org.apache.jasper.runtime.TagHandlerPool " + tagHandlerPoolName + ";");
-                }
-                out.println();
+        if (isPoolingEnabled && !tagHandlerPoolNames.isEmpty()) {
+            for (String tagHandlerPoolName : tagHandlerPoolNames) {
+                out.printil("private org.apache.jasper.runtime.TagHandlerPool " + tagHandlerPoolName + ";");
             }
+            out.println();
         }
 
         out.printil("private org.glassfish.jsp.api.ResourceInjector " + "_jspx_resourceInjector;");
@@ -1814,7 +1812,7 @@ class Generator {
                     boolean unescapePound = false;
                     if (isTagFile) {
                         String verS = ctxt.getTagInfo().getTagLibrary().getRequiredVersion();
-                        Double version = Double.valueOf(verS).doubleValue();
+                        Double version = Double.valueOf(verS);
                         if (version < 2.1) {
                             unescapePound = true;
                         }
@@ -2531,9 +2529,9 @@ class Generator {
                 if (tagVarNumbers.get(fullName) != null) {
                     Integer i = tagVarNumbers.get(fullName);
                     varName = varName + i.intValue();
-                    tagVarNumbers.put(fullName, Integer.valueOf(i.intValue() + 1));
+                    tagVarNumbers.put(fullName, i.intValue() + 1);
                 } else {
-                    tagVarNumbers.put(fullName, Integer.valueOf(1));
+                    tagVarNumbers.put(fullName, 1);
                     varName = varName + "0";
                 }
             }

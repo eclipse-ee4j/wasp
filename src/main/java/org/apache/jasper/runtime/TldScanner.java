@@ -149,7 +149,7 @@ public class TldScanner implements ServletContainerInitializer {
         this.isValidationEnabled = isValidationEnabled;
         Boolean b = (Boolean) ctxt.getAttribute("com.sun.faces.useMyFaces");
         if (b != null) {
-            useMyFaces = b.booleanValue();
+            useMyFaces = b;
         }
         blockExternal = Boolean.parseBoolean(ctxt.getInitParameter(Constants.XML_BLOCK_EXTERNAL_INIT_PARAM));
     }
@@ -159,7 +159,7 @@ public class TldScanner implements ServletContainerInitializer {
         this.ctxt = ctxt;
         Boolean b = (Boolean) ctxt.getAttribute("com.sun.faces.useMyFaces");
         if (b != null) {
-            useMyFaces = b.booleanValue();
+            useMyFaces = b;
         }
         ServletRegistration reg = ctxt.getServletRegistration("jsp");
         if (reg == null) {
@@ -586,10 +586,8 @@ public class TldScanner implements ServletContainerInitializer {
                 }
             }
 
-            if (tldMap != null && isStandalone != null) {
-                if (isStandalone.booleanValue() || EAR_LIB_CLASSLOADER.equals(loader.getClass().getName())) {
-                    break;
-                }
+            if ((tldMap != null && isStandalone != null) && (isStandalone.booleanValue() || EAR_LIB_CLASSLOADER.equals(loader.getClass().getName()))) {
+                break;
             }
 
             loader = loader.getParent();

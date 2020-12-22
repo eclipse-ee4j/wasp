@@ -227,10 +227,8 @@ abstract class ELNode {
             Iterator<ELNode> iter = list.iterator();
             while (iter.hasNext()) {
                 ELNode n = iter.next();
-                if (n instanceof Root) {
-                    if (((Root) n).isDollarExpr) {
-                        return true;
-                    }
+                if ((n instanceof Root) && ((Root) n).isDollarExpr) {
+                    return true;
                 }
             }
             return false;
@@ -240,10 +238,8 @@ abstract class ELNode {
             Iterator<ELNode> iter = list.iterator();
             while (iter.hasNext()) {
                 ELNode n = iter.next();
-                if (n instanceof Root) {
-                    if (!((Root) n).isDollarExpr) {
-                        return true;
-                    }
+                if ((n instanceof Root) && !((Root) n).isDollarExpr) {
+                    return true;
                 }
             }
             return false;

@@ -28,7 +28,7 @@ package org.apache.jasper.xmlparser;
  * <p>
  * <strong>Note:</strong> Never set the <code>ch</code>, <code>offset</code>, and <code>length</code> fields directly.
  * These fields are managed by the string buffer. In order to reset the buffer, call <code>clear()</code>.
- * 
+ *
  * @author Andy Clark, IBM
  * @author Eric Ye, IBM
  *
@@ -48,15 +48,15 @@ public class XMLStringBuffer extends XMLString {
     //
 
     /**
-     * 
+     *
      */
     public XMLStringBuffer() {
         this(DEFAULT_SIZE);
     } // <init>()
 
     /**
-     * 
-     * 
+     *
+     *
      * @param size
      */
     public XMLStringBuffer(int size) {
@@ -92,6 +92,7 @@ public class XMLStringBuffer extends XMLString {
     //
 
     /** Clears the string buffer. */
+    @Override
     public void clear() {
         offset = 0;
         length = 0;
@@ -99,14 +100,15 @@ public class XMLStringBuffer extends XMLString {
 
     /**
      * append
-     * 
+     *
      * @param c
      */
     public void append(char c) {
         if (this.length + 1 > this.ch.length) {
             int newLength = this.ch.length * 2;
-            if (newLength < this.ch.length + DEFAULT_SIZE)
+            if (newLength < this.ch.length + DEFAULT_SIZE) {
                 newLength = this.ch.length + DEFAULT_SIZE;
+            }
             char[] newch = new char[newLength];
             System.arraycopy(this.ch, 0, newch, 0, this.length);
             this.ch = newch;
@@ -117,15 +119,16 @@ public class XMLStringBuffer extends XMLString {
 
     /**
      * append
-     * 
+     *
      * @param s
      */
     public void append(String s) {
         int length = s.length();
         if (this.length + length > this.ch.length) {
             int newLength = this.ch.length * 2;
-            if (newLength < this.length + length + DEFAULT_SIZE)
+            if (newLength < this.length + length + DEFAULT_SIZE) {
                 newLength = this.ch.length + length + DEFAULT_SIZE;
+            }
             char[] newch = new char[newLength];
             System.arraycopy(this.ch, 0, newch, 0, this.length);
             this.ch = newch;
@@ -136,7 +139,7 @@ public class XMLStringBuffer extends XMLString {
 
     /**
      * append
-     * 
+     *
      * @param ch
      * @param offset
      * @param length
@@ -153,7 +156,7 @@ public class XMLStringBuffer extends XMLString {
 
     /**
      * append
-     * 
+     *
      * @param s
      */
     public void append(XMLString s) {

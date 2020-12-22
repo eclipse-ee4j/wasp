@@ -1397,9 +1397,7 @@ class Parser implements TagConstants {
             parseXMLDirective(parent);
         } else if (reader.matches("<%!") || reader.matches("<jsp:declaration") || reader.matches("<%=") || reader.matches("<jsp:expression")) {
             err.jspError(reader.mark(), "jsp.error.no.scriptlets");
-        } else if (reader.matches("<%")) {
-            err.jspError(reader.mark(), "jsp.error.no.scriptlets");
-        } else if (reader.matches("<jsp:scriptlet")) {
+        } else if (reader.matches("<%") || reader.matches("<jsp:scriptlet")) {
             err.jspError(reader.mark(), "jsp.error.no.scriptlets");
         } else if (reader.matches("<jsp:text")) {
             parseXMLTemplateText(parent);
@@ -1433,9 +1431,7 @@ class Parser implements TagConstants {
             parseXMLDirective(parent);
         } else if (reader.matches("<%!") || reader.matches("<jsp:declaration")) {
             err.jspError(reader.mark(), "jsp.error.not.in.template", "Declarations");
-        } else if (reader.matches("<%=")) {
-            err.jspError(reader.mark(), "jsp.error.not.in.template", "Expressions");
-        } else if (reader.matches("<jsp:expression")) {
+        } else if (reader.matches("<%=") || reader.matches("<jsp:expression")) {
             err.jspError(reader.mark(), "jsp.error.not.in.template", "Expressions");
         } else if (reader.matches("<%")) {
             err.jspError(reader.mark(), "jsp.error.not.in.template", "Scriptlets");
@@ -1620,7 +1616,7 @@ class Parser implements TagConstants {
             if (tagInfo.hasDynamicAttributes()) {
                 return TagInfo.BODY_CONTENT_JSP;
             }
-        } else if ((n instanceof Node.IncludeAction) || (n instanceof Node.ForwardAction)) {
+        } else if (n instanceof Node.IncludeAction || n instanceof Node.ForwardAction) {
             if ("page".equals(name)) {
                 return TagInfo.BODY_CONTENT_JSP;
             }

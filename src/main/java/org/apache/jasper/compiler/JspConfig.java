@@ -76,8 +76,7 @@ public class JspConfig {
             String buffer = jpg.getBuffer();
             String defaultContentType = jpg.getDefaultContentType();
             String errorOnUndeclaredNamespace = jpg.getErrorOnUndeclaredNamespace();
-            ArrayList<String> includePrelude = new ArrayList<>();
-            includePrelude.addAll(jpg.getIncludePreludes());
+            ArrayList<String> includePrelude = new ArrayList<>(jpg.getIncludePreludes());
             ArrayList<String> includeCoda = new ArrayList<>();
             includeCoda.addAll(jpg.getIncludeCodas());
 

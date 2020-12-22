@@ -1303,7 +1303,7 @@ abstract class Node implements TagConstants {
                 Attributes taglibAttrs, Mark start, Node parent, TagInfo tagInfo, Class tagHandlerClass) {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
 
-            this.jspVersion = Double.valueOf(jspVersion).doubleValue();
+            this.jspVersion = Double.valueOf(jspVersion);
             this.uri = uri;
             this.prefix = prefix;
             this.tagInfo = tagInfo;
@@ -1334,7 +1334,7 @@ abstract class Node implements TagConstants {
 
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
 
-            this.jspVersion = Double.valueOf(jspVersion).doubleValue();
+            this.jspVersion = Double.valueOf(jspVersion);
             this.uri = uri;
             this.prefix = prefix;
             this.tagFileInfo = tagFileInfo;
@@ -1890,7 +1890,7 @@ abstract class Node implements TagConstants {
             if (extraSmap == null) {
                 extraSmap = new ArrayList<>();
             }
-            extraSmap.add(Integer.valueOf(srcLine));
+            extraSmap.add(srcLine);
         }
 
         public ArrayList<Integer> getExtraSmap() {
@@ -2040,7 +2040,7 @@ abstract class Node implements TagConstants {
          * @return true if the value is a string literal known at translation time.
          */
         public boolean isLiteral() {
-            return (!expression && ((el == null) || !el.containsEL()) && !namedAttribute);
+            return !expression && (el == null || !el.containsEL()) && !namedAttribute;
         }
 
         /**

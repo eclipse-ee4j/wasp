@@ -117,15 +117,13 @@ public class ELParser {
         if (hasNext()) {
             boolean nodotSeen = prevToken == null || prevToken.toChar() != '.';
             Token t = nextToken();
-            if (t.toChar() == ':') {
-                if (hasNext()) {
-                    Token t2 = nextToken();
-                    if (t2 instanceof Id) {
-                        s1 = s2;
-                        s2 = t2.toString();
-                        if (hasNext()) {
-                            t = nextToken();
-                        }
+            if ((t.toChar() == ':') && hasNext()) {
+                Token t2 = nextToken();
+                if (t2 instanceof Id) {
+                    s1 = s2;
+                    s2 = t2.toString();
+                    if (hasNext()) {
+                        t = nextToken();
                     }
                 }
             }

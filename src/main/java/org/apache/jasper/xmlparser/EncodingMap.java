@@ -460,7 +460,7 @@ import java.util.Hashtable;
  * koi8-r</TD>
  * </TR>
  * </TABLE>
- * 
+ *
  * @author TAMURA Kent, IBM
  * @author Andy Clark, IBM
  *
@@ -473,10 +473,10 @@ public class EncodingMap {
     //
 
     /** fIANA2JavaMap */
-    protected final static Hashtable<String, String> fIANA2JavaMap = new Hashtable<String, String>();
+    protected final static Hashtable<String, String> fIANA2JavaMap = new Hashtable<>();
 
     /** fJava2IANAMap */
-    protected final static Hashtable<String, String> fJava2IANAMap = new Hashtable<String, String>();
+    protected final static Hashtable<String, String> fJava2IANAMap = new Hashtable<>();
 
     //
     // Static initialization
@@ -952,7 +952,7 @@ public class EncodingMap {
 
     /**
      * Adds an IANA to Java encoding name mapping.
-     * 
+     *
      * @param ianaEncoding The IANA encoding name.
      * @param javaEncoding The Java encoding name.
      */
@@ -962,7 +962,7 @@ public class EncodingMap {
 
     /**
      * Returns the Java encoding name for the specified IANA encoding name.
-     * 
+     *
      * @param ianaEncoding The IANA encoding name.
      */
     public static String getIANA2JavaMapping(String ianaEncoding) {
@@ -971,7 +971,7 @@ public class EncodingMap {
 
     /**
      * Removes an IANA to Java encoding name mapping.
-     * 
+     *
      * @param ianaEncoding The IANA encoding name.
      */
     public static String removeIANA2JavaMapping(String ianaEncoding) {
@@ -980,7 +980,7 @@ public class EncodingMap {
 
     /**
      * Adds a Java to IANA encoding name mapping.
-     * 
+     *
      * @param javaEncoding The Java encoding name.
      * @param ianaEncoding The IANA encoding name.
      */
@@ -990,7 +990,7 @@ public class EncodingMap {
 
     /**
      * Returns the IANA encoding name for the specified Java encoding name.
-     * 
+     *
      * @param javaEncoding The Java encoding name.
      */
     public static String getJava2IANAMapping(String javaEncoding) {
@@ -999,7 +999,7 @@ public class EncodingMap {
 
     /**
      * Removes a Java to IANA encoding name mapping.
-     * 
+     *
      * @param javaEncoding The Java encoding name.
      */
     public static String removeJava2IANAMapping(String javaEncoding) {

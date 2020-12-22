@@ -457,24 +457,18 @@ public class JspCServletContext implements ServletContext {
      * context.
      */
     public void addServlet(String servletName, String description, String className, Map<String, String> initParameters, int loadOnStartup) {
-        // Do nothing
-        return;
     }
 
     /**
      * Adds servlet mappings from the given url patterns to the servlet with the given servlet name to this servlet context.
      */
     public void addServletMapping(String servletName, String[] urlPatterns) {
-        // Do nothing
-        return;
     }
 
     /**
      * Adds the filter with the given name, description, and class name to this servlet context.
      */
     public void addFilter(String filterName, String description, String className, Map<String, String> initParameters) {
-        // Do nothing
-        return;
     }
 
     @Override

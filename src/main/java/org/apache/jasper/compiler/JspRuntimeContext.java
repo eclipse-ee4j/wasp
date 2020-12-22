@@ -309,7 +309,7 @@ public final class JspRuntimeContext implements Runnable {
             return;
         }
         bytecodes.put(name, bytecode);
-        bytecodeBirthTimes.put(name, Long.valueOf(System.currentTimeMillis()));
+        bytecodeBirthTimes.put(name, System.currentTimeMillis());
     }
 
     public void adjustBytecodeTime(String name, long reference) {
@@ -319,7 +319,7 @@ public final class JspRuntimeContext implements Runnable {
         }
 
         if (time.longValue() < reference) {
-            bytecodeBirthTimes.put(name, Long.valueOf(reference));
+            bytecodeBirthTimes.put(name, reference);
         }
     }
 
@@ -342,7 +342,7 @@ public final class JspRuntimeContext implements Runnable {
      */
     public long getBytecodeBirthTime(String name) {
         Long time = bytecodeBirthTimes.get(name);
-        return time != null ? time.longValue() : 0;
+        return time != null ? time : 0;
     }
 
     /**

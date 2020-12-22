@@ -61,7 +61,7 @@ public class XMLString {
 
     /**
      * Constructs an XMLString structure preset with the specified values.
-     * 
+     *
      * @param ch The character array.
      * @param offset The offset into the character array.
      * @param length The length of characters from the offset.
@@ -87,7 +87,7 @@ public class XMLString {
 
     /**
      * Initializes the contents of the XMLString structure with the specified values.
-     * 
+     *
      * @param ch The character array.
      * @param offset The offset into the character array.
      * @param length The length of characters from the offset.
@@ -102,7 +102,7 @@ public class XMLString {
      * Initializes the contents of the XMLString structure with copies of the given string structure.
      * <p>
      * <strong>Note:</strong> This does not copy the character array; only the reference to the array is copied.
-     * 
+     *
      * @param s
      */
     public void setValues(XMLString s) {
@@ -118,7 +118,7 @@ public class XMLString {
 
     /**
      * Returns true if the contents of this XMLString structure and the specified array are equal.
-     * 
+     *
      * @param ch The character array.
      * @param offset The offset into the character array.
      * @param length The length of characters from the offset.
@@ -141,7 +141,7 @@ public class XMLString {
 
     /**
      * Returns true if the contents of this XMLString structure and the specified string are equal.
-     * 
+     *
      * @param s The string to compare.
      */
     public boolean equals(String s) {
@@ -169,6 +169,7 @@ public class XMLString {
     //
 
     /** Returns a string representation of this object. */
+    @Override
     public String toString() {
         return length > 0 ? new String(ch, offset, length) : "";
     } // toString():String

@@ -63,7 +63,7 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
     public static ProtectedFunctionMapper getInstance() {
         ProtectedFunctionMapper funcMapper;
         if (SecurityUtil.isPackageProtectionEnabled()) {
-            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) () -> new ProtectedFunctionMapper());
+            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) ProtectedFunctionMapper::new);
         } else {
             funcMapper = new ProtectedFunctionMapper();
         }
@@ -113,7 +113,7 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
         java.lang.reflect.Method method;
         ProtectedFunctionMapper funcMapper;
         if (SecurityUtil.isPackageProtectionEnabled()) {
-            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) () -> new ProtectedFunctionMapper());
+            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) ProtectedFunctionMapper::new);
 
             try {
                 method = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> c.getDeclaredMethod(methodName, args));

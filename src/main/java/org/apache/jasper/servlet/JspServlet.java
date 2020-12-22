@@ -17,6 +17,12 @@
 
 package org.apache.jasper.servlet;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static org.apache.jasper.Constants.INC_SERVLET_PATH;
+import static org.apache.jasper.Constants.JSP_FILE;
+import static org.apache.jasper.Constants.PRECOMPILE;
+import static org.apache.jasper.compiler.JspUtil.escapeXml;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -32,7 +38,6 @@ import org.apache.jasper.Constants;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
 import org.apache.jasper.compiler.JspRuntimeContext;
-import org.apache.jasper.compiler.JspUtil;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.runtime.JspApplicationContextImpl;
 import org.glassfish.jsp.api.JspProbeEmitter;
@@ -46,7 +51,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 /**
- * The JSP engine (a.k.a Jasper).
+ * The Jakarta Pages engine (a.k.a WaSP).
  *
  * The servlet container is responsible for providing a URLClassLoader for the web application context Jasper is being
  * used in. Jasper will try get the Tomcat ServletContext attribute for its ServletContext class loader, if that fails,
@@ -60,9 +65,6 @@ import jakarta.servlet.jsp.tagext.TagLibraryInfo;
  */
 public class JspServlet extends HttpServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     // Logger
@@ -73,20 +75,14 @@ public class JspServlet extends HttpServlet {
     private Options options;
     private JspRuntimeContext rctxt;
 
-    // START S1AS
     // jsp error count
     private AtomicInteger countErrors = new AtomicInteger(0);
-    // END S1AS
 
-    // START SJSWS 6232180
-    private String httpMethodsString = null;
-    private HashSet<String> httpMethodsSet = null;
-    // END SJSWS 6232180
+    private String httpMethodsString;
+    private HashSet<String> httpMethodsSet;
 
-    // START GlassFish 750
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
     private ConcurrentHashMap<String, URL> tagFileJarUrls;
-    // END GlassFish 750
 
     private JspProbeEmitter jspProbeEmitter;
 
@@ -104,7 +100,6 @@ public class JspServlet extends HttpServlet {
         options = new EmbeddedServletOptions(config, context);
         rctxt = new JspRuntimeContext(context, options);
 
-        // START SJSWS 6232180
         // Determine which HTTP methods to service ("*" means all)
         httpMethodsString = config.getInitParameter("httpMethods");
         if (httpMethodsString != null && !httpMethodsString.equals("*")) {
@@ -114,15 +109,12 @@ public class JspServlet extends HttpServlet {
                 httpMethodsSet.add(tokenizer.nextToken());
             }
         }
-        // END SJSWS 6232180
 
-        // START GlassFish 750
         taglibs = new ConcurrentHashMap<>();
         context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
 
         tagFileJarUrls = new ConcurrentHashMap<>();
         context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE, tagFileJarUrls);
-        // END GlassFish 750
 
         if (log.isLoggable(Level.FINEST)) {
             log.finest(Localizer.getMessage("jsp.message.scratch.dir.is", options.getScratchDir().toString()));
@@ -166,7 +158,6 @@ public class JspServlet extends HttpServlet {
         return this.rctxt.getJspReloadCount();
     }
 
-    // START S1AS
     /**
      * Gets the number of errors triggered by JSP invocations.
      *
@@ -175,7 +166,6 @@ public class JspServlet extends HttpServlet {
     public int getJspErrorCount() {
         return countErrors.get();
     }
-    // END S1AS
 
     /**
      * <p>
@@ -191,16 +181,17 @@ public class JspServlet extends HttpServlet {
      * specified
      */
     boolean preCompile(HttpServletRequest request) throws ServletException {
-
         String queryString = request.getQueryString();
         if (queryString == null) {
             return false;
         }
-        int start = queryString.indexOf(Constants.PRECOMPILE);
+
+        int start = queryString.indexOf(PRECOMPILE);
         if (start < 0) {
             return false;
         }
-        queryString = queryString.substring(start + Constants.PRECOMPILE.length());
+
+        queryString = queryString.substring(start + PRECOMPILE.length());
         if (queryString.length() == 0) {
             return true; // ?jsp_precompile
         }
@@ -210,24 +201,23 @@ public class JspServlet extends HttpServlet {
         if (!queryString.startsWith("=")) {
             return false; // part of some other name or value
         }
+
         int limit = queryString.length();
         int ampersand = queryString.indexOf("&");
         if (ampersand > 0) {
             limit = ampersand;
         }
+
         String value = queryString.substring(1, limit);
         if (value.equals("true") || value.equals("false")) {
             return true; // ?jsp_precompile=true
-        } else {
-            throw new ServletException("Cannot have request parameter " + Constants.PRECOMPILE + " set to " + value);
         }
 
+        throw new ServletException("Cannot have request parameter " + PRECOMPILE + " set to " + value);
     }
 
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        // START SJSWS 6232180
         if (httpMethodsSet != null) {
             String method = request.getMethod();
             if (method == null) {
@@ -242,20 +232,19 @@ public class JspServlet extends HttpServlet {
                 return;
             }
         }
-        // END SJSWS 6232180
 
         String jspUri = null;
 
-        String jspFile = (String) request.getAttribute(Constants.JSP_FILE);
+        String jspFile = (String) request.getAttribute(JSP_FILE);
         if (jspFile != null) {
             // JSP is specified via <jsp-file> in <servlet> declaration
             jspUri = jspFile;
-            request.removeAttribute(Constants.JSP_FILE);
+            request.removeAttribute(JSP_FILE);
         } else {
             /*
              * Check to see if the requested JSP has been the target of a RequestDispatcher.include()
              */
-            jspUri = (String) request.getAttribute(Constants.INC_SERVLET_PATH);
+            jspUri = (String) request.getAttribute(INC_SERVLET_PATH);
             if (jspUri != null) {
                 /*
                  * Requested JSP has been target of RequestDispatcher.include(). Its path is assembled from the relevant
@@ -294,27 +283,19 @@ public class JspServlet extends HttpServlet {
             boolean precompile = preCompile(request);
             serviceJspFile(request, response, jspUri, null, precompile);
         } catch (RuntimeException e) {
-            // STARTS S1AS
             incrementErrorCount(jspUri);
-            // END S1AS
             throw e;
         } catch (Error e) {
             incrementErrorCount(jspUri);
             throw e;
         } catch (ServletException e) {
-            // STARTS S1AS
             incrementErrorCount(jspUri);
-            // END S1AS
             throw e;
         } catch (IOException e) {
-            // STARTS S1AS
             incrementErrorCount(jspUri);
-            // END S1AS
             throw e;
         } catch (Throwable e) {
-            // STARTS S1AS
             incrementErrorCount(jspUri);
-            // END S1AS
             throw new ServletException(e);
         }
 
@@ -329,17 +310,13 @@ public class JspServlet extends HttpServlet {
         rctxt.destroy();
         JspApplicationContextImpl.removeJspApplicationContext(context);
 
-        // START GlassFish 750
         taglibs.clear();
         tagFileJarUrls.clear();
-        // END GlassFish 750
 
-        // START GlassFish 747
         HashMap tldUriToLocationMap = (HashMap) context.getAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP);
         if (tldUriToLocationMap != null) {
             tldUriToLocationMap.clear();
         }
-        // END GlassFish 747
     }
 
     // -------------------------------------------------------- Private Methods
@@ -357,17 +334,14 @@ public class JspServlet extends HttpServlet {
                     if (null == context.getResource(jspUri) && !options.getUsePrecompiled()) {
                         String includeRequestUri = (String) request.getAttribute("jakarta.servlet.include.request_uri");
                         if (includeRequestUri != null) {
-                            // Missing JSP resource has been the target of a
-                            // RequestDispatcher.include().
-                            // Throw an exception (rather than returning a
-                            // 404 response error code), because any call to
-                            // response.sendError() must be ignored by the
-                            // servlet engine when issued from within an
+                            // Missing JSP resource has been the target of a RequestDispatcher.include().
+                            // Throw an exception (rather than returning a 404 response error code), because any call to
+                            // response.sendError() must be ignored by the servlet engine when issued from within an
                             // included resource (as per the Servlet spec).
-                            throw new FileNotFoundException(JspUtil.escapeXml(jspUri));
+                            throw new FileNotFoundException(escapeXml(jspUri));
                         }
 
-                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        response.sendError(SC_NOT_FOUND);
                         log.severe(Localizer.getMessage("jsp.error.file.not.found", context.getRealPath(jspUri)));
                         return;
                     }
@@ -382,7 +356,6 @@ public class JspServlet extends HttpServlet {
 
     }
 
-    // STARTS S1AS
     private void incrementErrorCount(String jspUri) {
         countErrors.incrementAndGet();
         // Fire the jspErrorEvent probe event
@@ -390,5 +363,4 @@ public class JspServlet extends HttpServlet {
             jspProbeEmitter.jspErrorEvent(jspUri);
         }
     }
-    // END S1AS
 }

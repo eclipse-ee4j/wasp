@@ -66,8 +66,7 @@ public class JasperLoader extends URLClassLoader {
      * @exception ClassNotFoundException if the class was not found
      */
     @Override
-    public Class loadClass(String name) throws ClassNotFoundException {
-
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
         return loadClass(name, false);
     }
 
@@ -91,9 +90,9 @@ public class JasperLoader extends URLClassLoader {
      * @exception ClassNotFoundException if the class was not found
      */
     @Override
-    public synchronized Class loadClass(final String name, boolean resolve) throws ClassNotFoundException {
+    public synchronized Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {
 
-        Class clazz;
+        Class<?> clazz;
 
         // (0) Check our previously loaded class cache
         clazz = findLoadedClass(name);
@@ -122,8 +121,7 @@ public class JasperLoader extends URLClassLoader {
         }
 
         if (!name.startsWith(Constants.JSP_PACKAGE_NAME)) {
-            // Class is not in org.apache.jsp, therefore, have our
-            // parent load it
+            // Class is not in org.apache.jsp, therefore, have our parent load it
             clazz = parent.loadClass(name);
             if (resolve) {
                 resolveClass(clazz);
@@ -136,19 +134,13 @@ public class JasperLoader extends URLClassLoader {
 
     // START OF IASRI 4709374
     @Override
-    public Class findClass(String className) throws ClassNotFoundException {
+    public Class<?> findClass(String className) throws ClassNotFoundException {
 
         // If the class file is in memory, use it
         byte[] cdata = this.bytecodes.get(className);
 
         String path = className.replace('.', '/') + ".class";
         if (cdata == null) {
-            // If the bytecode preprocessor is not enabled, use super.findClass
-            // as usual.
-            /*
-             * XXX if (!PreprocessorUtil.isPreprocessorEnabled()) { return super.findClass(className); }
-             */
-
             // read class data from file
             cdata = loadClassDataFromFile(path);
             if (cdata == null) {
@@ -157,11 +149,8 @@ public class JasperLoader extends URLClassLoader {
         }
 
         // Preprocess the loaded byte code
-        /*
-         * XXX if (PreprocessorUtil.isPreprocessorEnabled()) { cdata = PreprocessorUtil.processClass(path, cdata); }
-         */
 
-        Class clazz = null;
+        Class<?> clazz = null;
         if (securityManager != null) {
             ProtectionDomain pd = new ProtectionDomain(codeSource, permissionCollection);
             clazz = defineClass(className, cdata, 0, cdata.length, pd);

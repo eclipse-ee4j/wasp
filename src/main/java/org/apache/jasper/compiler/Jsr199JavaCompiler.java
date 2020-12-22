@@ -16,6 +16,10 @@
 
 package org.apache.jasper.compiler;
 
+import static javax.tools.ToolProvider.getSystemJavaCompiler;
+import static org.apache.jasper.Constants.JSP_PACKAGE_NAME;
+import static org.apache.jasper.compiler.ErrorDispatcher.createJavacError;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
@@ -39,15 +43,14 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
+import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 
-import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 
@@ -132,7 +135,6 @@ public class Jsr199JavaCompiler implements JavaCompiler {
 
     @Override
     public void doJavaFile(boolean keep) throws JasperException {
-
         if (!keep) {
             charArrayWriter = null;
             return;
@@ -175,11 +177,10 @@ public class Jsr199JavaCompiler implements JavaCompiler {
 
     @Override
     public JavacErrorDetail[] compile(String className, Node.Nodes pageNodes) throws JasperException {
-
-        final String source = charArrayWriter.toString();
+        String source = charArrayWriter.toString();
         classFiles = new ArrayList<>();
 
-        javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
+        javax.tools.JavaCompiler javac = getSystemJavaCompiler();
         if (javac == null) {
             errDispatcher.jspError("jsp.error.nojdk");
         }
@@ -202,14 +203,14 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         }
 
         JavaFileManager javaFileManager = getJavaFileManager(stdFileManager);
-        javax.tools.JavaCompiler.CompilationTask ct = javac.getTask(null, javaFileManager, diagnostics, options, null, Arrays.asList(sourceFiles));
+        CompilationTask compilationTask = javac.getTask(null, javaFileManager, diagnostics, options, null, Arrays.asList(sourceFiles));
 
         try {
             javaFileManager.close();
         } catch (IOException ex) {
         }
 
-        if (ct.call()) {
+        if (compilationTask.call()) {
             for (BytecodeFile bytecodeFile : classFiles) {
                 rtctxt.setBytecode(bytecodeFile.getClassName(), bytecodeFile.getBytecode());
             }
@@ -217,10 +218,14 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         }
 
         // There are compilation errors!
-        ArrayList<JavacErrorDetail> problems = new ArrayList<>();
-        for (Diagnostic dm : diagnostics.getDiagnostics()) {
-            problems.add(ErrorDispatcher.createJavacError(javaFileName, pageNodes, new StringBuilder(dm.getMessage(null)), (int) dm.getLineNumber()));
+        List<JavacErrorDetail> problems = new ArrayList<>();
+        for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
+            problems.add(createJavacError(
+                javaFileName, pageNodes,
+                new StringBuilder(diagnostic.getMessage(null)),
+                (int) diagnostic.getLineNumber()));
         }
+
         return problems.toArray(new JavacErrorDetail[0]);
     }
 
@@ -272,18 +277,13 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         }
         packageFiles.put(className, classFile);
         classFiles.add(classFile);
+
         return classFile;
     }
 
     protected JavaFileManager getJavaFileManager(JavaFileManager fm) {
 
         return new ForwardingJavaFileManager<JavaFileManager>(fm) {
-
-            /*
-             * @Override public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject
-             * sibling){ System.out.println(" At getFileForOutput: location = " + location + " pachageName = " + packageName +
-             * " relativeName = " + relativeName + " sibling = " + sibling); return getOutputFile(relativeName, null); }
-             */
 
             @Override
             public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, FileObject sibling) {
@@ -292,17 +292,16 @@ public class Jsr199JavaCompiler implements JavaCompiler {
 
             @Override
             public String inferBinaryName(Location location, JavaFileObject file) {
-
                 if (file instanceof BytecodeFile) {
                     return ((BytecodeFile) file).getClassName();
                 }
+
                 return super.inferBinaryName(location, file);
             }
 
             @Override
             public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse) throws IOException {
-
-                if (location == StandardLocation.CLASS_PATH && packageName.startsWith(Constants.JSP_PACKAGE_NAME)) {
+                if (location == StandardLocation.CLASS_PATH && packageName.startsWith(JSP_PACKAGE_NAME)) {
 
                     // TODO: Need to handle the case where some of the classes
                     // are on disk
@@ -312,9 +311,8 @@ public class Jsr199JavaCompiler implements JavaCompiler {
                         return packageFiles.values();
                     }
                 }
-                Iterable<JavaFileObject> lst = super.list(location, packageName, kinds, recurse);
 
-                return lst;
+                return super.list(location, packageName, kinds, recurse);
             }
         };
 

@@ -66,10 +66,11 @@ public class JspUtil {
     private static int tempSequenceNumber = 0;
     private static ExpressionFactory expFactory;
 
-    private static final String javaKeywords[] = { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
-            "default", "do", "double", "else", "enum", "extends", "final", "finally", "float", "for", "goto", "if", "implements", "import", "instanceof", "int",
-            "interface", "long", "native", "new", "package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
-            "synchronized", "this", "throws", "transient", "try", "void", "volatile", "while" };
+    private static final String javaKeywords[] = {
+        "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+        "default", "do", "double", "else", "enum", "extends", "final", "finally", "float", "for", "goto", "if", "implements", "import", "instanceof", "int",
+        "interface", "long", "native", "new", "package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+        "synchronized", "this", "throws", "transient", "try", "void", "volatile", "while" };
 
     public static final int CHUNKSIZE = 1024;
 
@@ -101,14 +102,8 @@ public class JspUtil {
             s = sb.toString();
         }
         chars = s.toCharArray();
-        return chars;
 
-        // Escape all backslashes not inside a Java string literal
-        /*
-         * CharArrayWriter caw = new CharArrayWriter(); boolean inJavaString = false; for (int i = 0; i < chars.length; i++) {
-         * if (chars[i] == '"') inJavaString = !inJavaString; // escape out the escape character if (!inJavaString && (chars[i]
-         * == '\\')) caw.write('\\'); caw.write(chars[i]); } return caw.toCharArray();
-         */
+        return chars;
     }
 
     /**
@@ -127,11 +122,12 @@ public class JspUtil {
             openExpr = OPEN_EXPR;
             closeExpr = CLOSE_EXPR;
         }
+
         if (token.startsWith(openExpr) && token.endsWith(closeExpr)) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -154,6 +150,7 @@ public class JspUtil {
         } else {
             returnString = "";
         }
+
         return returnString;
     }
 
@@ -307,6 +304,7 @@ public class JspUtil {
         if (s == null) {
             return null;
         }
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
@@ -608,25 +606,25 @@ public class JspUtil {
     public static String coerceToPrimitiveByte(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.apache.jasper.runtime.JspRuntimeLibrary.coerceToByte(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "(byte) 0";
-            } else {
-                return "((byte)" + Byte.valueOf(s).toString() + ")";
-            }
         }
+
+        if (s == null || s.length() == 0) {
+            return "(byte) 0";
+        }
+
+        return "((byte)" + Byte.valueOf(s).toString() + ")";
     }
 
     public static String coerceToByte(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Byte) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Byte.class)";
+        }
+
+        if (s == null || s.length() == 0) {
+            return "Byte.valueOf((byte) 0)";
         } else {
-            if (s == null || s.length() == 0) {
-                return "Byte.valueOf((byte) 0)";
-            } else {
-                // Detect format error at translation time
-                return "new Byte((byte)" + Byte.valueOf(s).toString() + ")";
-            }
+            // Detect format error at translation time
+            return "new Byte((byte)" + Byte.valueOf(s).toString() + ")";
         }
     }
 
@@ -907,10 +905,12 @@ public class JspUtil {
         if (start < path.length()) {
             comps.add(path.substring(start));
         }
+
         String[] result = new String[comps.size()];
         for (int i = 0; i < comps.size(); i++) {
             result[i] = comps.get(i);
         }
+
         return result;
     }
 
@@ -952,6 +952,7 @@ public class JspUtil {
         result[2] = Character.forDigit(ch >> 8 & 0xf, 16);
         result[3] = Character.forDigit(ch >> 4 & 0xf, 16);
         result[4] = Character.forDigit(ch & 0xf, 16);
+
         return new String(result);
     }
 
@@ -1018,7 +1019,6 @@ public class JspUtil {
      * L<classname>; It is converted into forms that can be understood by javac.
      */
     public static String toJavaSourceType(String type) {
-
         if (type.charAt(0) != '[') {
             return type;
         }
@@ -1145,12 +1145,12 @@ public class JspUtil {
             }
 
             java.util.jar.Attributes attrs = manifest.getMainAttributes();
-            String cp = attrs.getValue("Class-Path");
-            if (cp == null) {
+            String classPath = attrs.getValue("Class-Path");
+            if (classPath == null) {
                 continue;
             }
 
-            String[] paths = cp.split(" ");
+            String[] paths = classPath.split(" ");
             int lastIndex = file.lastIndexOf(File.separatorChar);
             String baseDir = "";
             if (lastIndex > 0) {
@@ -1168,6 +1168,7 @@ public class JspUtil {
                 }
             }
         }
+
         return files;
     }
 

@@ -144,19 +144,11 @@ public class JspC implements Options {
     private static final String SWITCH_DIE = "-die";
     private static final String SWITCH_SMAP = "-smap";
     private static final String SWITCH_DUMP_SMAP = "-dumpsmap";
-    // START PWC 6386258
     private static final String SWITCH_SCHEMAS_PREFIX = "-schemas";
     private static final String SWITCH_DTDS_PREFIX = "-dtds";
-    // END PWC 6386258
-    // START IASRI 4660687
     private static final String SWITCH_GENERATE_CLASSES = "-genclass";
-    // END IASRI 4660687
-    // START PWC 6385018
     private static final String SWITCH_VALIDATE = "-validate";
-    // END PWC 6385018
-    // START SJSAS 6393940
     private static final String SWITCH_IGNORE_JSP_FRAGMENTS = "-ignoreJspFragmentErrors";
-    // END SJSAS 6393940
     private static final String SWITCH_DISABLE_POOLING = "-disablePooling";
 
     private static final String SHOW_SUCCESS = "-s";
@@ -171,17 +163,15 @@ public class JspC implements Options {
             "<ejb-ref>", "<ejb-local-ref>" };
 
     private int dieLevel;
-    private String classPath = null;
-    // START PWC 1.2 6311155
-    private String sysClassPath = null;
-    // END PWC 1.2 6311155
-    private URLClassLoader loader = null;
-    private boolean trimSpaces = false;
-    private boolean genStringAsCharArray = false;
+    private String classPath;
+    private String sysClassPath;
+    private URLClassLoader loader;
+    private boolean trimSpaces;
+    private boolean genStringAsCharArray;
     private boolean genStringAsByteArray = true;
-    private boolean defaultBufferNone = false;
+    private boolean defaultBufferNone;
     private boolean xpoweredBy;
-    private boolean mappedFile = false;
+    private boolean mappedFile;
     private boolean poolingEnabled = true;
     private File scratchDir;
     private String ieClassId = DEFAULT_IE_CLASS_ID;
@@ -189,12 +179,12 @@ public class JspC implements Options {
     private String targetClassName;
     private String uriBase;
     private String uriRoot;
-    private boolean helpNeeded = false;
-    private boolean compile = false;
+    private boolean helpNeeded;
+    private boolean compile;
     private boolean smapSuppressed = true;
-    private boolean smapDumped = false;
+    private boolean smapDumped;
 
-    private String compiler = null;
+    private String compiler;
 
     private String compilerTargetVM = JAVA_1_5;
     private String compilerSourceVM = JAVA_1_5;
@@ -232,38 +222,28 @@ public class JspC implements Options {
     /**
      * Cache for the TLD locations
      */
-    private TldScanner tldScanner = null;
+    private TldScanner tldScanner;
 
-    private JspConfig jspConfig = null;
-    private TagPluginManager tagPluginManager = null;
+    private JspConfig jspConfig;
+    private TagPluginManager tagPluginManager;
 
-    private boolean listErrors = false;
-    private boolean showSuccess = false;
+    private boolean listErrors;
+    private boolean showSuccess;
     private int argPos;
-    private boolean fullstop = false;
+    private boolean fullstop;
     private String args[];
 
-    // START SJSAS 6384538
     private boolean isValidationEnabled;
-    // END SJSAS 6384538
 
-    // START SJSAS 6329723
     private HashMap<String, JasperException> jspErrors = new HashMap<>();
-    // END SJSAS 6329723
 
-    // START SJSAS 6403017
     private static String myJavaVersion = System.getProperty("java.specification.version");
-    // END SJSAS 6403017
 
-    // START SJSAS 6393940
     private boolean ignoreJspFragmentErrors = false;
     private Set<String> dependents = new HashSet<>();
-    // END SJSAS 6393940
 
-    // START GlassFish 750
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
     private ConcurrentHashMap<String, URL> tagFileJarUrls;
-    // END GlassFish 750
 
     public static void main(String arg[]) {
         if (arg.length == 0) {

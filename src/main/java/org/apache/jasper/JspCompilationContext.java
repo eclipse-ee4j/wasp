@@ -19,6 +19,7 @@ package org.apache.jasper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -76,7 +77,7 @@ public class JspCompilationContext {
     private int removed = 0;
 
     private URL baseUrl;
-    private Class servletClass;
+    private Class<?> servletClass;
 
     private boolean isTagFile;
     private boolean protoTypeMode;
@@ -172,6 +173,7 @@ public class JspCompilationContext {
         if (classPath != null) {
             return classPath;
         }
+
         return rctxt.getClassPath();
     }
 
@@ -189,6 +191,7 @@ public class JspCompilationContext {
         if (loader == null) {
             loader = rctxt.getParentClassLoader();
         }
+
         return loader;
     }
 
@@ -244,9 +247,9 @@ public class JspCompilationContext {
         // a root directory deperator char
         if (uri.startsWith("/") || uri.startsWith(File.separator)) {
             return uri;
-        } else {
-            return baseURI + uri;
         }
+
+        return baseURI + uri;
     }
 
     /**
@@ -254,7 +257,7 @@ public class JspCompilationContext {
      *
      * @return a null if the resource cannot be found or represented as an InputStream.
      */
-    public java.io.InputStream getResourceAsStream(String res) throws JasperException {
+    public InputStream getResourceAsStream(String res) throws JasperException {
         return context.getResourceAsStream(canonicalURI(res));
     }
 
@@ -281,6 +284,7 @@ public class JspCompilationContext {
                 throw new MalformedURLException(ex.getMessage());
             }
         }
+
         return result;
     }
 
@@ -320,7 +324,6 @@ public class JspCompilationContext {
      * Just the class name (does not include package name) of the generated class.
      */
     public String getServletClassName() {
-
         if (className != null) {
             return className;
         }
@@ -335,6 +338,7 @@ public class JspCompilationContext {
             int iSep = jspUri.lastIndexOf('/') + 1;
             className = JspUtil.makeJavaIdentifier(jspUri.substring(iSep));
         }
+
         return className;
     }
 
@@ -411,6 +415,7 @@ public class JspCompilationContext {
             int iSep = jspUri.lastIndexOf('/');
             derivedPackageName = iSep > 0 ? JspUtil.makeJavaPackage(jspUri.substring(1, iSep)) : "";
         }
+
         return derivedPackageName;
     }
 
@@ -425,10 +430,10 @@ public class JspCompilationContext {
      * Full path name of the Java file into which the servlet is being generated.
      */
     public String getServletJavaFileName() {
-
         if (servletJavaFileName == null) {
             servletJavaFileName = getOutputDir() + getServletClassName() + ".java";
         }
+
         return servletJavaFileName;
     }
 
@@ -454,6 +459,7 @@ public class JspCompilationContext {
         if (isTagFile()) {
             return tagInfo.getTagClassName();
         }
+
         return getServletPackageName() + '.' + getServletClassName();
     }
 
@@ -461,7 +467,6 @@ public class JspCompilationContext {
      * Path of the Java file relative to the work directory.
      */
     public String getJavaPath() {
-
         if (javaPath != null) {
             return javaPath;
         }
@@ -471,10 +476,10 @@ public class JspCompilationContext {
     }
 
     public String getClassFileName() {
-
         if (classFileName == null) {
             classFileName = getOutputDir() + getServletClassName() + ".class";
         }
+
         return classFileName;
     }
 
@@ -539,6 +544,7 @@ public class JspCompilationContext {
         if (removed > 1) {
             return true;
         }
+
         return false;
     }
 
@@ -567,9 +573,8 @@ public class JspCompilationContext {
 
     // ==================== Manipulating the class ====================
 
-    public Class load() throws JasperException, ClassNotFoundException {
+    public Class<?> load() throws JasperException, ClassNotFoundException {
         try {
-
             String name = getFullClassName();
 
             if (options.getUsePrecompiled()) {
@@ -588,6 +593,7 @@ public class JspCompilationContext {
             throw new JasperException(Localizer.getMessage("jsp.error.unable.compile"), ex);
         }
         removed = 0;
+
         return servletClass;
     }
 
@@ -635,6 +641,7 @@ public class JspCompilationContext {
         if (s == null) {
             return null;
         }
+
         StringBuilder result = new StringBuilder();
         final int len = s.length();
         int pos = 0;
@@ -690,6 +697,7 @@ public class JspCompilationContext {
             result.append(c);
             ++pos;
         }
+
         return result.toString();
     }
 }

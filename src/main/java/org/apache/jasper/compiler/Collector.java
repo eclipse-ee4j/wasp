@@ -113,7 +113,7 @@ class Collector {
          * Check all child nodes for various elements and update the given ChildInfo object accordingly. Visits body in the
          * process.
          */
-        private void checkSeen(Node.ChildInfo ci, Node n) throws JasperException {
+        private void checkSeen(Node.ChildInfo childInfo, Node node) throws JasperException {
             // save values collected so far
             boolean scriptingElementSeenSave = scriptingElementSeen;
             scriptingElementSeen = false;
@@ -129,8 +129,8 @@ class Collector {
             hasScriptingVars = false;
 
             // Scan attribute list for expressions
-            if (n instanceof Node.CustomTag) {
-                Node.CustomTag ct = (Node.CustomTag) n;
+            if (node instanceof Node.CustomTag) {
+                Node.CustomTag ct = (Node.CustomTag) node;
                 Node.JspAttribute[] attrs = ct.getJspAttributes();
                 for (int i = 0; attrs != null && i < attrs.length; i++) {
                     if (attrs[i].isExpression()) {
@@ -140,20 +140,20 @@ class Collector {
                 }
             }
 
-            visitBody(n);
+            visitBody(node);
 
-            if (n instanceof Node.CustomTag && !hasScriptingVars) {
-                Node.CustomTag ct = (Node.CustomTag) n;
+            if (node instanceof Node.CustomTag && !hasScriptingVars) {
+                Node.CustomTag ct = (Node.CustomTag) node;
                 hasScriptingVars = ct.getVariableInfos().length > 0 || ct.getTagVariableInfos().length > 0;
             }
 
             // Record if the tag element and its body contains any scriptlet.
-            ci.setScriptless(!scriptingElementSeen);
-            ci.setHasUseBean(usebeanSeen);
-            ci.setHasIncludeAction(includeActionSeen);
-            ci.setHasParamAction(paramActionSeen);
-            ci.setHasSetProperty(setPropertySeen);
-            ci.setHasScriptingVars(hasScriptingVars);
+            childInfo.setScriptless(!scriptingElementSeen);
+            childInfo.setHasUseBean(usebeanSeen);
+            childInfo.setHasIncludeAction(includeActionSeen);
+            childInfo.setHasParamAction(paramActionSeen);
+            childInfo.setHasSetProperty(setPropertySeen);
+            childInfo.setHasScriptingVars(hasScriptingVars);
 
             // Propagate value of scriptingElementSeen up.
             scriptingElementSeen = scriptingElementSeen || scriptingElementSeenSave;
@@ -212,7 +212,6 @@ class Collector {
     }
 
     public static void collect(Compiler compiler, Node.Nodes page) throws JasperException {
-
         CollectVisitor collectVisitor = new CollectVisitor();
         page.visit(collectVisitor);
         collectVisitor.updatePageInfo(compiler.getPageInfo());

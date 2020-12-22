@@ -18,6 +18,7 @@
 package org.apache.jasper.compiler;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.jasper.JasperException;
 
@@ -28,7 +29,7 @@ import org.apache.jasper.JasperException;
  */
 class BeanRepository {
 
-    private HashMap<String, String> beanTypes;
+    private Map<String, String> beanTypes;
     private ClassLoader loader;
     private ErrorDispatcher errDispatcher;
 
@@ -36,14 +37,12 @@ class BeanRepository {
      * Constructor.
      */
     public BeanRepository(ClassLoader loader, ErrorDispatcher err) {
-
         this.loader = loader;
         this.errDispatcher = err;
         beanTypes = new HashMap<>();
     }
 
     public void addBean(Node.UseBean n, String s, String type, String scope) throws JasperException {
-
         if (scope == null || scope.equals("page") || scope.equals("request") || scope.equals("session") || scope.equals("application")) {
             beanTypes.put(s, type);
         } else {
@@ -52,14 +51,12 @@ class BeanRepository {
 
     }
 
-    public Class getBeanType(String bean) throws JasperException {
-        Class clazz = null;
+    public Class<?> getBeanType(String bean) throws JasperException {
         try {
-            clazz = loader.loadClass(beanTypes.get(bean));
+            return loader.loadClass(beanTypes.get(bean));
         } catch (ClassNotFoundException ex) {
             throw new JasperException(ex);
         }
-        return clazz;
     }
 
     public boolean checkVariable(String bean) {

@@ -47,7 +47,6 @@ import jakarta.servlet.jsp.tagext.VariableInfo;
  * @author Shawn Bayern
  * @author Mark Roth
  */
-
 abstract class Node implements TagConstants {
 
     private static final VariableInfo[] ZERO_VARIABLE_INFO = {};
@@ -224,7 +223,6 @@ abstract class Node implements TagConstants {
      * Get the attribute that is non request time expression, either from the attribute of the node, or from a jsp:attrbute
      */
     public String getTextAttribute(String name) {
-
         String attr = getAttributeValue(name);
         if (attr != null) {
             return attr;
@@ -276,7 +274,6 @@ abstract class Node implements TagConstants {
      * @return Possibly empty Node.Nodes object containing any jsp:attribute subnodes of this Node
      */
     public Node.Nodes getNamedAttributeNodes() {
-
         if (namedAttributeNodes != null) {
             return namedAttributeNodes;
         }
@@ -300,6 +297,7 @@ abstract class Node implements TagConstants {
         }
 
         namedAttributeNodes = result;
+
         return result;
     }
 
@@ -864,7 +862,6 @@ abstract class Node implements TagConstants {
      * Represents a param action
      */
     public static class ParamAction extends Node {
-
         JspAttribute value;
 
         public ParamAction(Attributes attrs, Mark start, Node parent) {

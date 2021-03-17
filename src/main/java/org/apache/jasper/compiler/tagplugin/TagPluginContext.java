@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,7 +104,7 @@ public interface TagPluginContext {
 
     /**
      * Associate the attribute with a value in the current tagplugin context. The plugin attributes can be used for
-     * communication among tags that must work together as a group. See <c:when> for an example.
+     * communication among tags that must work together as a group. See <code>&lt;c:when></code> for an example.
      */
     void setPluginAttribute(String attr, Object value);
 

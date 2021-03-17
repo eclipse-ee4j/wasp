@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,10 +47,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.jsp.tagext.TagInfo;
 
 /**
- * The JSP engine (a.k.a Jasper).
+ * The JSP engine (a.k.a WaSP).
  *
- * The servlet container is responsible for providing a URLClassLoader for the web application context Jasper is being
- * used in. Jasper will try get the Tomcat ServletContext attribute for its ServletContext class loader, if that fails,
+ * The servlet container is responsible for providing a URLClassLoader for the web application context WaSP is being
+ * used in. WaSP will try get the ServletContext attribute for its ServletContext class loader, if that fails,
  * it uses the parent class loader. In either case, it must be a URLClassLoader.
  *
  * @author Anil K. Vijendran

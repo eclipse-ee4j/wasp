@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -109,12 +109,16 @@ public class Constants {
      */
     public static final String TAGLIB_DTD_PUBLIC_ID_11 = "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN";
     public static final String TAGLIB_DTD_RESOURCE_PATH_11 = "/javax/servlet/jsp/resources/web-jsptaglibrary_1_1.dtd";
+    
     public static final String TAGLIB_DTD_PUBLIC_ID_12 = "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN";
     public static final String TAGLIB_DTD_RESOURCE_PATH_12 = "/javax/servlet/jsp/resources/web-jsptaglibrary_1_2.dtd";
+    
     public static final String TAGLIB_SCHEMA_PUBLIC_ID_20 = "web-jsptaglibrary_2_0.xsd";
     public static final String TAGLIB_SCHEMA_RESOURCE_PATH_20 = "/javax/servlet/jsp/resources/web-jsptaglibrary_2_0.xsd";
+    
     public static final String TAGLIB_SCHEMA_PUBLIC_ID_21 = "web-jsptaglibrary_2_1.xsd";
     public static final String TAGLIB_SCHEMA_RESOURCE_PATH_21 = "/javax/servlet/jsp/resources/web-jsptaglibrary_2_1.xsd";
+    
     public static final String SCHEMA_LOCATION_JSP_20 = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd";
     public static final String SCHEMA_LOCATION_JSP_21 = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
 
@@ -124,19 +128,19 @@ public class Constants {
      */
     public static final String WEBAPP_DTD_PUBLIC_ID_22 = "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN";
     public static final String WEBAPP_DTD_RESOURCE_PATH_22 = "/javax/servlet/resources/web-app_2_2.dtd";
+    
     public static final String WEBAPP_DTD_PUBLIC_ID_23 = "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN";
     public static final String WEBAPP_DTD_RESOURCE_PATH_23 = "/javax/servlet/resources/web-app_2_3.dtd";
+    
     public static final String WEBAPP_SCHEMA_PUBLIC_ID_24 = "web-app_2_4.xsd";
     public static final String WEBAPP_SCHEMA_RESOURCE_PATH_24 = "/javax/servlet/resources/web-app_2_4.xsd";
+    
     public static final String WEBAPP_SCHEMA_PUBLIC_ID_25 = "web-app_2_5.xsd";
     public static final String WEBAPP_SCHEMA_RESOURCE_PATH_25 = "/javax/servlet/resources/web-app_2_5.xsd";
+    
     public static final String SCHEMA_LOCATION_WEBAPP_24 = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
     public static final String SCHEMA_LOCATION_WEBAPP_25 = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd";
 
-    /*
-     * PWC 6386258 public static final String[] CACHED_DTD_RESOURCE_PATHS = { TAGLIB_DTD_RESOURCE_PATH_11,
-     * TAGLIB_DTD_RESOURCE_PATH_12, WEBAPP_DTD_RESOURCE_PATH_22, WEBAPP_DTD_RESOURCE_PATH_23, };
-     */
 
     /**
      * Default URLs to download the pluging for Netscape and IE.
@@ -198,7 +202,7 @@ public class Constants {
     /**
      * The name of the JSP engine. Used for X-Powered-By identification in the response header
      */
-    public static final String JSP_NAME = "JSP/2.3";
+    public static final String JSP_NAME = "JSP/3.0";
 
     /**
      * Name of the ServletContext init-param that determines if the XML parsers will block the resolution of external

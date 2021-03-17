@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,8 +49,9 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.jsp.JspFactory;
 
 /**
- * Class for tracking JSP compile time file dependencies when the &060;%@include file="..."%&062; directive is used.
+ * Class for tracking JSP compile time file dependencies when the <code>&lt;@include file="..."></code> directive is used.
  *
+ *<p>
  * A background thread periodically checks the files a JSP page is dependent upon. If a dpendent file changes the JSP
  * page which included it is recompiled.
  *

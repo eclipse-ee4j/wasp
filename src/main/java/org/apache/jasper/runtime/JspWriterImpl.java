@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +78,7 @@ public class JspWriterImpl extends JspWriter {
      * @param response A Servlet Response
      * @param sz Output-buffer size, a positive integer
      *
-     * @exception IllegalArgumentException If sz is <= 0
+     * @exception IllegalArgumentException If sz is LTE 0
      */
     public JspWriterImpl(ServletResponse response, int sz, boolean autoFlush) {
         super(sz, autoFlush);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -568,7 +568,7 @@ public class JspC implements Options {
     }
 
     /**
-     * Sets the class-id value to be sent to Internet Explorer when using <jsp:plugin> tags.
+     * Sets the class-id value to be sent to Internet Explorer when using <code>&lt;jsp:plugin></code> tags.
      *
      * @param ieClassId Class-id value
      */
@@ -577,7 +577,7 @@ public class JspC implements Options {
     }
 
     /**
-     * Gets the class-id value that is sent to Internet Explorer when using <jsp:plugin> tags.
+     * Gets the class-id value that is sent to Internet Explorer when using <code>&lt;jsp:plugin></code> tags.
      *
      * @return Class-id value
      */

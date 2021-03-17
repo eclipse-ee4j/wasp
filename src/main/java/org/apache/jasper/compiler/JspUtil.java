@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,8 +107,8 @@ public class JspUtil {
     }
 
     /**
-     * Checks if the token is a runtime expression. In standard JSP syntax, a runtime expression starts with '<%' and ends
-     * with '%>'. When the JSP document is in XML syntax, a runtime expression starts with '%=' and ends with '%'.
+     * Checks if the token is a runtime expression. In standard JSP syntax, a runtime expression starts with <code>'&lt;%'</code> and ends
+     * with <code>'%>'</code>. When the JSP document is in XML syntax, a runtime expression starts with '%=' and ends with '%'.
      *
      * @param token The token to be checked return whether the token is a runtime expression or not.
      */

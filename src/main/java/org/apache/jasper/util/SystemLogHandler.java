@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,18 +21,32 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-
 /**
- * This helper class may be used to do sophisticated redirection of 
- * System.out and System.err.
+ * This helper class may be used to do sophisticated redirection of System.out and System.err.
  * 
  * @author Remy Maucherat
  */
 public class SystemLogHandler extends PrintStream {
 
+    // ----------------------------------------------------- Instance Variables
 
+    /**
+     * Wrapped PrintStream.
+     */
+    protected PrintStream wrapped;
+
+    /**
+     * Thread to PrintStream associations.
+     */
+    protected static final ThreadLocal streams = new ThreadLocal();
+
+    /**
+     * Thread to ByteArrayOutputStream associations.
+     */
+    protected static final ThreadLocal data = new ThreadLocal();
+    
+    
     // ----------------------------------------------------------- Constructors
-
 
     /**
      * Construct the handler to capture the output of the given steam.
@@ -41,34 +55,13 @@ public class SystemLogHandler extends PrintStream {
         super(wrapped);
         this.wrapped = wrapped;
     }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * Wrapped PrintStream.
-     */
-    protected PrintStream wrapped = null;
-
-
-    /**
-     * Thread <-> PrintStream associations.
-     */
-    protected static final ThreadLocal streams = new ThreadLocal();
-
-
-    /**
-     * Thread <-> ByteArrayOutputStream associations.
-     */
-    protected static final ThreadLocal data = new ThreadLocal();
-
+    
+    
 
     // --------------------------------------------------------- Public Methods
 
-
     public PrintStream getWrapped() {
-      return wrapped;
+        return wrapped;
     }
 
     /**
@@ -80,39 +73,35 @@ public class SystemLogHandler extends PrintStream {
         streams.set(new PrintStream(baos));
     }
 
-
     /**
      * Stop capturing thread's output and return captured data as a String.
      */
     public static String unsetThread() {
-        ByteArrayOutputStream baos = 
-            (ByteArrayOutputStream) data.get();
+        ByteArrayOutputStream baos = (ByteArrayOutputStream) data.get();
         if (baos == null) {
             return null;
         }
+        
         streams.set(null);
         data.set(null);
         return baos.toString();
     }
 
-
     // ------------------------------------------------------ Protected Methods
-
 
     /**
      * Find PrintStream to which the output must be written to.
      */
     protected PrintStream findStream() {
-        PrintStream ps = (PrintStream) streams.get();
-        if (ps == null) {
-            ps = wrapped;
+        PrintStream printStream = (PrintStream) streams.get();
+        if (printStream == null) {
+            printStream = wrapped;
         }
-        return ps;
+        
+        return printStream;
     }
 
-
     // ---------------------------------------------------- PrintStream Methods
-
 
     public void flush() {
         findStream().flush();
@@ -134,8 +123,7 @@ public class SystemLogHandler extends PrintStream {
         findStream().write(b);
     }
 
-    public void write(byte[] b)
-        throws IOException {
+    public void write(byte[] b) throws IOException {
         findStream().write(b);
     }
 

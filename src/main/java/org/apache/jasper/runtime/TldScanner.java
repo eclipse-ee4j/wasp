@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 
 package org.apache.jasper.runtime;
 
+import static java.lang.Boolean.TRUE;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
@@ -33,7 +34,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,6 +83,7 @@ import jakarta.servlet.descriptor.TaglibDescriptor;
  * @author Pierre Delisle
  * @author Jan Luehe
  * @author Kin-man Chung servlet 3.0 JSP plugin, tld cache etc
+ * @author Arjan Tijms
  */
 public class TldScanner implements ServletContainerInitializer {
 
@@ -127,6 +128,7 @@ public class TldScanner implements ServletContainerInitializer {
     private ServletContext servletContext;
     private boolean isValidationEnabled;
     private boolean useMyFaces;
+    private boolean useMultiJarScanAlgo;
     private boolean scanListeners; // true if scan tlds for listeners
     private boolean doneScanning; // true if all tld scanning done
     private boolean blockExternal; // Don't allow external entities
@@ -151,25 +153,22 @@ public class TldScanner implements ServletContainerInitializer {
     }
 
     /**
-     * Constructor used in Jasper
+     * Constructor used in WaSP
      */
     public TldScanner(ServletContext servletContext, boolean isValidationEnabled) {
         this.servletContext = servletContext;
         this.isValidationEnabled = isValidationEnabled;
-        Boolean b = (Boolean) servletContext.getAttribute("com.sun.faces.useMyFaces");
-        if (b != null) {
-            useMyFaces = b;
-        }
+        useMyFaces = TRUE.equals(servletContext.getAttribute("com.sun.faces.useMyFaces"));
+        useMultiJarScanAlgo = TRUE.equals(servletContext.getAttribute("org.glassfish.wasp.useMultiJarScanAlgo"));
         blockExternal = parseBoolean(servletContext.getInitParameter(XML_BLOCK_EXTERNAL_INIT_PARAM));
     }
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
         this.servletContext = servletContext;
-        Boolean b = (Boolean) servletContext.getAttribute("com.sun.faces.useMyFaces");
-        if (b != null) {
-            useMyFaces = b;
-        }
+        useMyFaces = TRUE.equals(servletContext.getAttribute("com.sun.faces.useMyFaces"));
+        useMultiJarScanAlgo = TRUE.equals(servletContext.getAttribute("org.glassfish.wasp.useMultiJarScanAlgo"));
+        
         ServletRegistration jspServletRegistration = servletContext.getServletRegistration("jsp");
         if (jspServletRegistration == null) {
             return;
@@ -210,7 +209,7 @@ public class TldScanner implements ServletContainerInitializer {
         }
 
         if (mappings != null && mappings.get(uri) != null) {
-            // if the uri is in, return that, and dont bother to do full scan
+            // if the uri is in, return that, and don't bother to do full scan
             return mappings.get(uri);
         }
 
@@ -383,14 +382,27 @@ public class TldScanner implements ServletContainerInitializer {
     /*
      * Scans all JARs accessible to the webapp's classloader and its parent classloaders for TLDs.
      *
+     * <p>
+     * If <code>useMultiJarScanAlgo</code> is false, the following algorithm will be used:
+     * <p>
      * The list of JARs always includes the JARs under WEB-INF/lib, as well as all shared JARs in the classloader delegation
      * chain of the webapp's classloader.
      *
+     * <p>
      * Considering JARs in the classloader delegation chain constitutes a Tomcat-specific extension to the TLD search order
      * defined in the JSP spec. It allows tag libraries packaged as JAR files to be shared by web applications by simply
      * dropping them in a location that all web applications have access to (e.g., <CATALINA_HOME>/common/lib).
      */
     private void scanJars() throws Exception {
+        boolean isStandalone = TRUE.equals(servletContext.getAttribute(IS_STANDALONE_ATTRIBUTE_NAME));
+        
+        if (useMultiJarScanAlgo) {
+            for (URL url : Classpath.search("META-INF/", ".tld")) {
+                scanJar(url, isStandalone);
+            }
+            
+            return;
+        }
 
         ClassLoader webappLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader loader = webappLoader;
@@ -401,8 +413,6 @@ public class TldScanner implements ServletContainerInitializer {
         } else {
             tldMap = getTldMap();
         }
-
-        Boolean isStandalone = (Boolean) servletContext.getAttribute(IS_STANDALONE_ATTRIBUTE_NAME);
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
@@ -443,7 +453,7 @@ public class TldScanner implements ServletContainerInitializer {
                 }
             }
 
-            if ((tldMap != null && isStandalone != null) && (isStandalone || EAR_LIB_CLASSLOADER.equals(loader.getClass().getName()))) {
+            if (tldMap != null && (isStandalone || EAR_LIB_CLASSLOADER.equals(loader.getClass().getName()))) {
                 break;
             }
 
@@ -456,6 +466,48 @@ public class TldScanner implements ServletContainerInitializer {
             }
         }
     }
+    
+    /**
+     * Scans the given URL for the TLD file META-INF ((or a subdirectory of it) that it represents. If the scanning in is
+     * done as part of the ServletContextInitializer, the listeners in the tlds in this jar file are added to the servlet
+     * context, and for any TLD that has a <uri> element, an implicit map entry is added to the taglib map.
+     *
+     * @param URL url the URL to the TLD to process
+     * @param isLocal True if the jar file is under WEB-INF false otherwise
+     */
+    private void scanJar(URL url, boolean isLocal) throws JasperException {
+        String resourcePath = url.toString();
+        TldInfo[] tldInfos = jarTldCacheLocal.get(resourcePath);
+
+        // Optimize for most common cases: jars known to NOT have tlds
+        if (tldInfos != null && tldInfos.length == 0) {
+            return;
+        }
+
+        // Scan the tld if the jar has not been cached.
+        if (tldInfos == null) {
+            List<TldInfo> tldInfoA = new ArrayList<>();
+            try {
+                tldInfoA.add(scanTld(resourcePath, url.getFile(), url.openStream()));
+            } catch (IOException ex) {
+                logOrThrow(resourcePath, ex);
+            }
+
+            tldInfos = tldInfoA.toArray(new TldInfo[tldInfoA.size()]);
+
+            // Update the jar TLD cache
+            updateTldCache(resourcePath, tldInfos, isLocal);
+        }
+
+        // Iterate over tldinfos to add listeners or to map tldlocations
+        for (TldInfo tldInfo : tldInfos) {
+            if (scanListeners) {
+                addListener(tldInfo, isLocal);
+            }
+            mapTldLocation(resourcePath, tldInfo, isLocal);
+        }
+    }
+    
     
     /**
      * Scans the given JarURLConnection for TLD files located in META-INF (or a subdirectory of it). If the scanning in is

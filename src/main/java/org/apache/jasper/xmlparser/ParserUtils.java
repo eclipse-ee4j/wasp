@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,17 +17,21 @@
 
 package org.apache.jasper.xmlparser;
 
+import static java.util.logging.Level.FINE;
+import static org.apache.jasper.xmlparser.ParserUtils.CACHED_DTD_PUBLIC_IDS;
+import static org.apache.jasper.xmlparser.ParserUtils.CACHED_DTD_RESOURCE_PATHS;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.AccessController;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -86,8 +90,8 @@ public class ParserUtils {
 
     static String dtdResourcePrefix;
 
-    static boolean isDtdResourcePrefixFileUrl = false;
-    static boolean isSchemaResourcePrefixFileUrl = false;
+    static boolean isDtdResourcePrefixFileUrl;
+    static boolean isSchemaResourcePrefixFileUrl;
 
     private static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
 
@@ -97,19 +101,29 @@ public class ParserUtils {
      * List of the Public IDs that we cache, and their associated location. This is used by an EntityResolver to return the
      * location of the cached copy of a DTD.
      */
-    static final String[] CACHED_DTD_PUBLIC_IDS = { Constants.TAGLIB_DTD_PUBLIC_ID_11, Constants.TAGLIB_DTD_PUBLIC_ID_12, Constants.WEBAPP_DTD_PUBLIC_ID_22,
+    static final String[] CACHED_DTD_PUBLIC_IDS = { 
+            Constants.TAGLIB_DTD_PUBLIC_ID_11, 
+            Constants.TAGLIB_DTD_PUBLIC_ID_12, 
+            Constants.WEBAPP_DTD_PUBLIC_ID_22,
             Constants.WEBAPP_DTD_PUBLIC_ID_23, };
 
     // START PWC 6386258
-    private static final String[] DEFAULT_DTD_RESOURCE_PATHS = { Constants.TAGLIB_DTD_RESOURCE_PATH_11, Constants.TAGLIB_DTD_RESOURCE_PATH_12,
-            Constants.WEBAPP_DTD_RESOURCE_PATH_22, Constants.WEBAPP_DTD_RESOURCE_PATH_23, };
+    private static final String[] DEFAULT_DTD_RESOURCE_PATHS = {
+            Constants.TAGLIB_DTD_RESOURCE_PATH_11, 
+            Constants.TAGLIB_DTD_RESOURCE_PATH_12,
+            Constants.WEBAPP_DTD_RESOURCE_PATH_22, 
+            Constants.WEBAPP_DTD_RESOURCE_PATH_23, };
 
     static final String[] CACHED_DTD_RESOURCE_PATHS = DEFAULT_DTD_RESOURCE_PATHS;
+    
 
-    private static final String[] DEFAULT_SCHEMA_RESOURCE_PATHS = { Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20, Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
-            Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24, Constants.WEBAPP_SCHEMA_RESOURCE_PATH_25, };
+    private static final String[] DEFAULT_SCHEMA_RESOURCE_PATHS = { // not actually used it seems
+            Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20, 
+            Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
+            Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24, 
+            Constants.WEBAPP_SCHEMA_RESOURCE_PATH_25, };
 
-    static final String[] CACHED_SCHEMA_RESOURCE_PATHS = DEFAULT_SCHEMA_RESOURCE_PATHS;
+    static final String[] CACHED_SCHEMA_RESOURCE_PATHS = DEFAULT_SCHEMA_RESOURCE_PATHS; // not actually used it seems
     // END PWC 6386258
 
     // --------------------------------------------------------- Constructors
@@ -134,7 +148,6 @@ public class ParserUtils {
      * Sets the path prefix URL for .xsd resources
      */
     public static void setSchemaResourcePrefix(String prefix) {
-
         if (prefix != null && prefix.startsWith("file:")) {
             schemaResourcePrefix = uencode(prefix);
             isSchemaResourcePrefixFileUrl = true;
@@ -156,7 +169,6 @@ public class ParserUtils {
      * Sets the path prefix URL for .dtd resources
      */
     public static void setDtdResourcePrefix(String prefix) {
-
         if (prefix != null && prefix.startsWith("file:")) {
             dtdResourcePrefix = uencode(prefix);
             isDtdResourcePrefixFileUrl = true;
@@ -186,7 +198,7 @@ public class ParserUtils {
                 } else {
                     try {
                         stringBuilder.append(URLEncoder.encode(token, "UTF-8"));
-                    } catch (java.io.UnsupportedEncodingException ex) {
+                    } catch (UnsupportedEncodingException ex) {
                     }
                 }
             }
@@ -276,8 +288,7 @@ public class ParserUtils {
             // START 6412405
         } finally {
             if (Constants.IS_SECURITY_ENABLED) {
-                PrivilegedSetTccl pa = new PrivilegedSetTccl(currentLoader);
-                AccessController.doPrivileged(pa);
+                AccessController.doPrivileged(new PrivilegedSetTccl(currentLoader));
             } else {
                 Thread.currentThread().setContextClassLoader(currentLoader);
             }
@@ -473,15 +484,11 @@ class MyEntityResolver implements EntityResolver {
 
     @Override
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
-        for (int i = 0; i < ParserUtils.CACHED_DTD_PUBLIC_IDS.length; i++) {
-            String cachedDtdPublicId = ParserUtils.CACHED_DTD_PUBLIC_IDS[i];
+        for (int i = 0; i < CACHED_DTD_PUBLIC_IDS.length; i++) {
+            String cachedDtdPublicId = CACHED_DTD_PUBLIC_IDS[i];
             if (cachedDtdPublicId.equals(publicId)) {
-                /*
-                 * PWC 6386258 String resourcePath = Constants.CACHED_DTD_RESOURCE_PATHS[i];
-                 */
-                // START PWC 6386258
-                String resourcePath = ParserUtils.CACHED_DTD_RESOURCE_PATHS[i];
-                // END PWC 6386258
+                String resourcePath = CACHED_DTD_RESOURCE_PATHS[i];
+                
                 InputStream input = null;
                 if (ParserUtils.isDtdResourcePrefixFileUrl) {
                     try {
@@ -493,17 +500,28 @@ class MyEntityResolver implements EntityResolver {
                         throw new SAXException(e);
                     }
                 } else {
-                    input = this.getClass().getResourceAsStream(resourcePath);
+                    input = getClass().getResourceAsStream(resourcePath);
+                    
+                    if (input == null) {
+                        // Try fallback DTD
+                        int index = resourcePath.lastIndexOf('/');
+                        if (index != -1) {
+                            String fallBackResourcePath = "/org/glassfish/wasp/resources/" + resourcePath.substring(index + 1);
+                            input = getClass().getResourceAsStream(fallBackResourcePath);
+                        }
+                    }
+                    
                 }
+                
                 if (input == null) {
                     throw new SAXException(Localizer.getMessage("jsp.error.internal.filenotfound", resourcePath));
                 }
-                InputSource isrc = new InputSource(input);
-                return isrc;
+                
+                return new InputSource(input);
             }
         }
 
-        if (ParserUtils.log.isLoggable(Level.FINE)) {
+        if (ParserUtils.log.isLoggable(FINE)) {
             ParserUtils.log.fine("Resolve entity failed" + publicId + " " + systemId);
         }
 
@@ -512,6 +530,7 @@ class MyEntityResolver implements EntityResolver {
         if (blockExternal) {
             throw new SAXException(Localizer.getMessage("jsp.error.parse.xml.invalidPublicId", publicId));
         }
+        
         return null;
     }
 }
@@ -519,8 +538,8 @@ class MyEntityResolver implements EntityResolver {
 class MyErrorHandler implements ErrorHandler {
     @Override
     public void warning(SAXParseException ex) throws SAXException {
-        if (ParserUtils.log.isLoggable(Level.FINE)) {
-            ParserUtils.log.log(Level.FINE, "ParserUtils: warning ", ex);
+        if (ParserUtils.log.isLoggable(FINE)) {
+            ParserUtils.log.log(FINE, "ParserUtils: warning ", ex);
             // We ignore warnings
         }
     }

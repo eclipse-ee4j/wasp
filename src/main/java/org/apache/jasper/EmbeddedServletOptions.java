@@ -59,7 +59,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Do you want to keep the generated Java files around?
      */
-    private boolean keepGenerated;
+    private boolean keepGenerated = false;
 
     /**
      * If class files are generated as byte arrays, should they be saved to disk at the end of compilations?
@@ -497,8 +497,7 @@ public final class EmbeddedServletOptions implements Options {
         }
         // END SJSAS 6384538
 
-        // keepgenerated default is false for JDK6 for later, true otherwise
-        keepGenerated = getBoolean(config, !isJDK6(), "keepgenerated");
+        keepGenerated = getBoolean(config, keepGenerated, "keepgenerated");
         saveBytecode = getBoolean(config, saveBytecode, "saveBytecode");
         trimSpaces = getBoolean(config, trimSpaces, "trimSpaces");
         isPoolingEnabled = getBoolean(config, isPoolingEnabled, "enablePooling");
@@ -722,10 +721,4 @@ public final class EmbeddedServletOptions implements Options {
         return init;
     }
 
-    /*
-     * returns true if running with JDK 6 or later.
-     */
-    private boolean isJDK6() {
-        return "1.6".equals(System.getProperty("java.specification.version"));
-    }
 }

@@ -160,14 +160,14 @@
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <excludes>
                         <exclude>
-                            org/apache/jasper/compiler/JDTJavaCompiler.java
+                            org/eclipse/wasp/compiler/JDTJavaCompiler.java
                         </exclude>
                         <exclude>
-                            org/apache/jasper/compiler/AntJavaCompiler.java
+                            org/eclipse/wasp/compiler/AntJavaCompiler.java
                         </exclude>
                         <exclude>
                             <!-- This is only used by AntJavaCompiler -->
-                            org/apache/jasper/util/SystemLogHandler.java
+                            org/eclipse/wasp/util/SystemLogHandler.java
                         </exclude>
                     </excludes>
                 </configuration>
@@ -254,7 +254,7 @@
                             <groups>
                                 <group>
                                     <title>WaSP ${project.version}</title>
-                                    <packages>org.apache.jasper</packages>
+                                    <packages>org.eclipse.wasp</packages>
                                     <packages>org.glassfish.jsp.api</packages>
                                 </group>
                             </groups>

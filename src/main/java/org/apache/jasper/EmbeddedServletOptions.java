@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
+ * Copyright (c) 2021 Contributors to the Eclipse Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,12 +148,12 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Compiler target VM.
      */
-    private String compilerTargetVM = "1.5";
+    private String compilerTargetVM = "1.8";
 
     /**
      * The compiler source VM.
      */
-    private String compilerSourceVM = "1.5";
+    private String compilerSourceVM = "1.8";
 
     /**
      * The compiler class name.
@@ -463,17 +464,6 @@ public final class EmbeddedServletOptions implements Options {
      * Create an EmbeddedServletOptions object using data available from ServletConfig and ServletContext.
      */
     public EmbeddedServletOptions(ServletConfig config, ServletContext context) {
-
-        // JVM version numbers
-        try {
-            if (Float.parseFloat(System.getProperty("java.specification.version")) > 1.4) {
-                compilerSourceVM = compilerTargetVM = "1.5";
-            } else {
-                compilerSourceVM = compilerTargetVM = "1.4";
-            }
-        } catch (NumberFormatException e) {
-            // Ignore
-        }
 
         Enumeration enumeration = config.getInitParameterNames();
         while (enumeration.hasMoreElements()) {

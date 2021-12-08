@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2021 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -154,7 +155,7 @@ public class JspCServletContext implements ServletContext {
      */
     @Override
     public int getMajorVersion() {
-        return 3;
+        return 6;
     }
 
     /**
@@ -178,7 +179,7 @@ public class JspCServletContext implements ServletContext {
     @Override
     public int getEffectiveMajorVersion() {
         // TODO: get it from web.xml
-        return 3;
+        return 6;
     }
 
     @Override
@@ -320,46 +321,11 @@ public class JspCServletContext implements ServletContext {
     }
 
     /**
-     * Return a null reference for the specified servlet name.
-     *
-     * @param name Name of the requested servlet
-     *
-     * @deprecated This method has been deprecated with no replacement
-     */
-    @Deprecated
-    @Override
-    public Servlet getServlet(String name) throws ServletException {
-        return null;
-    }
-
-    /**
      * Return the name of this servlet context.
      */
     @Override
     public String getServletContextName() {
         return getServerInfo();
-    }
-
-    /**
-     * Return an empty enumeration of servlet names.
-     *
-     * @deprecated This method has been deprecated with no replacement
-     */
-    @Deprecated
-    @Override
-    public Enumeration<String> getServletNames() {
-        return new Vector<String>().elements();
-    }
-
-    /**
-     * Return an empty enumeration of servlets.
-     *
-     * @deprecated This method has been deprecated with no replacement
-     */
-    @Deprecated
-    @Override
-    public Enumeration<Servlet> getServlets() {
-        return new Vector<Servlet>().elements();
     }
 
     /**
@@ -370,20 +336,6 @@ public class JspCServletContext implements ServletContext {
     @Override
     public void log(String message) {
         myLogWriter.println(message);
-    }
-
-    /**
-     * Log the specified message and exception.
-     *
-     * @param exception The exception to be logged
-     * @param message The message to be logged
-     *
-     * @deprecated Use log(String,Throwable) instead
-     */
-    @Deprecated
-    @Override
-    public void log(Exception exception, String message) {
-        log(message, exception);
     }
 
     /**
@@ -786,6 +738,12 @@ public class JspCServletContext implements ServletContext {
         public String getErrorOnUndeclaredNamespace() {
             return errorOnUndeclaredNamespace;
         }
+
+        @Override
+        public String getErrorOnELNotFound() {
+            // TODO IMPLEMENT!
+            return null;
+        }
     }
 
     static class TaglibDescriptorImpl implements TaglibDescriptor {
@@ -819,12 +777,12 @@ public class JspCServletContext implements ServletContext {
 
         @Override
         public Collection<TaglibDescriptor> getTaglibs() {
-            return this.taglibs;
+            return taglibs;
         }
 
         @Override
         public Collection<JspPropertyGroupDescriptor> getJspPropertyGroups() {
-            return this.jspPropertyGroups;
+            return jspPropertyGroups;
         }
     }
 }

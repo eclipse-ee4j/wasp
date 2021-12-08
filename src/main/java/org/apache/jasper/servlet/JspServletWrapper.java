@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2021 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -40,7 +41,6 @@ import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.SingleThreadModel;
 import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -314,15 +314,7 @@ public class JspServletWrapper {
             /*
              * (3) Service request
              */
-            if (theServlet instanceof SingleThreadModel) {
-                // sync on the wrapper so that the freshness
-                // of the page is determined right before servicing
-                synchronized (this) {
-                    theServlet.service(request, response);
-                }
-            } else {
-                theServlet.service(request, response);
-            }
+            theServlet.service(request, response);
 
         } catch (UnavailableException ex) {
             String includeRequestUri = (String) request.getAttribute("jakarta.servlet.include.request_uri");
@@ -330,14 +322,16 @@ public class JspServletWrapper {
                 // This file was included.
                 // Throw an exception as a response.sendError() will be ignored by the servlet engine.
                 throw ex;
-            } else {
-                int unavailableSeconds = ex.getUnavailableSeconds();
-                if (unavailableSeconds <= 0) {
-                    unavailableSeconds = 60; // Arbitrary default
-                }
-                available = System.currentTimeMillis() + unavailableSeconds * 1000L;
-                response.sendError(SC_SERVICE_UNAVAILABLE, ex.getMessage());
             }
+            
+            int unavailableSeconds = ex.getUnavailableSeconds();
+            if (unavailableSeconds <= 0) {
+                unavailableSeconds = 60; // Arbitrary default
+            }
+            
+            available = System.currentTimeMillis() + unavailableSeconds * 1000L;
+            response.sendError(SC_SERVICE_UNAVAILABLE, ex.getMessage());
+            
         } catch (ServletException | IOException | IllegalStateException  ex) {
             throw ex;
         } catch (Exception ex) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
+	Copyright (c) 2021 Contributors to Eclipse Foundation.
     Copyright (c) 1997, 2020 Oracle and/or its affiliates and others.
     All rights reserved.
 
@@ -30,7 +31,7 @@
 
     <groupId>org.glassfish.wasp</groupId>
     <artifactId>wasp</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
 
     <name>WaSP</name>
     <description>Eclipse compatible implementation of Jakarta Server Pages</description>
@@ -78,24 +79,24 @@
         <dependency>
             <groupId>jakarta.servlet.jsp</groupId>
             <artifactId>jakarta.servlet.jsp-api</artifactId>
-            <version>3.0.0</version>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>5.0.0</version>
+            <version>6.0.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
-            <version>4.0.0</version>
+            <version>5.0.0</version>
         </dependency>
 
         <!-- Other dependencies -->
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.10.11</version>
+            <version>1.10.12</version>
         </dependency>
         <dependency>
             <groupId>eclipse</groupId>
@@ -127,11 +128,11 @@
             </resource>
         </resources>
         <plugins>
-            <!-- Sets minimal Maven version to 3.5.4 -->
+            <!-- Sets minimal Maven version to 3.6.0 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>enforce-maven</id>
@@ -141,7 +142,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>3.5.4</version>
+                                    <version>3.6.0</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
@@ -149,14 +150,14 @@
                 </executions>
             </plugin>
             
-            <!-- Restricts the Java version to 1.8 -->
+            <!-- Restricts the Java version to 11 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <excludes>
                         <exclude>
@@ -177,7 +178,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.1</version>
+                <version>5.1.2</version>
                 <configuration>
                     <instructions>
                         <Automatic-Module-Name>org.glassfish.wasp</Automatic-Module-Name>
@@ -185,7 +186,7 @@
                         <Bundle-SymbolicName>org.glassfish.wasp.wasp</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>WaSP Jakarta Server Pages Implementation ${project.version}</Bundle-Name>
-                        <Bundle-Description>Eclipse Jakarta Server Pages Implementation (jakarta.pages/3.0) ${project.version}</Bundle-Description>  
+                        <Bundle-Description>Eclipse Jakarta Server Pages Implementation (jakarta.pages/3.1) ${project.version}</Bundle-Description>  
                         
                         <Specification-Title>Jakarta Server Pages</Specification-Title>
                         <Specification-Version>3.0</Specification-Version>
@@ -241,7 +242,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -249,8 +250,10 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <source>1.8</source>
+                            <source>11</source>
                             <additionalJOption>-Xdoclint:none</additionalJOption>
+							<excludePackageNames>org.apache.jasper.util</excludePackageNames>
+							<quiet>true</quiet>
                             <groups>
                                 <group>
                                     <title>WaSP ${project.version}</title>

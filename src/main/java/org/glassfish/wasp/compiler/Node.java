@@ -1257,7 +1257,7 @@ abstract class Node implements TagConstants {
         private String tagHandlerPoolName;
         private TagInfo tagInfo;
         private TagFileInfo tagFileInfo;
-        private Class tagHandlerClass;
+        private Class<?> tagHandlerClass;
         private VariableInfo[] varInfos;
         private int customNestingLevel;
         private ChildInfo childInfo;
@@ -1289,7 +1289,7 @@ abstract class Node implements TagConstants {
          * Constructor for custom action implemented by tag handler.
          */
         public CustomTag(String jspVersion, String qName, String prefix, String localName, String uri, Attributes attrs, Mark start, Node parent,
-                TagInfo tagInfo, Class tagHandlerClass) {
+                TagInfo tagInfo, Class<?> tagHandlerClass) {
             this(jspVersion, qName, prefix, localName, uri, attrs, null, null, start, parent, tagInfo, tagHandlerClass);
         }
 
@@ -1297,7 +1297,7 @@ abstract class Node implements TagConstants {
          * Constructor for custom action implemented by tag handler.
          */
         public CustomTag(String jspVersion, String qName, String prefix, String localName, String uri, Attributes attrs, Attributes nonTaglibXmlnsAttrs,
-                Attributes taglibAttrs, Mark start, Node parent, TagInfo tagInfo, Class tagHandlerClass) {
+                Attributes taglibAttrs, Mark start, Node parent, TagInfo tagInfo, Class<?> tagHandlerClass) {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs, start, parent);
 
             this.jspVersion = Double.valueOf(jspVersion);
@@ -1419,11 +1419,11 @@ abstract class Node implements TagConstants {
             return tagFileInfo != null;
         }
 
-        public Class getTagHandlerClass() {
+        public Class<?> getTagHandlerClass() {
             return tagHandlerClass;
         }
 
-        public void setTagHandlerClass(Class hc) {
+        public void setTagHandlerClass(Class<?> hc) {
             tagHandlerClass = hc;
         }
 

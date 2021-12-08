@@ -18,6 +18,7 @@
 package org.glassfish.wasp.compiler;
 
 import static java.util.logging.Level.SEVERE;
+import static org.glassfish.wasp.Constants.IS_SECURITY_ENABLED;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,16 +46,17 @@ import org.glassfish.wasp.JspCompilationContext;
 import org.glassfish.wasp.Options;
 import org.glassfish.wasp.runtime.JspFactoryImpl;
 import org.glassfish.wasp.security.SecurityClassLoad;
+import org.glassfish.wasp.servlet.JspCServletContext;
 import org.glassfish.wasp.servlet.JspServletWrapper;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.jsp.JspFactory;
 
 /**
- * Class for tracking JSP compile time file dependencies when the <code>&lt;@include file="..."></code> directive is used.
+ * Class for tracking JSP compile time file dependencies when the <code>&lt;@include file="..."&gt;</code> directive is used.
  *
  *<p>
- * A background thread periodically checks the files a JSP page is dependent upon. If a dpendent file changes the JSP
+ * A background thread periodically checks the files a JSP page is dependent upon. If a dependent file changes the JSP
  * page which included it is recompiled.
  *
  * Only used if a web application context is a directory.
@@ -126,11 +128,11 @@ public final class JspRuntimeContext implements Runnable {
 
         initClassPath();
 
-        if (context instanceof org.glassfish.wasp.servlet.JspCServletContext) {
+        if (context instanceof JspCServletContext) {
             return;
         }
 
-        if (Constants.IS_SECURITY_ENABLED) {
+        if (IS_SECURITY_ENABLED) {
             initSecurity();
         }
 
@@ -177,12 +179,12 @@ public final class JspRuntimeContext implements Runnable {
     /**
      * The background thread.
      */
-    private Thread thread = null;
+    private Thread thread;
 
     /**
      * The background thread completion semaphore.
      */
-    private boolean threadDone = false;
+    private boolean threadDone;
 
     /**
      * Name to register for the background thread.

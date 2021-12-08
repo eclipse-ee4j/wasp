@@ -559,7 +559,7 @@ public class JspC implements Options {
     }
 
     /**
-     * Sets the class-id value to be sent to Internet Explorer when using <code>&lt;jsp:plugin></code> tags.
+     * Sets the class-id value to be sent to Internet Explorer when using <code>&lt;jsp:plugin&gt;</code> tags.
      *
      * @param ieClassId Class-id value
      */
@@ -568,7 +568,7 @@ public class JspC implements Options {
     }
 
     /**
-     * Gets the class-id value that is sent to Internet Explorer when using <code>&lt;jsp:plugin></code> tags.
+     * Gets the class-id value that is sent to Internet Explorer when using <code>&lt;jsp:plugin&gt;</code> tags.
      *
      * @return Class-id value
      */

@@ -40,6 +40,7 @@ import org.xml.sax.Attributes;
 import jakarta.el.ELException;
 import jakarta.el.ExpressionFactory;
 import jakarta.el.FunctionMapper;
+import jakarta.el.MethodExpression;
 
 /**
  * This class has all the utility method(s). Ideally should move all the bean containers here.
@@ -108,7 +109,7 @@ public class JspUtil {
 
     /**
      * Checks if the token is a runtime expression. In standard JSP syntax, a runtime expression starts with <code>'&lt;%'</code> and ends
-     * with <code>'%>'</code>. When the JSP document is in XML syntax, a runtime expression starts with '%=' and ends with '%'.
+     * with <code>'%&gt;'</code>. When the JSP document is in XML syntax, a runtime expression starts with '%=' and ends with '%'.
      *
      * @param token The token to be checked return whether the token is a runtime expression or not.
      */
@@ -446,8 +447,7 @@ public class JspUtil {
      * @param fnmapvar Variable pointing to a function map.
      * @return a String representing a call to the EL interpreter.
      */
-    public static String interpreterCall(boolean isTagFile, String expression, Class expectedType, String fnmapvar, String expectedDeferredType,
-            String expectedReturnType, String[] expectedParamTypes) {
+    public static String interpreterCall(boolean isTagFile, String expression, Class<?> expectedType, String fnmapvar, String expectedDeferredType, String expectedReturnType, String[] expectedParamTypes) {
         /*
          * Determine which context object to use.
          */
@@ -469,7 +469,7 @@ public class JspUtil {
 
         }
 
-        if (expectedType == jakarta.el.MethodExpression.class) {
+        if (expectedType == MethodExpression.class) {
 
             if (expectedReturnType == null) {
                 expectedReturnType = "Void";
@@ -550,7 +550,6 @@ public class JspUtil {
      * @param err an error dispatcher to use
      */
     public static void validateExpressions(Mark where, String expressions, FunctionMapper functionMapper, ErrorDispatcher err) throws WaspException {
-
         try {
             ELContextImpl elContext = new ELContextImpl(null);
             elContext.setFunctionMapper(functionMapper);
@@ -560,7 +559,7 @@ public class JspUtil {
         }
     }
 
-    public static Object coerce(Class targetType, String value) throws ELException {
+    public static Object coerce(Class<?> targetType, String value) throws ELException {
         return getExpressionFactory().coerceToType(value, targetType);
     }
 
@@ -581,26 +580,26 @@ public class JspUtil {
     public static String coerceToPrimitiveBoolean(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToBoolean(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "false";
-            } else {
-                return Boolean.valueOf(s).toString();
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "false";
+        }
+        
+        return Boolean.valueOf(s).toString();
     }
 
     public static String coerceToBoolean(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Boolean) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Boolean.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "Boolean.FALSE";
-            } else {
-                // Detect format error at translation time
-                return "new Boolean(" + Boolean.valueOf(s).toString() + ")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "Boolean.FALSE";
+        }
+        
+        // Detect format error at translation time
+        return "new Boolean(" + Boolean.valueOf(s).toString() + ")";
     }
 
     public static String coerceToPrimitiveByte(String s, boolean isNamedAttribute) {
@@ -622,180 +621,180 @@ public class JspUtil {
 
         if (s == null || s.length() == 0) {
             return "Byte.valueOf((byte) 0)";
-        } else {
-            // Detect format error at translation time
-            return "new Byte((byte)" + Byte.valueOf(s).toString() + ")";
         }
+        
+        // Detect format error at translation time
+        return "new Byte((byte)" + Byte.valueOf(s).toString() + ")";
     }
 
     public static String coerceToChar(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToChar(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "(char) 0";
-            } else {
-                char ch = s.charAt(0);
-                // this trick avoids escaping issues
-                return "((char) " + (int) ch + ")";
-            }
         }
+
+        if (s == null || s.length() == 0) {
+            return "(char) 0";
+        }
+
+        char ch = s.charAt(0);
+        // this trick avoids escaping issues
+        return "((char) " + (int) ch + ")";
+
     }
 
     public static String coerceToCharacter(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Character) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Character.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "new Character((char) 0)";
-            } else {
-                char ch = s.charAt(0);
-                // this trick avoids escaping issues
-                return "new Character((char) " + (int) ch + ")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "new Character((char) 0)";
+        }
+        
+        char ch = s.charAt(0);
+        // this trick avoids escaping issues
+        return "new Character((char) " + (int) ch + ")";
     }
 
     public static String coerceToPrimitiveDouble(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToDouble(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "(double) 0";
-            } else {
-                return Double.valueOf(s).toString();
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "(double) 0";
+        }
+        
+        return Double.valueOf(s).toString();
     }
 
     public static String coerceToDouble(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Double) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Double.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "new Double(0)";
-            } else {
-                // Detect format error at translation time
-                return "new Double(" + Double.valueOf(s).toString() + ")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "new Double(0)";
+        }
+        
+        // Detect format error at translation time
+        return "new Double(" + Double.valueOf(s).toString() + ")";
     }
 
     public static String coerceToPrimitiveFloat(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToFloat(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "(float) 0";
-            } else {
-                return Float.valueOf(s).toString() + "f";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "(float) 0";
+        }
+        
+        return Float.valueOf(s).toString() + "f";
     }
 
     public static String coerceToFloat(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Float) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Float.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "Float.valueOf(0)";
-            } else {
-                // Detect format error at translation time
-                return "new Float(" + Float.valueOf(s).toString() + "f)";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "Float.valueOf(0)";
+        }
+        
+        // Detect format error at translation time
+        return "new Float(" + Float.valueOf(s).toString() + "f)";
     }
 
     public static String coerceToInt(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToInt(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "0";
-            } else {
-                return Integer.valueOf(s).toString();
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "0";
+        }
+        
+        return Integer.valueOf(s).toString();
     }
 
     public static String coerceToInteger(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Integer) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Integer.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "Integer.valueOf(0)";
-            } else {
-                // Detect format error at translation time
-                return "new Integer(" + Integer.valueOf(s).toString() + ")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "Integer.valueOf(0)";
+        }
+        
+        // Detect format error at translation time
+        return "new Integer(" + Integer.valueOf(s).toString() + ")";
     }
 
     public static String coerceToPrimitiveShort(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToShort(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "(short) 0";
-            } else {
-                return "((short) " + Short.valueOf(s).toString() + ")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "(short) 0";
+        }
+        
+        return "((short) " + Short.valueOf(s).toString() + ")";
     }
 
     public static String coerceToShort(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Short) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Short.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "Short.valueOf((short) 0)";
-            } else {
-                // Detect format error at translation time
-                return "new Short(\"" + Short.valueOf(s).toString() + "\")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "Short.valueOf((short) 0)";
+        }
+        
+        // Detect format error at translation time
+        return "new Short(\"" + Short.valueOf(s).toString() + "\")";
+
     }
 
     public static String coerceToPrimitiveLong(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerceToLong(" + s + ")";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "(long) 0";
-            } else {
-                return Long.valueOf(s).toString() + "l";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "(long) 0";
+        }
+        
+        return Long.valueOf(s).toString() + "l";
     }
 
     public static String coerceToLong(String s, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "(Long) org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + ", Long.class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "Long.valueOf(0)";
-            } else {
-                // Detect format error at translation time
-                return "new Long(" + Long.valueOf(s).toString() + "l)";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "Long.valueOf(0)";
+        }
+        
+        // Detect format error at translation time
+        return "new Long(" + Long.valueOf(s).toString() + "l)";
     }
 
     public static String coerceToEnum(String s, String enumClass, boolean isNamedAttribute) {
         if (isNamedAttribute) {
             return "org.glassfish.wasp.runtime.JspRuntimeLibrary.coerce(" + s + "," + enumClass + ".class)";
-        } else {
-            if (s == null || s.length() == 0) {
-                return "null";
-            } else {
-                return "Enum.valueOf(" + enumClass + ".class, \"" + s + "\")";
-            }
         }
+        
+        if (s == null || s.length() == 0) {
+            return "null";
+        }
+        
+        return "Enum.valueOf(" + enumClass + ".class, \"" + s + "\")";
     }
 
-    public static InputStream getInputStream(String fname, JarFile jarFile, JspCompilationContext ctxt, ErrorDispatcher err)
-            throws WaspException, IOException {
-
+    public static InputStream getInputStream(String fname, JarFile jarFile, JspCompilationContext ctxt, ErrorDispatcher err) throws WaspException, IOException {
         InputStream in = null;
 
         if (jarFile != null) {
@@ -1075,7 +1074,7 @@ public class JspUtil {
      * @param c A instance of java.lang.Class
      * @return The canonical name of c.
      */
-    public static String getCanonicalName(Class c) {
+    public static String getCanonicalName(Class<?> c) {
 
         String binaryName = c.getName();
         c = c.getDeclaringClass();

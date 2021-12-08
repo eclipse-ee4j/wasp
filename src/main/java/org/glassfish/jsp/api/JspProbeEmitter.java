@@ -22,7 +22,6 @@ package org.glassfish.jsp.api;
  * A web container can pass an implementation of this interface in the context attribute
  * "org.glassfish.jsp.monitor.probeEmitter".
  */
-
 public interface JspProbeEmitter {
 
     void jspLoadedEvent(String jspUri);

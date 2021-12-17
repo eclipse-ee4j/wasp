@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
+ * Copyright (c) 2021 Contributors to the Eclipse Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,20 +99,6 @@ public class JspC implements Options {
 
     public static final String DEFAULT_IE_CLASS_ID = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
 
-    private static final String JAVA_1_1 = "1.1";
-    private static final String JAVA_1_2 = "1.2";
-    private static final String JAVA_1_3 = "1.3";
-    private static final String JAVA_1_4 = "1.4";
-    private static final String JAVA_1_5 = "1.5";
-    private static final String JAVA_1_6 = "1.6";
-    private static final String JAVA_1_7 = "1.7";
-    private static final String JAVA_1_8 = "1.8";
-    private static final String JAVA_5 = "5";
-    private static final String JAVA_6 = "6";
-    private static final String JAVA_7 = "7";
-    private static final String JAVA_8 = "8";
-    // END SJSAS 6402545
-
     // Logger
     private static Logger log = Logger.getLogger(JspC.class.getName());
 
@@ -151,6 +138,11 @@ public class JspC implements Options {
     private static final int DEFAULT_DIE_LEVEL = 1;
     private static final int NO_DIE_LEVEL = 0;
 
+    private static final String DEFAULT_TARGET_VERSION = "11";
+    private static final String DEFAULT_SOURCE_VERSION = "11";
+    private static final int MINIMUM_TARGET_VERSION = 3;
+    private static final int MINIMUM_SOURCE_VERSION = 3;
+
     private static final String[] insertBefore = { "</web-app>", "<servlet-mapping>", "<session-config>", "<mime-mapping>", "<welcome-file-list>",
             "<error-page>", "<taglib>", "<resource-env-ref>", "<resource-ref>", "<security-constraint>", "<login-config>", "<security-role>", "<env-entry>",
             "<ejb-ref>", "<ejb-local-ref>" };
@@ -179,8 +171,8 @@ public class JspC implements Options {
 
     private String compiler;
 
-    private String compilerTargetVM = JAVA_1_5;
-    private String compilerSourceVM = JAVA_1_5;
+    private String compilerTargetVM = DEFAULT_TARGET_VERSION;
+    private String compilerSourceVM = DEFAULT_SOURCE_VERSION;
 
     private boolean classDebugInfo = true;
 
@@ -613,28 +605,21 @@ public class JspC implements Options {
     }
 
     public void setCompilerTargetVM(String vm) {
-        // START SJSAS 6402545
-        String tvm = vm;
-        if (JAVA_5.equals(vm)) {
-            vm = JAVA_1_5;
-        } else if (JAVA_6.equals(vm)) {
-            vm = JAVA_1_6;
-        } else if (JAVA_7.equals(vm)) {
-            vm = JAVA_1_7;
-        } else if (JAVA_8.equals(vm)) {
-            vm = JAVA_1_8;
+        int version = getJVMMajorVersion(vm);
+
+        if (version < MINIMUM_TARGET_VERSION) {
+            throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerTargetVM", vm));
         }
-        if (!JAVA_1_1.equals(vm) && !JAVA_1_2.equals(vm) && !JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm) && !JAVA_1_5.equals(vm) && !JAVA_1_6.equals(vm)
-                && !JAVA_1_7.equals(vm) && !JAVA_1_8.equals(vm)) {
-            throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerTargetVM", tvm));
-        }
-        // END SJSAS 6402545
-        // START SJSAS 6403017
-        Double targetVersion = Double.valueOf(vm);
-        if (targetVersion.compareTo(Double.valueOf(myJavaVersion)) > 0) {
+        if (version > getJVMMajorVersion(myJavaVersion)) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.compilerTargetVMTooHigh", vm));
         }
-        // END SJSAS 6403017
+
+        if (version <= 8) {
+            vm = "1." + Integer.toString(version);
+        } else {
+            vm = Integer.toString(version);
+        }
+
         compilerTargetVM = vm;
     }
 
@@ -650,13 +635,21 @@ public class JspC implements Options {
      * @see Options#getCompilerSourceVM
      */
     public void setCompilerSourceVM(String vm) {
-        // START SJSAS 6402545
-        if (!JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm) && !JAVA_1_5.equals(vm) && !JAVA_5.equals(vm) && !JAVA_1_6.equals(vm) && !JAVA_6.equals(vm)
-                && !JAVA_1_7.equals(vm) && !JAVA_7.equals(vm) && !JAVA_1_8.equals(vm) && !JAVA_8.equals(vm)) {
+        int version = getJVMMajorVersion(vm);
+        if (version < MINIMUM_SOURCE_VERSION) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerSourceVM", vm));
         }
-        // END SJSAS 6402545
         compilerSourceVM = vm;
+    }
+
+    private int getJVMMajorVersion(String vm) {
+        if (vm.matches("1\\.[0-9]|1\\.10")) {
+            return Integer.parseInt(vm.substring(2));
+        }
+        if (vm.matches("[1-9][0-9]*")) {
+            return Integer.parseInt(vm);
+        }
+        return -1;
     }
 
     /**

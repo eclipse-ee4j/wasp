@@ -138,14 +138,11 @@ public class JspC implements Options {
     private static final int DEFAULT_DIE_LEVEL = 1;
     private static final int NO_DIE_LEVEL = 0;
 
-    private static final String DEFAULT_TARGET_VERSION = "11";
-    private static final String DEFAULT_SOURCE_VERSION = "11";
-    private static final int MINIMUM_TARGET_VERSION = 3;
-    private static final int MINIMUM_SOURCE_VERSION = 3;
-
     private static final String[] insertBefore = { "</web-app>", "<servlet-mapping>", "<session-config>", "<mime-mapping>", "<welcome-file-list>",
             "<error-page>", "<taglib>", "<resource-env-ref>", "<resource-ref>", "<security-constraint>", "<login-config>", "<security-role>", "<env-entry>",
             "<ejb-ref>", "<ejb-local-ref>" };
+
+    private static final String runtimeJavaVersion = System.getProperty("java.specification.version");
 
     private int dieLevel;
     private String classPath;
@@ -171,8 +168,8 @@ public class JspC implements Options {
 
     private String compiler;
 
-    private String compilerTargetVM = DEFAULT_TARGET_VERSION;
-    private String compilerSourceVM = DEFAULT_SOURCE_VERSION;
+    private String compilerTargetVM = runtimeJavaVersion;
+    private String compilerSourceVM = runtimeJavaVersion;
 
     private boolean classDebugInfo = true;
 
@@ -607,10 +604,10 @@ public class JspC implements Options {
     public void setCompilerTargetVM(String vm) {
         int version = getJVMMajorVersion(vm);
 
-        if (version < MINIMUM_TARGET_VERSION) {
+        if (version == -1) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerTargetVM", vm));
         }
-        if (version > getJVMMajorVersion(myJavaVersion)) {
+        if (version > getJVMMajorVersion(runtimeJavaVersion)) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.compilerTargetVMTooHigh", vm));
         }
 
@@ -636,7 +633,7 @@ public class JspC implements Options {
      */
     public void setCompilerSourceVM(String vm) {
         int version = getJVMMajorVersion(vm);
-        if (version < MINIMUM_SOURCE_VERSION) {
+        if (version == -1) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerSourceVM", vm));
         }
         compilerSourceVM = vm;

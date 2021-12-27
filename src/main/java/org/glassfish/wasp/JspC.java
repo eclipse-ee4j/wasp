@@ -636,6 +636,13 @@ public class JspC implements Options {
         if (version == -1) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerSourceVM", vm));
         }
+
+        if (version <= 8) {
+            vm = "1." + Integer.toString(version);
+        } else {
+            vm = Integer.toString(version);
+        }
+
         compilerSourceVM = vm;
     }
 

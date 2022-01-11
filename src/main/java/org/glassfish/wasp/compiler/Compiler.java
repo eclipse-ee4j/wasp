@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
+ * Copyright (c) 2022 Contributors to the Eclipse Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -551,6 +552,7 @@ public class Compiler {
                 URLConnection includeUconn = includeUrl.openConnection();
                 long includeLastModified = 0;
                 if (includeUconn instanceof JarURLConnection) {
+                    includeUconn.setUseCaches(false);
                     includeLastModified = ((JarURLConnection) includeUconn).getJarEntry().getTime();
                 } else {
                     includeLastModified = includeUconn.getLastModified();

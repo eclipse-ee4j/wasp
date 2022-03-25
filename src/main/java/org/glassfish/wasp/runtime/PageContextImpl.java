@@ -62,6 +62,8 @@ import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.el.ExpressionEvaluator;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
+import jakarta.servlet.jsp.el.ImportELResolver;
+import jakarta.servlet.jsp.el.NotFoundELResolver;
 import jakarta.servlet.jsp.el.ScopedAttributeELResolver;
 import jakarta.servlet.jsp.el.VariableResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
@@ -665,6 +667,8 @@ public class PageContextImpl extends PageContext {
             celResolver.add(new ArrayELResolver());
             celResolver.add(new BeanELResolver());
             celResolver.add(new ScopedAttributeELResolver());
+            celResolver.add(new ImportELResolver());
+            celResolver.add(new NotFoundELResolver());
             elResolver = celResolver;
         }
         return elResolver;

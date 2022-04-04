@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,14 @@
 
 package org.glassfish.wasp.compiler;
 
+import static jakarta.servlet.jsp.tagext.TagInfo.BODY_CONTENT_EMPTY;
+import static jakarta.servlet.jsp.tagext.TagInfo.BODY_CONTENT_SCRIPTLESS;
+import static jakarta.servlet.jsp.tagext.TagInfo.BODY_CONTENT_TAG_DEPENDENT;
+import static org.glassfish.wasp.Constants.JSP_VERSION_2_1;
+import static org.glassfish.wasp.compiler.JspUtil.booleanValue;
+import static org.glassfish.wasp.compiler.JspUtil.checkAttributes;
+import static org.glassfish.wasp.compiler.JspUtil.getTagHandlerClassName;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,8 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.glassfish.wasp.Constants;
-import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.JspCompilationContext;
+import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.runtime.JspSourceDependent;
 import org.glassfish.wasp.servlet.JspServletWrapper;
 
@@ -46,56 +55,77 @@ import jakarta.servlet.jsp.tagext.VariableInfo;
 
 class TagFileProcessor {
 
-    private ArrayList<Compiler> tempVector;
+    private ArrayList<Compiler> tempCompilers;
 
     /**
      * A visitor the tag file
      */
     private static class TagFileDirectiveVisitor extends Node.Visitor {
 
-        private static final JspUtil.ValidAttribute[] tagDirectiveAttrs = { new JspUtil.ValidAttribute("display-name"),
-                new JspUtil.ValidAttribute("body-content"), new JspUtil.ValidAttribute("dynamic-attributes"), new JspUtil.ValidAttribute("small-icon"),
-                new JspUtil.ValidAttribute("large-icon"), new JspUtil.ValidAttribute("description"), new JspUtil.ValidAttribute("example"),
-                new JspUtil.ValidAttribute("pageEncoding"), new JspUtil.ValidAttribute("language"), new JspUtil.ValidAttribute("import"),
-                new JspUtil.ValidAttribute("isELIgnored"), new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"),
+        private static final JspUtil.ValidAttribute[] tagDirectiveAttrs = {
+                new JspUtil.ValidAttribute("display-name"),
+                new JspUtil.ValidAttribute("body-content"),
+                new JspUtil.ValidAttribute("dynamic-attributes"),
+                new JspUtil.ValidAttribute("small-icon"),
+                new JspUtil.ValidAttribute("large-icon"),
+                new JspUtil.ValidAttribute("description"),
+                new JspUtil.ValidAttribute("example"),
+                new JspUtil.ValidAttribute("pageEncoding"),
+                new JspUtil.ValidAttribute("language"),
+                new JspUtil.ValidAttribute("import"),
+                new JspUtil.ValidAttribute("isELIgnored"),
+                new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"),
                 new JspUtil.ValidAttribute("trimDirectiveWhitespaces") };
 
         private static final JspUtil.ValidAttribute[] attributeDirectiveAttrs = { new JspUtil.ValidAttribute("name", true),
-                new JspUtil.ValidAttribute("required"), new JspUtil.ValidAttribute("fragment"), new JspUtil.ValidAttribute("rtexprvalue"),
-                new JspUtil.ValidAttribute("type"), new JspUtil.ValidAttribute("description"), new JspUtil.ValidAttribute("deferredValue"),
-                new JspUtil.ValidAttribute("deferredValueType"), new JspUtil.ValidAttribute("deferredMethod"),
+                new JspUtil.ValidAttribute("required"),
+                new JspUtil.ValidAttribute("fragment"),
+                new JspUtil.ValidAttribute("rtexprvalue"),
+                new JspUtil.ValidAttribute("type"),
+                new JspUtil.ValidAttribute("description"),
+                new JspUtil.ValidAttribute("deferredValue"),
+                new JspUtil.ValidAttribute("deferredValueType"),
+                new JspUtil.ValidAttribute("deferredMethod"),
                 new JspUtil.ValidAttribute("deferredMethodSignature") };
 
-        private static final JspUtil.ValidAttribute[] variableDirectiveAttrs = { new JspUtil.ValidAttribute("name-given"),
-                new JspUtil.ValidAttribute("name-from-attribute"), new JspUtil.ValidAttribute("alias"), new JspUtil.ValidAttribute("variable-class"),
-                new JspUtil.ValidAttribute("scope"), new JspUtil.ValidAttribute("declare"), new JspUtil.ValidAttribute("description") };
+        private static final JspUtil.ValidAttribute[] variableDirectiveAttrs = {
+                new JspUtil.ValidAttribute("name-given"),
+                new JspUtil.ValidAttribute("name-from-attribute"),
+                new JspUtil.ValidAttribute("alias"),
+                new JspUtil.ValidAttribute("variable-class"),
+                new JspUtil.ValidAttribute("scope"),
+                new JspUtil.ValidAttribute("declare"),
+                new JspUtil.ValidAttribute("description") };
 
         private ErrorDispatcher err;
         private TagLibraryInfo tagLibInfo;
 
-        private String name = null;
-        private String path = null;
-        private TagExtraInfo tei = null;
-        private String bodycontent = null;
-        private String description = null;
-        private String displayName = null;
-        private String smallIcon = null;
-        private String largeIcon = null;
+        private String name;
+        private String path;
+        private TagExtraInfo tei;
+        private String bodycontent;
+        private String description;
+        private String displayName;
+        private String smallIcon;
+        private String largeIcon;
         private String dynamicAttrsMapName;
-        private String example = null;
+        private String example;
 
-        private List<TagAttributeInfo> attributeVector;
-        private List<TagVariableInfo> variableVector;
+        private List<TagAttributeInfo> tagAttributes;
+        private List<TagVariableInfo> tagVariables;
 
         private HashMap<String, NameEntry> nameTable = new HashMap<>();
         private HashMap<String, NameEntry> nameFromTable = new HashMap<>();
 
-        // The tag file's JSP version
-        private Double jspVersionDouble;
+        // The tag file's Jakarta Pages version
+        private Double jakartaPagesVersionDouble;
 
         private enum Name {
-            ATTR_NAME("name", "attribute"), VAR_NAME_GIVEN("name-given", "variable"), VAR_NAME_FROM("name-from-attribute", "variable"),
-            VAR_ALIAS("alias", "variable"), TAG_DYNAMIC("dynamic-attributes", "tag");
+            ATTR_NAME("name", "attribute"),
+            VAR_NAME_GIVEN("name-given", "variable"),
+            VAR_NAME_FROM("name-from-attribute", "variable"),
+            VAR_ALIAS("alias", "variable"),
+            TAG_DYNAMIC("dynamic-attributes", "tag");
 
             private String attribute;
             private String directive;
@@ -119,88 +149,89 @@ class TagFileProcessor {
             this.tagLibInfo = tagLibInfo;
             this.name = name;
             this.path = path;
-            attributeVector = new ArrayList<>();
-            variableVector = new ArrayList<>();
+            tagAttributes = new ArrayList<>();
+            tagVariables = new ArrayList<>();
 
-            jspVersionDouble = Double.valueOf(tagLibInfo.getRequiredVersion());
+            jakartaPagesVersionDouble = Double.valueOf(tagLibInfo.getRequiredVersion());
         }
 
         @Override
-        public void visit(Node.JspRoot n) throws WaspException {
+        public void visit(Node.JspRoot root) throws WaspException {
             /*
              * If a tag file in XML syntax contains a jsp:root element, the value of its "version" attribute must match the tag
-             * file's JSP version.
+             * file's Jakarta Pages version.
              */
-            String jspRootVersion = n.getTextAttribute("version");
+            String jspRootVersion = root.getTextAttribute("version");
             if (jspRootVersion == null) {
-                err.jspError(n, "jsp.error.mandatory.attribute", n.getQName(), "version");
+                err.jspError(root, "jsp.error.mandatory.attribute", root.getQName(), "version");
             }
-            if (!jspRootVersion.equals(jspVersionDouble.toString())) {
-                err.jspError(n, "jsp.error.tagfile.jspVersionMismatch", jspRootVersion, jspVersionDouble.toString());
+            if (!jspRootVersion.equals(jakartaPagesVersionDouble.toString())) {
+                err.jspError(root, "jsp.error.tagfile.jspVersionMismatch", jspRootVersion, jakartaPagesVersionDouble.toString());
             }
-            visitBody(n);
+
+            visitBody(root);
         }
 
         @Override
-        public void visit(Node.TagDirective n) throws WaspException {
+        public void visit(Node.TagDirective tagDirective) throws WaspException {
+            checkAttributes("Tag directive", tagDirective, tagDirectiveAttrs, err);
 
-            JspUtil.checkAttributes("Tag directive", n, tagDirectiveAttrs, err);
-
-            bodycontent = checkConflict(n, bodycontent, "body-content");
-            if (bodycontent != null && !bodycontent.equals(TagInfo.BODY_CONTENT_EMPTY) && !bodycontent.equals(TagInfo.BODY_CONTENT_TAG_DEPENDENT)
-                    && !bodycontent.equals(TagInfo.BODY_CONTENT_SCRIPTLESS)) {
-                err.jspError(n, "jsp.error.tagdirective.badbodycontent", bodycontent);
+            bodycontent = checkConflict(tagDirective, bodycontent, "body-content");
+            if (bodycontent != null && !bodycontent.equals(BODY_CONTENT_EMPTY) && !bodycontent.equals(BODY_CONTENT_TAG_DEPENDENT)
+                    && !bodycontent.equals(BODY_CONTENT_SCRIPTLESS)) {
+                err.jspError(tagDirective, "jsp.error.tagdirective.badbodycontent", bodycontent);
             }
-            dynamicAttrsMapName = checkConflict(n, dynamicAttrsMapName, "dynamic-attributes");
+
+            dynamicAttrsMapName = checkConflict(tagDirective, dynamicAttrsMapName, "dynamic-attributes");
             if (dynamicAttrsMapName != null) {
-                checkUniqueName(dynamicAttrsMapName, Name.TAG_DYNAMIC, n);
+                checkUniqueName(dynamicAttrsMapName, Name.TAG_DYNAMIC, tagDirective);
             }
-            smallIcon = checkConflict(n, smallIcon, "small-icon");
-            largeIcon = checkConflict(n, largeIcon, "large-icon");
-            description = checkConflict(n, description, "description");
-            displayName = checkConflict(n, displayName, "display-name");
-            example = checkConflict(n, example, "example");
 
-            if (n.getAttributeValue("deferredSyntaxAllowedAsLiteral") != null && Double.compare(jspVersionDouble, Constants.JSP_VERSION_2_1) < 0) {
+            smallIcon = checkConflict(tagDirective, smallIcon, "small-icon");
+            largeIcon = checkConflict(tagDirective, largeIcon, "large-icon");
+            description = checkConflict(tagDirective, description, "description");
+            displayName = checkConflict(tagDirective, displayName, "display-name");
+            example = checkConflict(tagDirective, example, "example");
+
+            if (tagDirective.getAttributeValue("deferredSyntaxAllowedAsLiteral") != null && Double.compare(jakartaPagesVersionDouble, JSP_VERSION_2_1) < 0) {
                 err.jspError("jsp.error.invalidTagDirectiveAttrUnless21", "deferredSyntaxAllowedAsLiteral");
             }
 
             // Additional tag directives are validated in Validator
         }
 
-        private String checkConflict(Node n, String oldAttrValue, String attr) throws WaspException {
-
+        private String checkConflict(Node node, String oldAttrValue, String attr) throws WaspException {
             String result = oldAttrValue;
-            String attrValue = n.getAttributeValue(attr);
+            String attrValue = node.getAttributeValue(attr);
             if (attrValue != null) {
                 if (oldAttrValue != null && !oldAttrValue.equals(attrValue)) {
-                    err.jspError(n, "jsp.error.tag.conflict.attr", attr, oldAttrValue, attrValue);
+                    err.jspError(node, "jsp.error.tag.conflict.attr", attr, oldAttrValue, attrValue);
                 }
                 result = attrValue;
             }
+
             return result;
         }
 
         @Override
-        public void visit(Node.AttributeDirective n) throws WaspException {
+        public void visit(Node.AttributeDirective attributeDirective) throws WaspException {
+            checkAttributes("Attribute directive", attributeDirective, attributeDirectiveAttrs, err);
 
-            JspUtil.checkAttributes("Attribute directive", n, attributeDirectiveAttrs, err);
-
-            String attrName = n.getAttributeValue("name");
-            boolean required = JspUtil.booleanValue(n.getAttributeValue("required"));
+            String attrName = attributeDirective.getAttributeValue("name");
+            boolean required = booleanValue(attributeDirective.getAttributeValue("required"));
             boolean rtexprvalue = true;
-            String rtexprvalueString = n.getAttributeValue("rtexprvalue");
+            String rtexprvalueString = attributeDirective.getAttributeValue("rtexprvalue");
             if (rtexprvalueString != null) {
-                rtexprvalue = JspUtil.booleanValue(rtexprvalueString);
+                rtexprvalue = booleanValue(rtexprvalueString);
             }
-            boolean fragment = JspUtil.booleanValue(n.getAttributeValue("fragment"));
-            String type = n.getAttributeValue("type");
+            boolean fragment = booleanValue(attributeDirective.getAttributeValue("fragment"));
+            String type = attributeDirective.getAttributeValue("type");
 
-            String deferredValue = n.getAttributeValue("deferredValue");
-            String deferredMethod = n.getAttributeValue("deferredMethod");
-            String expectedType = n.getAttributeValue("deferredValueType");
-            String methodSignature = n.getAttributeValue("deferredMethodSignature");
-            if (Double.compare(jspVersionDouble, Constants.JSP_VERSION_2_1) < 0) {
+            String deferredValue = attributeDirective.getAttributeValue("deferredValue");
+            String deferredMethod = attributeDirective.getAttributeValue("deferredMethod");
+            String expectedType = attributeDirective.getAttributeValue("deferredValueType");
+            String methodSignature = attributeDirective.getAttributeValue("deferredMethodSignature");
+            if (Double.compare(jakartaPagesVersionDouble, Constants.JSP_VERSION_2_1) < 0) {
                 if (deferredValue != null) {
                     err.jspError("jsp.error.invalidAttrDirectiveAttrUnless21", "deferredValue");
                 }
@@ -215,8 +246,8 @@ class TagFileProcessor {
                 }
             }
 
-            boolean isDeferredValue = JspUtil.booleanValue(deferredValue);
-            boolean isDeferredMethod = JspUtil.booleanValue(deferredMethod);
+            boolean isDeferredValue = booleanValue(deferredValue);
+            boolean isDeferredMethod = booleanValue(deferredMethod);
             if (expectedType == null) {
                 if (isDeferredValue) {
                     expectedType = "java.lang.Object";
@@ -243,13 +274,14 @@ class TagFileProcessor {
                 // type is fixed to "JspFragment" and a translation error
                 // must occur if specified.
                 if (type != null) {
-                    err.jspError(n, "jsp.error.fragmentwithtype");
+                    err.jspError(attributeDirective, "jsp.error.fragmentwithtype");
                 }
+
                 // rtexprvalue is fixed to "true" and a translation error
                 // must occur if specified.
                 rtexprvalue = true;
                 if (rtexprvalueString != null) {
-                    err.jspError(n, "jsp.error.frgmentwithrtexprvalue");
+                    err.jspError(attributeDirective, "jsp.error.frgmentwithrtexprvalue");
                 }
             } else if (type == null) {
                 if (isDeferredValue) {
@@ -266,19 +298,23 @@ class TagFileProcessor {
             if (isDeferredValue || isDeferredMethod) {
                 rtexprvalue = false;
             }
-            TagAttributeInfo tagAttributeInfo = new TagAttributeInfo(attrName, required, type, rtexprvalue, fragment, description, isDeferredValue,
-                    isDeferredMethod, expectedType, methodSignature);
-            attributeVector.add(tagAttributeInfo);
-            checkUniqueName(attrName, Name.ATTR_NAME, n, tagAttributeInfo);
+
+            TagAttributeInfo tagAttributeInfo =
+                new TagAttributeInfo(
+                        attrName, required, type,
+                        rtexprvalue, fragment, description, isDeferredValue,
+                        isDeferredMethod, expectedType, methodSignature);
+            tagAttributes.add(tagAttributeInfo);
+
+            checkUniqueName(attrName, Name.ATTR_NAME, attributeDirective, tagAttributeInfo);
         }
 
         @Override
-        public void visit(Node.VariableDirective n) throws WaspException {
+        public void visit(Node.VariableDirective variableDirective) throws WaspException {
+            checkAttributes("Variable directive", variableDirective, variableDirectiveAttrs, err);
 
-            JspUtil.checkAttributes("Variable directive", n, variableDirectiveAttrs, err);
-
-            String nameGiven = n.getAttributeValue("name-given");
-            String nameFromAttribute = n.getAttributeValue("name-from-attribute");
+            String nameGiven = variableDirective.getAttributeValue("name-given");
+            String nameFromAttribute = variableDirective.getAttributeValue("name-from-attribute");
             if (nameGiven == null && nameFromAttribute == null) {
                 err.jspError("jsp.error.variable.either.name");
             }
@@ -287,24 +323,24 @@ class TagFileProcessor {
                 err.jspError("jsp.error.variable.both.name");
             }
 
-            String alias = n.getAttributeValue("alias");
+            String alias = variableDirective.getAttributeValue("alias");
             if (nameFromAttribute != null && alias == null || nameFromAttribute == null && alias != null) {
                 err.jspError("jsp.error.variable.alias");
             }
 
-            String className = n.getAttributeValue("variable-class");
+            String className = variableDirective.getAttributeValue("variable-class");
             if (className == null) {
                 className = "java.lang.String";
             }
 
-            String declareStr = n.getAttributeValue("declare");
+            String declareStr = variableDirective.getAttributeValue("declare");
             boolean declare = true;
             if (declareStr != null) {
-                declare = JspUtil.booleanValue(declareStr);
+                declare = booleanValue(declareStr);
             }
 
             int scope = VariableInfo.NESTED;
-            String scopeStr = n.getAttributeValue("scope");
+            String scopeStr = variableDirective.getAttributeValue("scope");
             if (scopeStr != null) {
                 if ("NESTED".equals(scopeStr)) {
                     // Already the default
@@ -321,33 +357,33 @@ class TagFileProcessor {
                  * name of the attribute whose value (at invocation-time) denotes the name of the variable that is being aliased
                  */
                 nameGiven = alias;
-                checkUniqueName(nameFromAttribute, Name.VAR_NAME_FROM, n);
-                checkUniqueName(alias, Name.VAR_ALIAS, n);
+                checkUniqueName(nameFromAttribute, Name.VAR_NAME_FROM, variableDirective);
+                checkUniqueName(alias, Name.VAR_ALIAS, variableDirective);
             } else {
                 // name-given specified
-                checkUniqueName(nameGiven, Name.VAR_NAME_GIVEN, n);
+                checkUniqueName(nameGiven, Name.VAR_NAME_GIVEN, variableDirective);
             }
 
-            variableVector.add(new TagVariableInfo(nameGiven, nameFromAttribute, className, declare, scope));
+            tagVariables.add(new TagVariableInfo(nameGiven, nameFromAttribute, className, declare, scope));
         }
 
         public TagInfo getTagInfo() throws WaspException {
-
             if (name == null) {
                 // XXX Get it from tag file name
             }
 
             if (bodycontent == null) {
-                bodycontent = TagInfo.BODY_CONTENT_SCRIPTLESS;
+                bodycontent = BODY_CONTENT_SCRIPTLESS;
             }
 
-            String tagClassName = JspUtil.getTagHandlerClassName(path, err);
+            String tagClassName = getTagHandlerClassName(path, err);
 
-            TagVariableInfo[] tagVariableInfos = variableVector.toArray(new TagVariableInfo[0]);
+            TagVariableInfo[] tagVariableInfos = tagVariables.toArray(new TagVariableInfo[0]);
+            TagAttributeInfo[] tagAttributeInfo = tagAttributes.toArray(new TagAttributeInfo[0]);
 
-            TagAttributeInfo[] tagAttributeInfo = attributeVector.toArray(new TagAttributeInfo[0]);
-
-            return new WaspTagInfo(name, tagClassName, bodycontent, description, tagLibInfo, tei, tagAttributeInfo, displayName, smallIcon, largeIcon,
+            return new WaspTagInfo(
+                    name, tagClassName,
+                    bodycontent, description, tagLibInfo, tei, tagAttributeInfo, displayName, smallIcon, largeIcon,
                     tagVariableInfos, dynamicAttrsMapName);
         }
 
@@ -386,22 +422,21 @@ class TagFileProcessor {
          * Also, 'name-from' attribute of a variable directive cannot have the same value as that from another variable
          * directive.
          */
-        private void checkUniqueName(String name, Name type, Node n) throws WaspException {
-            checkUniqueName(name, type, n, null);
+        private void checkUniqueName(String name, Name type, Node node) throws WaspException {
+            checkUniqueName(name, type, node, null);
         }
 
-        private void checkUniqueName(String name, Name type, Node n, TagAttributeInfo attr) throws WaspException {
-
+        private void checkUniqueName(String name, Name type, Node node, TagAttributeInfo attr) throws WaspException {
             HashMap<String, NameEntry> table = type == Name.VAR_NAME_FROM ? nameFromTable : nameTable;
             NameEntry nameEntry = table.get(name);
             if (nameEntry != null) {
                 if (type != Name.TAG_DYNAMIC || nameEntry.getType() != Name.TAG_DYNAMIC) {
                     int line = nameEntry.getNode().getStart().getLineNumber();
-                    err.jspError(n, "jsp.error.tagfile.nameNotUnique", type.getAttribute(), type.getDirective(), nameEntry.getType().getAttribute(),
+                    err.jspError(node, "jsp.error.tagfile.nameNotUnique", type.getAttribute(), type.getDirective(), nameEntry.getType().getAttribute(),
                             nameEntry.getType().getDirective(), Integer.toString(line));
                 }
             } else {
-                table.put(name, new NameEntry(type, n, attr));
+                table.put(name, new NameEntry(type, node, attr));
             }
         }
 
@@ -410,9 +445,9 @@ class TagFileProcessor {
          */
         void postCheck() throws WaspException {
             // Check that var.name-from-attributes has valid values.
-            Iterator iter = nameFromTable.keySet().iterator();
+            Iterator<String> iter = nameFromTable.keySet().iterator();
             while (iter.hasNext()) {
-                String nameFrom = (String) iter.next();
+                String nameFrom = iter.next();
                 NameEntry nameEntry = nameTable.get(nameFrom);
                 NameEntry nameFromEntry = nameFromTable.get(nameFrom);
                 Node nameFromNode = nameFromEntry.getNode();
@@ -433,26 +468,25 @@ class TagFileProcessor {
      * Parses the tag file, and collects information on the directives included in it. The method is used to obtain the info
      * on the tag file, when the handler that it represents is referenced. The tag file is not compiled here.
      *
-     * @param pc the current ParserController used in this compilation
+     * @param parserController the current ParserController used in this compilation
      * @param name the tag name as specified in the TLD
      * @param tagfile the path for the tagfile
      * @param tagLibInfo the TagLibraryInfo object associated with this TagInfo
      * @return a TagInfo object assembled from the directives in the tag file.
      */
-    public static TagInfo parseTagFileDirectives(ParserController pc, String name, String path, TagLibraryInfo tagLibInfo) throws WaspException {
-
-        ErrorDispatcher err = pc.getCompiler().getErrorDispatcher();
+    public static TagInfo parseTagFileDirectives(ParserController parserController, String name, String path, TagLibraryInfo tagLibInfo) throws WaspException {
+        ErrorDispatcher err = parserController.getCompiler().getErrorDispatcher();
 
         Node.Nodes page = null;
         try {
-            page = pc.parseTagFileDirectives(path);
+            page = parserController.parseTagFileDirectives(path);
         } catch (FileNotFoundException e) {
             err.jspError("jsp.error.file.not.found", path);
         } catch (IOException e) {
             err.jspError("jsp.error.file.not.found", path);
         }
 
-        TagFileDirectiveVisitor tagFileVisitor = new TagFileDirectiveVisitor(pc.getCompiler(), tagLibInfo, name, path);
+        TagFileDirectiveVisitor tagFileVisitor = new TagFileDirectiveVisitor(parserController.getCompiler(), tagLibInfo, name, path);
         page.visit(tagFileVisitor);
         tagFileVisitor.postCheck();
 
@@ -462,21 +496,24 @@ class TagFileProcessor {
     /**
      * Compiles and loads a tagfile.
      */
-    private Class loadTagFile(Compiler compiler, String tagFilePath, TagInfo tagInfo, PageInfo parentPageInfo) throws WaspException {
+    private Class<?> loadTagFile(Compiler compiler, String tagFilePath, TagInfo tagInfo, PageInfo parentPageInfo) throws WaspException {
+        JspCompilationContext compilationContext = compiler.getCompilationContext();
+        JspRuntimeContext runtimeContext = compilationContext.getRuntimeContext();
 
-        JspCompilationContext ctxt = compiler.getCompilationContext();
-        JspRuntimeContext rctxt = ctxt.getRuntimeContext();
-
-        synchronized (rctxt) {
-            JspServletWrapper wrapper = rctxt.getWrapper(tagFilePath);
+        synchronized (runtimeContext) {
+            JspServletWrapper wrapper = runtimeContext.getWrapper(tagFilePath);
             if (wrapper == null) {
-                wrapper = new JspServletWrapper(ctxt.getServletContext(), ctxt.getOptions(), tagFilePath, tagInfo, ctxt.getRuntimeContext(),
-                        ctxt.getTagFileJarUrls().get(tagFilePath));
-                rctxt.addWrapper(tagFilePath, wrapper);
+                wrapper = new JspServletWrapper(
+                            compilationContext.getServletContext(),
+                            compilationContext.getOptions(), tagFilePath, tagInfo,
+                            compilationContext.getRuntimeContext(),
+                            compilationContext.getTagFileJarUrls().get(tagFilePath));
+
+                runtimeContext.addWrapper(tagFilePath, wrapper);
 
                 // Use same classloader and classpath for compiling tag files
-                wrapper.getJspEngineContext().setClassLoader(ctxt.getClassLoader());
-                wrapper.getJspEngineContext().setClassPath(ctxt.getClassPath());
+                wrapper.getJspEngineContext().setClassLoader(compilationContext.getClassLoader());
+                wrapper.getJspEngineContext().setClassPath(compilationContext.getClassPath());
             } else {
                 // Make sure that JspCompilationContext gets the latest TagInfo
                 // for the tag file. TagInfo instance was created the last
@@ -485,19 +522,23 @@ class TagFileProcessor {
                 wrapper.getJspEngineContext().setTagInfo(tagInfo);
             }
 
-            Class tagClazz;
+            Class<?> tagClazz;
             int tripCount = wrapper.incTripCount();
             try {
                 if (tripCount > 0) {
+
                     // When tripCount is greater than zero, a circular
                     // dependency exists. The circularily dependant tag
                     // file is compiled in prototype mode, to avoid infinite
                     // recursion.
 
-                    JspServletWrapper tempWrapper = new JspServletWrapper(ctxt.getServletContext(), ctxt.getOptions(), tagFilePath, tagInfo,
-                            ctxt.getRuntimeContext(), ctxt.getTagFileJarUrls().get(tagFilePath));
+                    JspServletWrapper tempWrapper = new JspServletWrapper(
+                            compilationContext.getServletContext(),
+                            compilationContext.getOptions(), tagFilePath, tagInfo,
+                            compilationContext.getRuntimeContext(),
+                            compilationContext.getTagFileJarUrls().get(tagFilePath));
                     tagClazz = tempWrapper.loadTagFilePrototype();
-                    tempVector.add(tempWrapper.getJspEngineContext().getCompiler());
+                    tempCompilers.add(tempWrapper.getJspEngineContext().getCompiler());
                 } else {
                     tagClazz = wrapper.loadTagFile();
                 }
@@ -509,7 +550,7 @@ class TagFileProcessor {
             // dependant list. The only reliable dependency information
             // can only be obtained from the tag instance.
             try {
-                Object tagIns = tagClazz.newInstance();
+                Object tagIns = tagClazz.getDeclaredConstructor().newInstance();
                 if (tagIns instanceof JspSourceDependent) {
                     for (String dependant : ((JspSourceDependent) tagIns).getDependants()) {
                         parentPageInfo.addDependant(dependant);
@@ -533,30 +574,30 @@ class TagFileProcessor {
         private PageInfo pageInfo;
 
         TagFileLoaderVisitor(Compiler compiler) {
-
             this.compiler = compiler;
             this.pageInfo = compiler.getPageInfo();
         }
 
         @Override
-        public void visit(Node.CustomTag n) throws WaspException {
-            TagFileInfo tagFileInfo = n.getTagFileInfo();
+        public void visit(Node.CustomTag customTag) throws WaspException {
+            TagFileInfo tagFileInfo = customTag.getTagFileInfo();
             if (tagFileInfo != null) {
                 String tagFilePath = tagFileInfo.getPath();
                 if (tagFilePath.startsWith("/META-INF/")) {
                     // For tags in JARs, add the TLD and the tag as a dependency
                     String[] location = compiler.getCompilationContext().getTldLocation(tagFileInfo.getTagInfo().getTagLibrary().getURI());
+
                     // Add TLD
                     pageInfo.addDependant("jar:" + location[0] + "!/" + location[1]);
+
                     // Add Tag
                     pageInfo.addDependant("jar:" + location[0] + "!" + tagFilePath);
                 } else {
                     pageInfo.addDependant(tagFilePath);
                 }
-                Class c = loadTagFile(compiler, tagFilePath, n.getTagInfo(), pageInfo);
-                n.setTagHandlerClass(c);
+                customTag.setTagHandlerClass(loadTagFile(compiler, tagFilePath, customTag.getTagInfo(), pageInfo));
             }
-            visitBody(n);
+            visitBody(customTag);
         }
     }
 
@@ -565,8 +606,7 @@ class TagFileProcessor {
      * in the tag files are assumed to have been proccessed and encapsulated as TagFileInfo in the CustomTag nodes.
      */
     public void loadTagFiles(Compiler compiler, Node.Nodes page) throws WaspException {
-
-        tempVector = new ArrayList<>();
+        tempCompilers = new ArrayList<>();
         page.visit(new TagFileLoaderVisitor(compiler));
     }
 
@@ -576,14 +616,14 @@ class TagFileProcessor {
      * @param classFileName If non-null, remove only the class file with with this name.
      */
     public void removeProtoTypeFiles(String classFileName) {
-        Iterator<Compiler> iter = tempVector.iterator();
+        Iterator<Compiler> iter = tempCompilers.iterator();
         while (iter.hasNext()) {
-            Compiler c = iter.next();
+            Compiler compiler = iter.next();
             if (classFileName == null) {
-                c.removeGeneratedClassFiles();
-            } else if (classFileName.equals(c.getCompilationContext().getClassFileName())) {
-                c.removeGeneratedClassFiles();
-                tempVector.remove(c);
+                compiler.removeGeneratedClassFiles();
+            } else if (classFileName.equals(compiler.getCompilationContext().getClassFileName())) {
+                compiler.removeGeneratedClassFiles();
+                tempCompilers.remove(compiler);
                 return;
             }
         }

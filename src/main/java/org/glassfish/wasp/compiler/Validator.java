@@ -17,6 +17,9 @@
 
 package org.glassfish.wasp.compiler;
 
+import static org.glassfish.wasp.compiler.JspUtil.checkAttributes;
+import static org.glassfish.wasp.compiler.JspUtil.checkScope;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -24,8 +27,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.JspCompilationContext;
+import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.runtime.JspRuntimeLibrary;
 import org.xml.sax.Attributes;
 
@@ -58,12 +61,22 @@ class Validator {
         private PageInfo pageInfo;
         private ErrorDispatcher err;
 
-        private static final JspUtil.ValidAttribute[] pageDirectiveAttrs = { new JspUtil.ValidAttribute("language"), new JspUtil.ValidAttribute("extends"),
-                new JspUtil.ValidAttribute("import"), new JspUtil.ValidAttribute("session"), new JspUtil.ValidAttribute("buffer"),
-                new JspUtil.ValidAttribute("autoFlush"), new JspUtil.ValidAttribute("isThreadSafe"), new JspUtil.ValidAttribute("info"),
-                new JspUtil.ValidAttribute("errorPage"), new JspUtil.ValidAttribute("isErrorPage"), new JspUtil.ValidAttribute("contentType"),
-                new JspUtil.ValidAttribute("pageEncoding"), new JspUtil.ValidAttribute("isELIgnored"),
-                new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"), new JspUtil.ValidAttribute("trimDirectiveWhitespaces") };
+        private static final JspUtil.ValidAttribute[] pageDirectiveAttrs = {
+                new JspUtil.ValidAttribute("language"),
+                new JspUtil.ValidAttribute("extends"),
+                new JspUtil.ValidAttribute("import"),
+                new JspUtil.ValidAttribute("session"),
+                new JspUtil.ValidAttribute("buffer"),
+                new JspUtil.ValidAttribute("autoFlush"),
+                new JspUtil.ValidAttribute("isThreadSafe"),
+                new JspUtil.ValidAttribute("info"),
+                new JspUtil.ValidAttribute("errorPage"),
+                new JspUtil.ValidAttribute("isErrorPage"),
+                new JspUtil.ValidAttribute("contentType"),
+                new JspUtil.ValidAttribute("pageEncoding"),
+                new JspUtil.ValidAttribute("isELIgnored"),
+                new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"),
+                new JspUtil.ValidAttribute("trimDirectiveWhitespaces") };
 
         private boolean pageEncodingSeen = false;
 
@@ -87,8 +100,7 @@ class Validator {
 
         @Override
         public void visit(Node.PageDirective n) throws WaspException {
-
-            JspUtil.checkAttributes("Page directive", n, pageDirectiveAttrs, err);
+            checkAttributes("Page directive", n, pageDirectiveAttrs, err);
 
             // JSP.2.10.1
             Attributes attrs = n.getAttributes();
@@ -347,47 +359,81 @@ class Validator {
         private ClassLoader loader;
         private JspCompilationContext ctxt;
 
-        private static final JspUtil.ValidAttribute[] jspRootAttrs = { new JspUtil.ValidAttribute("xsi:schemaLocation"),
+        private static final JspUtil.ValidAttribute[] jspRootAttrs = {
+                new JspUtil.ValidAttribute("xsi:schemaLocation"),
                 new JspUtil.ValidAttribute("version", true) };
 
-        private static final JspUtil.ValidAttribute[] includeDirectiveAttrs = { new JspUtil.ValidAttribute("file", true) };
+        private static final JspUtil.ValidAttribute[] includeDirectiveAttrs = {
+                new JspUtil.ValidAttribute("file", true) };
 
-        private static final JspUtil.ValidAttribute[] taglibDirectiveAttrs = { new JspUtil.ValidAttribute("uri"), new JspUtil.ValidAttribute("tagdir"),
+        private static final JspUtil.ValidAttribute[] taglibDirectiveAttrs = {
+                new JspUtil.ValidAttribute("uri"),
+                new JspUtil.ValidAttribute("tagdir"),
                 new JspUtil.ValidAttribute("prefix", true) };
 
-        private static final JspUtil.ValidAttribute[] includeActionAttrs = { new JspUtil.ValidAttribute("page", true), new JspUtil.ValidAttribute("flush") };
+        private static final JspUtil.ValidAttribute[] includeActionAttrs = {
+                new JspUtil.ValidAttribute("page", true),
+                new JspUtil.ValidAttribute("flush") };
 
-        private static final JspUtil.ValidAttribute[] paramActionAttrs = { new JspUtil.ValidAttribute("name", true),
+        private static final JspUtil.ValidAttribute[] paramActionAttrs = {
+                new JspUtil.ValidAttribute("name", true),
                 new JspUtil.ValidAttribute("value", true) };
 
-        private static final JspUtil.ValidAttribute[] forwardActionAttrs = { new JspUtil.ValidAttribute("page", true) };
+        private static final JspUtil.ValidAttribute[] forwardActionAttrs = {
+                new JspUtil.ValidAttribute("page", true) };
 
-        private static final JspUtil.ValidAttribute[] getPropertyAttrs = { new JspUtil.ValidAttribute("name", true),
+        private static final JspUtil.ValidAttribute[] getPropertyAttrs = {
+                new JspUtil.ValidAttribute("name", true),
                 new JspUtil.ValidAttribute("property", true) };
 
-        private static final JspUtil.ValidAttribute[] setPropertyAttrs = { new JspUtil.ValidAttribute("name", true),
-                new JspUtil.ValidAttribute("property", true), new JspUtil.ValidAttribute("value", false), new JspUtil.ValidAttribute("param") };
+        private static final JspUtil.ValidAttribute[] setPropertyAttrs = {
+                new JspUtil.ValidAttribute("name", true),
+                new JspUtil.ValidAttribute("property", true),
+                new JspUtil.ValidAttribute("value", false),
+                new JspUtil.ValidAttribute("param") };
 
-        private static final JspUtil.ValidAttribute[] useBeanAttrs = { new JspUtil.ValidAttribute("id", true), new JspUtil.ValidAttribute("scope"),
-                new JspUtil.ValidAttribute("class"), new JspUtil.ValidAttribute("type"), new JspUtil.ValidAttribute("beanName", false) };
+        private static final JspUtil.ValidAttribute[] useBeanAttrs = {
+                new JspUtil.ValidAttribute("id", true),
+                new JspUtil.ValidAttribute("scope"),
+                new JspUtil.ValidAttribute("class"),
+                new JspUtil.ValidAttribute("type"),
+                new JspUtil.ValidAttribute("beanName", false) };
 
-        private static final JspUtil.ValidAttribute[] plugInAttrs = { new JspUtil.ValidAttribute("type", true), new JspUtil.ValidAttribute("code", true),
-                new JspUtil.ValidAttribute("codebase"), new JspUtil.ValidAttribute("align"), new JspUtil.ValidAttribute("archive"),
-                new JspUtil.ValidAttribute("height", false), new JspUtil.ValidAttribute("hspace"), new JspUtil.ValidAttribute("jreversion"),
-                new JspUtil.ValidAttribute("name"), new JspUtil.ValidAttribute("vspace"), new JspUtil.ValidAttribute("width", false),
-                new JspUtil.ValidAttribute("nspluginurl"), new JspUtil.ValidAttribute("iepluginurl") };
+        private static final JspUtil.ValidAttribute[] plugInAttrs = {
+                new JspUtil.ValidAttribute("type", true),
+                new JspUtil.ValidAttribute("code", true),
+                new JspUtil.ValidAttribute("codebase"),
+                new JspUtil.ValidAttribute("align"),
+                new JspUtil.ValidAttribute("archive"),
+                new JspUtil.ValidAttribute("height", false),
+                new JspUtil.ValidAttribute("hspace"),
+                new JspUtil.ValidAttribute("jreversion"),
+                new JspUtil.ValidAttribute("name"),
+                new JspUtil.ValidAttribute("vspace"),
+                new JspUtil.ValidAttribute("width", false),
+                new JspUtil.ValidAttribute("nspluginurl"),
+                new JspUtil.ValidAttribute("iepluginurl") };
 
-        private static final JspUtil.ValidAttribute[] attributeAttrs = { new JspUtil.ValidAttribute("name", true), new JspUtil.ValidAttribute("trim"),
+        private static final JspUtil.ValidAttribute[] attributeAttrs = {
+                new JspUtil.ValidAttribute("name", true),
+                new JspUtil.ValidAttribute("trim"),
                 new JspUtil.ValidAttribute("omit") };
 
-        private static final JspUtil.ValidAttribute[] invokeAttrs = { new JspUtil.ValidAttribute("fragment", true), new JspUtil.ValidAttribute("var"),
-                new JspUtil.ValidAttribute("varReader"), new JspUtil.ValidAttribute("scope") };
-
-        private static final JspUtil.ValidAttribute[] doBodyAttrs = { new JspUtil.ValidAttribute("var"), new JspUtil.ValidAttribute("varReader"),
+        private static final JspUtil.ValidAttribute[] invokeAttrs = {
+                new JspUtil.ValidAttribute("fragment", true),
+                new JspUtil.ValidAttribute("var"),
+                new JspUtil.ValidAttribute("varReader"),
                 new JspUtil.ValidAttribute("scope") };
 
-        private static final JspUtil.ValidAttribute[] jspOutputAttrs = { new JspUtil.ValidAttribute("omit-xml-declaration"),
-                new JspUtil.ValidAttribute("doctype-root-element"), new JspUtil.ValidAttribute("doctype-public"),
+        private static final JspUtil.ValidAttribute[] doBodyAttrs = {
+                new JspUtil.ValidAttribute("var"),
+                new JspUtil.ValidAttribute("varReader"),
+                new JspUtil.ValidAttribute("scope") };
+
+        private static final JspUtil.ValidAttribute[] jspOutputAttrs = {
+                new JspUtil.ValidAttribute("omit-xml-declaration"),
+                new JspUtil.ValidAttribute("doctype-root-element"),
+                new JspUtil.ValidAttribute("doctype-public"),
                 new JspUtil.ValidAttribute("doctype-system") };
 
         /*
@@ -402,7 +448,7 @@ class Validator {
 
         @Override
         public void visit(Node.JspRoot n) throws WaspException {
-            JspUtil.checkAttributes("Jsp:root", n, jspRootAttrs, err);
+            checkAttributes("Jsp:root", n, jspRootAttrs, err);
             String version = n.getTextAttribute("version");
             if (!version.equals("1.2") && !version.equals("2.0") && !version.equals("2.1")) {
                 err.jspError(n, "jsp.error.jsproot.version.invalid", version);
@@ -412,13 +458,14 @@ class Validator {
 
         @Override
         public void visit(Node.IncludeDirective n) throws WaspException {
-            JspUtil.checkAttributes("Include directive", n, includeDirectiveAttrs, err);
+            checkAttributes("Include directive", n, includeDirectiveAttrs, err);
             visitBody(n);
         }
 
         @Override
         public void visit(Node.TaglibDirective n) throws WaspException {
-            JspUtil.checkAttributes("Taglib directive", n, taglibDirectiveAttrs, err);
+            checkAttributes("Taglib directive", n, taglibDirectiveAttrs, err);
+
             // Either 'uri' or 'tagdir' attribute must be specified
             String uri = n.getAttributeValue("uri");
             String tagdir = n.getAttributeValue("tagdir");
@@ -432,7 +479,8 @@ class Validator {
 
         @Override
         public void visit(Node.ParamAction n) throws WaspException {
-            JspUtil.checkAttributes("Param action", n, paramActionAttrs, err);
+            checkAttributes("Param action", n, paramActionAttrs, err);
+
             // make sure the value of the 'name' attribute is not a
             // request-time expression
             throwErrorIfExpression(n, "name", "jsp:param");
@@ -452,26 +500,26 @@ class Validator {
 
         @Override
         public void visit(Node.IncludeAction n) throws WaspException {
-            JspUtil.checkAttributes("Include action", n, includeActionAttrs, err);
+            checkAttributes("Include action", n, includeActionAttrs, err);
             n.setPage(getJspAttribute("page", null, null, n.getAttributeValue("page"), n, false, null));
             visitBody(n);
         }
 
         @Override
         public void visit(Node.ForwardAction n) throws WaspException {
-            JspUtil.checkAttributes("Forward", n, forwardActionAttrs, err);
+            checkAttributes("Forward", n, forwardActionAttrs, err);
             n.setPage(getJspAttribute("page", null, null, n.getAttributeValue("page"), n, false, null));
             visitBody(n);
         }
 
         @Override
         public void visit(Node.GetProperty n) throws WaspException {
-            JspUtil.checkAttributes("GetProperty", n, getPropertyAttrs, err);
+            checkAttributes("GetProperty", n, getPropertyAttrs, err);
         }
 
         @Override
         public void visit(Node.SetProperty n) throws WaspException {
-            JspUtil.checkAttributes("SetProperty", n, setPropertyAttrs, err);
+            checkAttributes("SetProperty", n, setPropertyAttrs, err);
             String property = n.getTextAttribute("property");
             String param = n.getTextAttribute("param");
             String value = n.getAttributeValue("value");
@@ -493,121 +541,122 @@ class Validator {
         }
 
         @Override
-        public void visit(Node.UseBean n) throws WaspException {
-            JspUtil.checkAttributes("UseBean", n, useBeanAttrs, err);
+        public void visit(Node.UseBean useBean) throws WaspException {
+            checkAttributes("UseBean", useBean, useBeanAttrs, err);
 
-            String name = n.getTextAttribute("id");
-            String scope = n.getTextAttribute("scope");
-            JspUtil.checkScope(scope, n, err);
-            String className = n.getTextAttribute("class");
-            String type = n.getTextAttribute("type");
+            String name = useBean.getTextAttribute("id");
+            String scope = useBean.getTextAttribute("scope");
+            checkScope(scope, useBean, err);
+            String className = useBean.getTextAttribute("class");
+            String type = useBean.getTextAttribute("type");
             BeanRepository beanInfo = pageInfo.getBeanRepository();
 
             if (className == null && type == null) {
-                err.jspError(n, "jsp.error.usebean.missingType");
+                err.jspError(useBean, "jsp.error.usebean.missingType");
             }
 
             if (beanInfo.checkVariable(name)) {
-                err.jspError(n, "jsp.error.usebean.duplicate", name);
+                err.jspError(useBean, "jsp.error.usebean.duplicate", name);
             }
 
             if ("session".equals(scope) && !pageInfo.isSession()) {
-                err.jspError(n, "jsp.error.usebean.noSession");
+                err.jspError(useBean, "jsp.error.usebean.noSession");
             }
 
-            Node.JspAttribute jattr = getJspAttribute("beanName", null, null, n.getAttributeValue("beanName"), n, false, null);
-            n.setBeanName(jattr);
+            Node.JspAttribute jattr = getJspAttribute("beanName", null, null, useBean.getAttributeValue("beanName"), useBean, false, null);
+            useBean.setBeanName(jattr);
             if (className != null && jattr != null) {
-                err.jspError(n, "jsp.error.usebean.notBoth");
+                err.jspError(useBean, "jsp.error.usebean.notBoth");
             }
 
             if (className == null) {
                 className = type;
             }
 
-            beanInfo.addBean(n, name, className, scope);
+            beanInfo.addBean(useBean, name, className, scope);
 
-            visitBody(n);
+            visitBody(useBean);
         }
 
         @Override
-        public void visit(Node.PlugIn n) throws WaspException {
-            JspUtil.checkAttributes("Plugin", n, plugInAttrs, err);
+        public void visit(Node.PlugIn plugIn) throws WaspException {
+            checkAttributes("Plugin", plugIn, plugInAttrs, err);
 
-            throwErrorIfExpression(n, "type", "jsp:plugin");
-            throwErrorIfExpression(n, "code", "jsp:plugin");
-            throwErrorIfExpression(n, "codebase", "jsp:plugin");
-            throwErrorIfExpression(n, "align", "jsp:plugin");
-            throwErrorIfExpression(n, "archive", "jsp:plugin");
-            throwErrorIfExpression(n, "hspace", "jsp:plugin");
-            throwErrorIfExpression(n, "jreversion", "jsp:plugin");
-            throwErrorIfExpression(n, "name", "jsp:plugin");
-            throwErrorIfExpression(n, "vspace", "jsp:plugin");
-            throwErrorIfExpression(n, "nspluginurl", "jsp:plugin");
-            throwErrorIfExpression(n, "iepluginurl", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "type", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "code", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "codebase", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "align", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "archive", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "hspace", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "jreversion", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "name", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "vspace", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "nspluginurl", "jsp:plugin");
+            throwErrorIfExpression(plugIn, "iepluginurl", "jsp:plugin");
 
-            String type = n.getTextAttribute("type");
+            String type = plugIn.getTextAttribute("type");
             if (type == null) {
-                err.jspError(n, "jsp.error.plugin.notype");
+                err.jspError(plugIn, "jsp.error.plugin.notype");
             }
             if (!type.equals("bean") && !type.equals("applet")) {
-                err.jspError(n, "jsp.error.plugin.badtype");
+                err.jspError(plugIn, "jsp.error.plugin.badtype");
             }
-            if (n.getTextAttribute("code") == null) {
-                err.jspError(n, "jsp.error.plugin.nocode");
+            if (plugIn.getTextAttribute("code") == null) {
+                err.jspError(plugIn, "jsp.error.plugin.nocode");
             }
 
-            Node.JspAttribute width = getJspAttribute("width", null, null, n.getAttributeValue("width"), n, false, null);
-            n.setWidth(width);
+            Node.JspAttribute width = getJspAttribute("width", null, null, plugIn.getAttributeValue("width"), plugIn, false, null);
+            plugIn.setWidth(width);
 
-            Node.JspAttribute height = getJspAttribute("height", null, null, n.getAttributeValue("height"), n, false, null);
-            n.setHeight(height);
+            Node.JspAttribute height = getJspAttribute("height", null, null, plugIn.getAttributeValue("height"), plugIn, false, null);
+            plugIn.setHeight(height);
 
-            visitBody(n);
+            visitBody(plugIn);
         }
 
         @Override
-        public void visit(Node.NamedAttribute n) throws WaspException {
-            JspUtil.checkAttributes("Attribute", n, attributeAttrs, err);
-            String omit = n.getAttributeValue("omit");
+        public void visit(Node.NamedAttribute namedAttribute) throws WaspException {
+            checkAttributes("Attribute", namedAttribute, attributeAttrs, err);
+            String omit = namedAttribute.getAttributeValue("omit");
             if (omit != null) {
-                n.setOmit(getJspAttribute("omit", null, null, omit, n, false, null));
+                namedAttribute.setOmit(getJspAttribute("omit", null, null, omit, namedAttribute, false, null));
             }
-            visitBody(n);
+            visitBody(namedAttribute);
         }
 
         @Override
-        public void visit(Node.JspBody n) throws WaspException {
-            visitBody(n);
+        public void visit(Node.JspBody pagesBody) throws WaspException {
+            visitBody(pagesBody);
         }
 
         @Override
-        public void visit(Node.Declaration n) throws WaspException {
+        public void visit(Node.Declaration declaration) throws WaspException {
             if (pageInfo.isScriptingInvalid()) {
-                err.jspError(n.getStart(), "jsp.error.no.scriptlets");
+                err.jspError(declaration.getStart(), "jsp.error.no.scriptlets");
             }
         }
 
         @Override
-        public void visit(Node.Expression n) throws WaspException {
+        public void visit(Node.Expression expression) throws WaspException {
             if (pageInfo.isScriptingInvalid()) {
-                err.jspError(n.getStart(), "jsp.error.no.scriptlets");
+                err.jspError(expression.getStart(), "jsp.error.no.scriptlets");
             }
         }
 
         @Override
-        public void visit(Node.Scriptlet n) throws WaspException {
+        public void visit(Node.Scriptlet scriptlet) throws WaspException {
             if (pageInfo.isScriptingInvalid()) {
-                err.jspError(n.getStart(), "jsp.error.no.scriptlets");
+                err.jspError(scriptlet.getStart(), "jsp.error.no.scriptlets");
             }
         }
 
         @Override
-        public void visit(Node.ELExpression n) throws WaspException {
+        public void visit(Node.ELExpression expression) throws WaspException {
             if (pageInfo.isELIgnored()) {
                 return;
             }
-            String expressions = n.getText();
+
+            String expressions = expression.getText();
             if (expressions.charAt(0) == '#') {
                 if (pageInfo.isDeferredSyntaxAllowedAsLiteral()) {
                     return;
@@ -622,54 +671,58 @@ class Validator {
                     }
                 }
 
-                err.jspError(n.getStart(), "jsp.error.not.in.template", "#{...}");
+                err.jspError(expression.getStart(), "jsp.error.not.in.template", "#{...}");
             }
             ELNode.Nodes el = ELParser.parse(expressions);
-            validateFunctions(el, n);
-            JspUtil.validateExpressions(n.getStart(), expressions, getFunctionMapper(el), err);
-            n.setEL(el);
+            validateFunctions(el, expression);
+            JspUtil.validateExpressions(expression.getStart(), expressions, getFunctionMapper(el), err);
+            expression.setEL(el);
         }
 
         @Override
-        public void visit(Node.UninterpretedTag n) throws WaspException {
-            if (n.getNamedAttributeNodes().size() != 0) {
-                err.jspError(n, "jsp.error.namedAttribute.invalidUse");
+        public void visit(Node.UninterpretedTag uninterpretedTag) throws WaspException {
+            if (uninterpretedTag.getNamedAttributeNodes().size() != 0) {
+                err.jspError(uninterpretedTag, "jsp.error.namedAttribute.invalidUse");
             }
 
-            Attributes attrs = n.getAttributes();
+            Attributes attrs = uninterpretedTag.getAttributes();
             if (attrs != null) {
                 int attrSize = attrs.getLength();
                 Node.JspAttribute[] jspAttrs = new Node.JspAttribute[attrSize];
                 for (int i = 0; i < attrSize; i++) {
-                    jspAttrs[i] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), n, false, null);
+                    jspAttrs[i] = getJspAttribute(
+                                    attrs.getQName(i),
+                                    attrs.getURI(i),
+                                    attrs.getLocalName(i),
+                                    attrs.getValue(i),
+                                    uninterpretedTag, false, null);
                 }
-                n.setJspAttributes(jspAttrs);
+                uninterpretedTag.setJspAttributes(jspAttrs);
             }
 
-            visitBody(n);
+            visitBody(uninterpretedTag);
         }
 
         @Override
-        public void visit(Node.CustomTag n) throws WaspException {
-
-            TagInfo tagInfo = n.getTagInfo();
+        public void visit(Node.CustomTag customTag) throws WaspException {
+            TagInfo tagInfo = customTag.getTagInfo();
             if (tagInfo == null) {
-                err.jspError(n, "jsp.error.missing.tagInfo", n.getQName());
+                err.jspError(customTag, "jsp.error.missing.tagInfo", customTag.getQName());
             }
 
             /*
              * The bodycontent of a SimpleTag cannot be JSP.
              */
-            if (n.implementsSimpleTag() && tagInfo.getBodyContent().equals(TagInfo.BODY_CONTENT_JSP)) {
-                err.jspError(n, "jsp.error.simpletag.badbodycontent", tagInfo.getTagClassName());
+            if (customTag.implementsSimpleTag() && tagInfo.getBodyContent().equals(TagInfo.BODY_CONTENT_JSP)) {
+                err.jspError(customTag, "jsp.error.simpletag.badbodycontent", tagInfo.getTagClassName());
             }
 
             /*
              * If the tag handler declares in the TLD that it supports dynamic attributes, it also must implement the
              * DynamicAttributes interface.
              */
-            if (tagInfo.hasDynamicAttributes() && !n.implementsDynamicAttributes()) {
-                err.jspError(n, "jsp.error.dynamic.attributes.not.implemented", n.getQName());
+            if (tagInfo.hasDynamicAttributes() && !customTag.implementsDynamicAttributes()) {
+                err.jspError(customTag, "jsp.error.dynamic.attributes.not.implemented", customTag.getQName());
             }
 
             /*
@@ -677,8 +730,8 @@ class Validator {
              * sure that the same attribute is not specified in both attributes or named attributes.
              */
             TagAttributeInfo[] tldAttrs = tagInfo.getAttributes();
-            String customActionUri = n.getURI();
-            Attributes attrs = n.getAttributes();
+            String customActionUri = customTag.getURI();
+            Attributes attrs = customTag.getAttributes();
             int attrsSize = attrs == null ? 0 : attrs.getLength();
             for (int i = 0; i < tldAttrs.length; i++) {
                 String attr = null;
@@ -688,17 +741,17 @@ class Validator {
                         attr = attrs.getValue(customActionUri, tldAttrs[i].getName());
                     }
                 }
-                Node.NamedAttribute na = n.getNamedAttributeNode(tldAttrs[i].getName());
+                Node.NamedAttribute na = customTag.getNamedAttributeNode(tldAttrs[i].getName());
 
                 if (tldAttrs[i].isRequired() && attr == null && na == null) {
-                    err.jspError(n, "jsp.error.missing_attribute", tldAttrs[i].getName(), n.getLocalName());
+                    err.jspError(customTag, "jsp.error.missing_attribute", tldAttrs[i].getName(), customTag.getLocalName());
                 }
                 if (attr != null && na != null) {
-                    err.jspError(n, "jsp.error.duplicate.name.jspattribute", tldAttrs[i].getName());
+                    err.jspError(customTag, "jsp.error.duplicate.name.jspattribute", tldAttrs[i].getName());
                 }
             }
 
-            Node.Nodes naNodes = n.getNamedAttributeNodes();
+            Node.Nodes naNodes = customTag.getNamedAttributeNodes();
             int jspAttrsSize = naNodes.size() + attrsSize;
             Node.JspAttribute[] jspAttrs = null;
             if (jspAttrsSize > 0) {
@@ -706,8 +759,8 @@ class Validator {
             }
             Hashtable<String, Object> tagDataAttrs = new Hashtable<>(attrsSize);
 
-            checkXmlAttributes(n, jspAttrs, tagDataAttrs);
-            checkNamedAttributes(n, jspAttrs, attrsSize, tagDataAttrs);
+            checkXmlAttributes(customTag, jspAttrs, tagDataAttrs);
+            checkNamedAttributes(customTag, jspAttrs, attrsSize, tagDataAttrs);
 
             TagData tagData = new TagData(tagDataAttrs);
 
@@ -716,25 +769,24 @@ class Validator {
             // class that returns a non-null object.
             TagExtraInfo tei = tagInfo.getTagExtraInfo();
             if (tei != null && tei.getVariableInfo(tagData) != null && tei.getVariableInfo(tagData).length > 0 && tagInfo.getTagVariableInfos().length > 0) {
-                err.jspError("jsp.error.non_null_tei_and_var_subelems", n.getQName());
+                err.jspError("jsp.error.non_null_tei_and_var_subelems", customTag.getQName());
             }
 
-            n.setTagData(tagData);
-            n.setJspAttributes(jspAttrs);
+            customTag.setTagData(tagData);
+            customTag.setJspAttributes(jspAttrs);
 
-            visitBody(n);
+            visitBody(customTag);
         }
 
         @Override
-        public void visit(Node.JspElement n) throws WaspException {
-
-            Attributes attrs = n.getAttributes();
+        public void visit(Node.JspElement pagesElement) throws WaspException {
+            Attributes attrs = pagesElement.getAttributes();
             if (attrs == null) {
-                err.jspError(n, "jsp.error.jspelement.missing.name");
+                err.jspError(pagesElement, "jsp.error.jspelement.missing.name");
             }
             int xmlAttrLen = attrs.getLength();
 
-            Node.Nodes namedAttrs = n.getNamedAttributeNodes();
+            Node.Nodes namedAttrs = pagesElement.getNamedAttributeNodes();
 
             // XML-style 'name' attribute, which is mandatory, must not be
             // included in JspAttribute array
@@ -746,16 +798,16 @@ class Validator {
             // Process XML-style attributes
             for (int i = 0; i < xmlAttrLen; i++) {
                 if ("name".equals(attrs.getLocalName(i))) {
-                    n.setNameAttribute(getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), n, false, null));
+                    pagesElement.setNameAttribute(getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), pagesElement, false, null));
                 } else {
                     if (jspAttrIndex < jspAttrSize) {
-                        jspAttrs[jspAttrIndex++] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), n, false,
+                        jspAttrs[jspAttrIndex++] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), pagesElement, false,
                                 null);
                     }
                 }
             }
-            if (n.getNameAttribute() == null) {
-                err.jspError(n, "jsp.error.jspelement.missing.name");
+            if (pagesElement.getNameAttribute() == null) {
+                err.jspError(pagesElement, "jsp.error.jspelement.missing.name");
             }
 
             // Process named attributes
@@ -764,23 +816,23 @@ class Validator {
                 jspAttrs[jspAttrIndex++] = new Node.JspAttribute(na, false);
             }
 
-            n.setJspAttributes(jspAttrs);
+            pagesElement.setJspAttributes(jspAttrs);
 
-            visitBody(n);
+            visitBody(pagesElement);
         }
 
         @Override
-        public void visit(Node.JspOutput n) throws WaspException {
-            JspUtil.checkAttributes("jsp:output", n, jspOutputAttrs, err);
+        public void visit(Node.JspOutput pagesOutput) throws WaspException {
+            checkAttributes("jsp:output", pagesOutput, jspOutputAttrs, err);
 
-            if (n.getBody() != null) {
-                err.jspError(n, "jsp.error.jspoutput.nonemptybody");
+            if (pagesOutput.getBody() != null) {
+                err.jspError(pagesOutput, "jsp.error.jspoutput.nonemptybody");
             }
 
-            String omitXmlDecl = n.getAttributeValue("omit-xml-declaration");
-            String doctypeName = n.getAttributeValue("doctype-root-element");
-            String doctypePublic = n.getAttributeValue("doctype-public");
-            String doctypeSystem = n.getAttributeValue("doctype-system");
+            String omitXmlDecl = pagesOutput.getAttributeValue("omit-xml-declaration");
+            String doctypeName = pagesOutput.getAttributeValue("doctype-root-element");
+            String doctypePublic = pagesOutput.getAttributeValue("doctype-public");
+            String doctypeSystem = pagesOutput.getAttributeValue("doctype-system");
 
             String omitXmlDeclOld = pageInfo.getOmitXmlDecl();
             String doctypeNameOld = pageInfo.getDoctypeName();
@@ -788,27 +840,27 @@ class Validator {
             String doctypeSystemOld = pageInfo.getDoctypeSystem();
 
             if (omitXmlDecl != null && omitXmlDeclOld != null && !omitXmlDecl.equals(omitXmlDeclOld)) {
-                err.jspError(n, "jsp.error.jspoutput.conflict", "omit-xml-declaration", omitXmlDeclOld, omitXmlDecl);
+                err.jspError(pagesOutput, "jsp.error.jspoutput.conflict", "omit-xml-declaration", omitXmlDeclOld, omitXmlDecl);
             }
 
             if (doctypeName != null && doctypeNameOld != null && !doctypeName.equals(doctypeNameOld)) {
-                err.jspError(n, "jsp.error.jspoutput.conflict", "doctype-root-element", doctypeNameOld, doctypeName);
+                err.jspError(pagesOutput, "jsp.error.jspoutput.conflict", "doctype-root-element", doctypeNameOld, doctypeName);
             }
 
             if (doctypePublic != null && doctypePublicOld != null && !doctypePublic.equals(doctypePublicOld)) {
-                err.jspError(n, "jsp.error.jspoutput.conflict", "doctype-public", doctypePublicOld, doctypePublic);
+                err.jspError(pagesOutput, "jsp.error.jspoutput.conflict", "doctype-public", doctypePublicOld, doctypePublic);
             }
 
             if (doctypeSystem != null && doctypeSystemOld != null && !doctypeSystem.equals(doctypeSystemOld)) {
-                err.jspError(n, "jsp.error.jspoutput.conflict", "doctype-system", doctypeSystemOld, doctypeSystem);
+                err.jspError(pagesOutput, "jsp.error.jspoutput.conflict", "doctype-system", doctypeSystemOld, doctypeSystem);
             }
 
             if (doctypeName == null && doctypeSystem != null || doctypeName != null && doctypeSystem == null) {
-                err.jspError(n, "jsp.error.jspoutput.doctypenamesystem");
+                err.jspError(pagesOutput, "jsp.error.jspoutput.doctypenamesystem");
             }
 
             if (doctypePublic != null && doctypeSystem == null) {
-                err.jspError(n, "jsp.error.jspoutput.doctypepulicsystem");
+                err.jspError(pagesOutput, "jsp.error.jspoutput.doctypepulicsystem");
             }
 
             if (omitXmlDecl != null) {
@@ -826,38 +878,36 @@ class Validator {
         }
 
         @Override
-        public void visit(Node.InvokeAction n) throws WaspException {
+        public void visit(Node.InvokeAction invokeAction) throws WaspException {
+            checkAttributes("Invoke", invokeAction, invokeAttrs, err);
 
-            JspUtil.checkAttributes("Invoke", n, invokeAttrs, err);
+            String scope = invokeAction.getTextAttribute("scope");
+            checkScope(scope, invokeAction, err);
 
-            String scope = n.getTextAttribute("scope");
-            JspUtil.checkScope(scope, n, err);
-
-            String var = n.getTextAttribute("var");
-            String varReader = n.getTextAttribute("varReader");
+            String var = invokeAction.getTextAttribute("var");
+            String varReader = invokeAction.getTextAttribute("varReader");
             if (scope != null && var == null && varReader == null) {
-                err.jspError(n, "jsp.error.missing_var_or_varReader");
+                err.jspError(invokeAction, "jsp.error.missing_var_or_varReader");
             }
             if (var != null && varReader != null) {
-                err.jspError(n, "jsp.error.var_and_varReader");
+                err.jspError(invokeAction, "jsp.error.var_and_varReader");
             }
         }
 
         @Override
-        public void visit(Node.DoBodyAction n) throws WaspException {
+        public void visit(Node.DoBodyAction doBodyAction) throws WaspException {
+            checkAttributes("DoBody", doBodyAction, doBodyAttrs, err);
 
-            JspUtil.checkAttributes("DoBody", n, doBodyAttrs, err);
+            String scope = doBodyAction.getTextAttribute("scope");
+            checkScope(scope, doBodyAction, err);
 
-            String scope = n.getTextAttribute("scope");
-            JspUtil.checkScope(scope, n, err);
-
-            String var = n.getTextAttribute("var");
-            String varReader = n.getTextAttribute("varReader");
+            String var = doBodyAction.getTextAttribute("var");
+            String varReader = doBodyAction.getTextAttribute("varReader");
             if (scope != null && var == null && varReader == null) {
-                err.jspError(n, "jsp.error.missing_var_or_varReader");
+                err.jspError(doBodyAction, "jsp.error.missing_var_or_varReader");
             }
             if (var != null && varReader != null) {
-                err.jspError(n, "jsp.error.var_and_varReader");
+                err.jspError(doBodyAction, "jsp.error.var_and_varReader");
             }
         }
 
@@ -867,9 +917,8 @@ class Validator {
          * This can probably be done globally, when taglib directives are processed. We do it here so checking is done only for
          * the attributes are actually used.
          */
-        private void checkSetter(Node.CustomTag n, TagAttributeInfo tldattr) throws WaspException {
-
-            Class handler = n.getTagHandlerClass();
+        private void checkSetter(Node.CustomTag customTag, TagAttributeInfo tldattr) throws WaspException {
+            Class<?> handler = customTag.getTagHandlerClass();
             if (handler == null) {
                 // Handler unknown. Maybe tag file?
                 return;
@@ -884,25 +933,26 @@ class Validator {
             } catch (Exception ex) {
             }
             if (setter == null) {
-                err.jspError(n, "jsp.error.setter.none", handlerName, property);
+                err.jspError(customTag, "jsp.error.setter.none", handlerName, property);
             }
-            Class setterType = setter.getParameterTypes()[0];
+
+            Class<?> setterType = setter.getParameterTypes()[0];
             String typeName = setterType.getName();
             if (tldattr.isDeferredValue()) {
                 if (tldattr.canBeRequestTime()) {
                     if (!"java.lang.Object".equals(typeName)) {
-                        err.jspError(n, "jsp.error.setter.notobject", handlerName, property);
+                        err.jspError(customTag, "jsp.error.setter.notobject", handlerName, property);
                     }
                     return;
                 }
                 if (!"jakarta.el.ValueExpression".equals(typeName)) {
-                    err.jspError(n, "jsp.error.setter.notvalueexpression", handlerName, property);
+                    err.jspError(customTag, "jsp.error.setter.notvalueexpression", handlerName, property);
                 }
                 return;
             }
             if (tldattr.isDeferredMethod()) {
                 if (!"jakarta.el.MethodExpression".equals(typeName)) {
-                    err.jspError(n, "jsp.error.setter.notmethodexpression", handlerName, property);
+                    err.jspError(customTag, "jsp.error.setter.notmethodexpression", handlerName, property);
                 }
             }
             /*
@@ -928,36 +978,36 @@ class Validator {
          * An action attribute may have a prefix different from that of the action invocation only if the underlying tag handler
          * supports dynamic attributes, in which case the attribute with the different prefix is considered a dynamic attribute.
          */
-        private void checkXmlAttributes(Node.CustomTag n, Node.JspAttribute[] jspAttrs, Hashtable<String, Object> tagDataAttrs) throws WaspException {
-
-            TagInfo tagInfo = n.getTagInfo();
+        private void checkXmlAttributes(Node.CustomTag customTag, Node.JspAttribute[] jspAttrs, Hashtable<String, Object> tagDataAttrs) throws WaspException {
+            TagInfo tagInfo = customTag.getTagInfo();
             if (tagInfo == null) {
-                err.jspError(n, "jsp.error.missing.tagInfo", n.getQName());
+                err.jspError(customTag, "jsp.error.missing.tagInfo", customTag.getQName());
             }
+
             TagAttributeInfo[] tldAttrs = tagInfo.getAttributes();
-            Attributes attrs = n.getAttributes();
+            Attributes attrs = customTag.getAttributes();
 
             for (int i = 0; attrs != null && i < attrs.getLength(); i++) {
                 boolean found = false;
                 for (int j = 0; tldAttrs != null && j < tldAttrs.length; j++) {
                     if (attrs.getLocalName(i).equals(tldAttrs[j].getName())
-                            && (attrs.getURI(i) == null || attrs.getURI(i).length() == 0 || attrs.getURI(i).equals(n.getURI()))) {
+                            && (attrs.getURI(i) == null || attrs.getURI(i).length() == 0 || attrs.getURI(i).equals(customTag.getURI()))) {
 
-                        checkSetter(n, tldAttrs[j]);
+                        checkSetter(customTag, tldAttrs[j]);
 
                         if (tldAttrs[j].canBeRequestTime() || tldAttrs[j].isDeferredValue() || tldAttrs[j].isDeferredMethod()) {
-                            jspAttrs[i] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), n, false, tldAttrs[j]);
+                            jspAttrs[i] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), customTag, false, tldAttrs[j]);
                             ELNode.Nodes el = jspAttrs[i].getEL();
                             if (el != null) {
                                 if (el.hasDollarExpression()) {
                                     if (!tldAttrs[j].canBeRequestTime()) {
-                                        err.jspError(n, "jsp.error.el.deferred.dollar", tldAttrs[j].getName());
+                                        err.jspError(customTag, "jsp.error.el.deferred.dollar", tldAttrs[j].getName());
                                     }
                                 } else if (el.hasPoundExpression()) {
                                     boolean isLiteral = pageInfo.isDeferredSyntaxAllowedAsLiteral();
                                     if (!tldAttrs[j].isDeferredValue() && !tldAttrs[j].isDeferredMethod()) {
-                                        if (n.getJspVersion() >= 2.1 && !isLiteral) {
-                                            err.jspError(n, "jsp.error.el.nondeferred.pound", tldAttrs[j].getName());
+                                        if (customTag.getJspVersion() >= 2.1 && !isLiteral) {
+                                            err.jspError(customTag, "jsp.error.el.nondeferred.pound", tldAttrs[j].getName());
                                         } else {
                                             isLiteral = true;
                                         }
@@ -975,9 +1025,9 @@ class Validator {
                         } else {
                             // Attribute does not accept any expressions.
                             // Make sure its value does not contain any.
-                            String litAttr = getLiteral(n, attrs.getValue(i));
+                            String litAttr = getLiteral(customTag, attrs.getValue(i));
                             if (litAttr == null) {
-                                err.jspError(n, "jsp.error.attribute.custom.non_rt_with_expr", tldAttrs[j].getName());
+                                err.jspError(customTag, "jsp.error.attribute.custom.non_rt_with_expr", tldAttrs[j].getName());
                             }
                             jspAttrs[i] = new Node.JspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), litAttr, false, null, false);
                         }
@@ -992,9 +1042,9 @@ class Validator {
                 }
                 if (!found) {
                     if (tagInfo.hasDynamicAttributes()) {
-                        jspAttrs[i] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), n, true, null);
+                        jspAttrs[i] = getJspAttribute(attrs.getQName(i), attrs.getURI(i), attrs.getLocalName(i), attrs.getValue(i), customTag, true, null);
                     } else {
-                        err.jspError(n, "jsp.error.bad_attribute", attrs.getQName(i), n.getLocalName());
+                        err.jspError(customTag, "jsp.error.bad_attribute", attrs.getQName(i), customTag.getLocalName());
                     }
                 }
             }
@@ -1003,15 +1053,14 @@ class Validator {
         /*
          * Make sure the given custom action does not have any invalid named attributes
          */
-        private void checkNamedAttributes(Node.CustomTag n, Node.JspAttribute[] jspAttrs, int start, Hashtable<String, Object> tagDataAttrs)
-                throws WaspException {
-
-            TagInfo tagInfo = n.getTagInfo();
+        private void checkNamedAttributes(Node.CustomTag customTag, Node.JspAttribute[] jspAttrs, int start, Hashtable<String, Object> tagDataAttrs) throws WaspException {
+            TagInfo tagInfo = customTag.getTagInfo();
             if (tagInfo == null) {
-                err.jspError(n, "jsp.error.missing.tagInfo", n.getQName());
+                err.jspError(customTag, "jsp.error.missing.tagInfo", customTag.getQName());
             }
+
             TagAttributeInfo[] tldAttrs = tagInfo.getAttributes();
-            Node.Nodes naNodes = n.getNamedAttributeNodes();
+            Node.Nodes naNodes = customTag.getNamedAttributeNodes();
 
             for (int i = 0; i < naNodes.size(); i++) {
                 Node.NamedAttribute na = (Node.NamedAttribute) naNodes.getNode(i);
@@ -1024,7 +1073,7 @@ class Validator {
                      */
                     String attrPrefix = na.getPrefix();
                     if (na.getLocalName().equals(tldAttrs[j].getName())
-                            && (attrPrefix == null || attrPrefix.length() == 0 || attrPrefix.equals(n.getPrefix()))) {
+                            && (attrPrefix == null || attrPrefix.length() == 0 || attrPrefix.equals(customTag.getPrefix()))) {
                         jspAttrs[start + i] = new Node.JspAttribute(na, false);
                         NamedAttributeVisitor nav = null;
                         if (na.getBody() != null) {
@@ -1044,7 +1093,7 @@ class Validator {
                     if (tagInfo.hasDynamicAttributes()) {
                         jspAttrs[start + i] = new Node.JspAttribute(na, true);
                     } else {
-                        err.jspError(n, "jsp.error.bad_attribute", na.getName(), n.getLocalName());
+                        err.jspError(customTag, "jsp.error.bad_attribute", na.getName(), customTag.getLocalName());
                     }
                 }
             }
@@ -1142,18 +1191,18 @@ class Validator {
          *
          * @return null, if the attribute is an expression otherwise, the literal string for the attribute
          */
-        private String getLiteral(Node n, String value) {
-            if (n.getRoot().isXmlSyntax() && value.startsWith("%=")) {
+        private String getLiteral(Node node, String value) {
+            if (node.getRoot().isXmlSyntax() && value.startsWith("%=")) {
                 return null;
             }
-            if (!n.getRoot().isXmlSyntax() && value.startsWith("<%=")) {
+            if (!node.getRoot().isXmlSyntax() && value.startsWith("<%=")) {
                 return null;
             }
             if (pageInfo.isELIgnored()) {
                 return value;
             }
-            boolean poundExpressionIgnored = n instanceof Node.CustomTag
-                    && (((Node.CustomTag) n).getJspVersion() < 2.1 || pageInfo.isDeferredSyntaxAllowedAsLiteral());
+            boolean poundExpressionIgnored = node instanceof Node.CustomTag
+                    && (((Node.CustomTag) node).getJspVersion() < 2.1 || pageInfo.isDeferredSyntaxAllowedAsLiteral());
             int size = value.length();
             StringBuilder buf = new StringBuilder(size);
             char p = ' ';
@@ -1189,9 +1238,9 @@ class Validator {
          * Throws exception if the value of the attribute with the given name in the given node is given as an RT or EL
          * expression, but the spec requires a static value.
          */
-        private void throwErrorIfExpression(Node n, String attrName, String actionName) throws WaspException {
-            if (n.getAttributes() != null && n.getAttributes().getValue(attrName) != null && getLiteral(n, n.getAttributes().getValue(attrName)) == null) {
-                err.jspError(n, "jsp.error.attribute.standard.non_rt_with_expr", attrName, actionName);
+        private void throwErrorIfExpression(Node node, String attrName, String actionName) throws WaspException {
+            if (node.getAttributes() != null && node.getAttributes().getValue(attrName) != null && getLiteral(node, node.getAttributes().getValue(attrName)) == null) {
+                err.jspError(node, "jsp.error.attribute.standard.non_rt_with_expr", attrName, actionName);
             }
         }
 
@@ -1232,10 +1281,10 @@ class Validator {
             }
         }
 
-        private String findUri(String prefix, Node n) {
+        private String findUri(String prefix, Node node) {
 
-            for (Node p = n; p != null; p = p.getParent()) {
-                Attributes attrs = p.getTaglibAttributes();
+            for (Node parentNode = node; parentNode != null; parentNode = parentNode.getParent()) {
+                Attributes attrs = parentNode.getTaglibAttributes();
                 if (attrs == null) {
                     continue;
                 }
@@ -1308,22 +1357,22 @@ class Validator {
             el.visit(new FVVisitor(n));
         }
 
-        private void processSignature(ELNode.Function func) throws WaspException {
-            FunctionInfo funcInfo = func.getFunctionInfo();
+        private void processSignature(ELNode.Function function) throws WaspException {
+            FunctionInfo funcInfo = function.getFunctionInfo();
             String signature = funcInfo.getFunctionSignature();
-            func.setMethodName(getMethod(signature));
-            func.setParameters(getParameters(signature));
+            function.setMethodName(getMethod(signature));
+            function.setParameters(getParameters(signature));
         }
 
         /**
          * Get the return type from the signature.
          */
         private String getReturnType(String signature) throws WaspException {
-
             int start = signature.indexOf(' ');
             if (start < 0) {
                 err.jspError("jsp.error.tld.invalid.signature", signature);
             }
+
             return signature.substring(0, start);
         }
 
@@ -1331,15 +1380,16 @@ class Validator {
          * Get the method name from the signature.
          */
         private String getMethod(String signature) throws WaspException {
-
             int start = signature.indexOf(' ');
             if (start < 0) {
                 err.jspError("jsp.error.tld.invalid.signature", signature);
             }
+
             int end = signature.indexOf('(');
             if (end < 0) {
                 err.jspError("jsp.error.tld.invalid.signature", signature);
             }
+
             return signature.substring(start + 1, end).trim();
         }
 
@@ -1349,8 +1399,8 @@ class Validator {
          * @return An array of parameter class names
          */
         private String[] getParameters(String signature) throws WaspException {
-
             ArrayList<String> params = new ArrayList<>();
+
             // Signature is of the form
             // <return-type> S <method-name S? '('
             // < <arg-type> ( ',' <arg-type> )* )? ')'

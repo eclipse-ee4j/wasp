@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -76,7 +77,8 @@ class Validator {
                 new JspUtil.ValidAttribute("pageEncoding"),
                 new JspUtil.ValidAttribute("isELIgnored"),
                 new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"),
-                new JspUtil.ValidAttribute("trimDirectiveWhitespaces") };
+                new JspUtil.ValidAttribute("trimDirectiveWhitespaces"),
+                new JspUtil.ValidAttribute("errorOnELNotFound") };
 
         private boolean pageEncodingSeen = false;
 
@@ -196,6 +198,13 @@ class Validator {
                     } else if (!pageInfo.getTrimDirectiveWhitespaces().equals(value)) {
                         err.jspError(n, "jsp.error.page.conflict.trim", pageInfo.getTrimDirectiveWhitespaces(), value);
                     }
+                } else if ("errorOnELNotFound".equals(attr)) {
+                    if (pageInfo.getErrorOnELNotFound() == null) {
+                        pageInfo.setErrorOnELNotFound(value, n, err, true);
+                    } else if (!pageInfo.getErrorOnELNotFound().equals(value)) {
+                        err.jspError(n, "jsp.error.page.conflict.errorOnELNotFound",
+                                pageInfo.getErrorOnELNotFound(), value);
+                    }
                 }
             }
 
@@ -277,6 +286,12 @@ class Validator {
                         pageInfo.setTrimDirectiveWhitespaces(value, n, err, false);
                     } else if (!pageInfo.getTrimDirectiveWhitespaces().equals(value)) {
                         err.jspError(n, "jsp.error.tag.conflict.trim", pageInfo.getTrimDirectiveWhitespaces(), value);
+                    }
+                } else if ("errorOnELNotFound".equals(attr)) {
+                    if (pageInfo.getErrorOnELNotFound() == null) {
+                        pageInfo.setErrorOnELNotFound(value, n, err, false);
+                    } else if (!pageInfo.getErrorOnELNotFound().equals(value)) {
+                        err.jspError(n, "jsp.error.tag.conflict.errorOnELNotFound", pageInfo.getErrorOnELNotFound(), value);
                     }
                 }
             }

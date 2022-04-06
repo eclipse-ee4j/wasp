@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -82,6 +83,9 @@ public class PageInfo {
     private boolean deferredSyntaxAllowedAsLiteral;
     private String trimDirectiveWhitespacesValue;
     private boolean trimDirectiveWhitespaces;
+    private String errorOnELNotFoundValue;
+    private boolean errorOnELNotFound;
+
     private boolean errorOnUndeclaredNamespace;
 
     private boolean isJspPrefixHijacked;
@@ -689,6 +693,38 @@ public class PageInfo {
 
     public boolean isTrimDirectiveWhitespaces() {
         return trimDirectiveWhitespaces;
+    }
+
+
+    /*
+     * errorOnELNotFound
+     */
+    public void setErrorOnELNotFound(String value, Node node, ErrorDispatcher err, boolean pagedir) throws WaspException {
+        if ("true".equalsIgnoreCase(value)) {
+            errorOnELNotFound = true;
+        } else if ("false".equalsIgnoreCase(value)) {
+            errorOnELNotFound = false;
+        } else {
+            if (pagedir) {
+                err.jspError(node, "jsp.error.page.invalid.errorOnELNotFound");
+            } else {
+                err.jspError(node, "jsp.error.tag.invalid.errorOnELNotFound");
+            }
+        }
+
+        errorOnELNotFoundValue = value;
+    }
+
+    public void setErrorOnELNotFound(boolean errorOnELNotFound) {
+        this.errorOnELNotFound = errorOnELNotFound;
+    }
+
+    public String getErrorOnELNotFound() {
+        return errorOnELNotFoundValue;
+    }
+
+    public boolean isErrorOnELNotFound() {
+        return errorOnELNotFound;
     }
 
     public void setErrorOnUndeclaredNamespace(boolean s) {

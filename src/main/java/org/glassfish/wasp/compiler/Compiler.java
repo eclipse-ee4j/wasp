@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -31,9 +32,9 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.JspCompilationContext;
 import org.glassfish.wasp.Options;
+import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.servlet.JspServletWrapper;
 
 /**
@@ -126,6 +127,11 @@ public class Compiler {
         pageInfo.setELIgnored(JspUtil.booleanValue(jspProperty.isELIgnored()));
         pageInfo.setScriptingInvalid(JspUtil.booleanValue(jspProperty.isScriptingInvalid()));
         pageInfo.setTrimDirectiveWhitespaces(JspUtil.booleanValue(jspProperty.getTrimSpaces()));
+
+        if (jspProperty.getErrorOnELNotFound() != null) {
+            pageInfo.setErrorOnELNotFound(JspUtil.booleanValue(jspProperty.getErrorOnELNotFound()));
+        }
+
         pageInfo.setDeferredSyntaxAllowedAsLiteral(JspUtil.booleanValue(jspProperty.getPoundAllowed()));
         pageInfo.setErrorOnUndeclaredNamespace(JspUtil.booleanValue(jspProperty.errorOnUndeclaredNamespace()));
 

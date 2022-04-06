@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -31,6 +32,11 @@ import jakarta.el.VariableMapper;
  * @author Kin-man Chung
  */
 public class ELContextImpl extends ELContext {
+
+    private FunctionMapper functionMapper;
+    private VariableMapper variableMapper;
+    private ELResolver resolver;
+
     /**
      * Constructs a new ELContext associated with the given ELResolver.
      */
@@ -60,8 +66,4 @@ public class ELContextImpl extends ELContext {
     public VariableMapper getVariableMapper() {
         return variableMapper;
     }
-
-    private FunctionMapper functionMapper;
-    private VariableMapper variableMapper;
-    private ELResolver resolver;
 }

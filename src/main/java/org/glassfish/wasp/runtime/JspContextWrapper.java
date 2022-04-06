@@ -48,6 +48,7 @@ import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.el.ExpressionEvaluator;
 import jakarta.servlet.jsp.el.VariableResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
+import jakarta.servlet.jsp.tagext.JspTag;
 
 /**
  * Implementation of a JSP Context Wrapper.
@@ -59,6 +60,9 @@ import jakarta.servlet.jsp.tagext.BodyContent;
  * @author Jan Luehe
  */
 public class JspContextWrapper extends PageContext {
+
+    // Tag for this wrapper is created
+    private JspTag jspTag;
 
     // Invoking JSP context
     private PageContext invokingJspCtxt;
@@ -78,8 +82,9 @@ public class JspContextWrapper extends PageContext {
     private Map<String, Object> originalNestedVars;
     private ELContext elContext;
 
-    public JspContextWrapper(JspContext jspContext, ArrayList<String> nestedVars, ArrayList<String> atBeginVars, ArrayList<String> atEndVars,
+    public JspContextWrapper(JspTag jspTag, JspContext jspContext, ArrayList<String> nestedVars, ArrayList<String> atBeginVars, ArrayList<String> atEndVars,
             Map<String, String> aliases) {
+        this.jspTag = jspTag;
         this.invokingJspCtxt = (PageContext) jspContext;
         this.nestedVars = nestedVars;
         this.atBeginVars = atBeginVars;
@@ -277,22 +282,36 @@ public class JspContextWrapper extends PageContext {
     @Override
     public ELContext getELContext() {
         if (elContext == null) {
-            PageContext pageContext = invokingJspCtxt;
-            while (pageContext instanceof JspContextWrapper) {
-                pageContext = ((JspContextWrapper) pageContext).invokingJspCtxt;
-            }
+            ELContextImpl elContextImpl = (ELContextImpl)
+                getRootPageContextImpl().getJspApplicationContext()
+                                        .createELContext(
+                                            invokingJspCtxt.getELContext()
+                                                           .getELResolver());
 
-            PageContextImpl pageContextImpl = (PageContextImpl) pageContext;
-            elContext = pageContextImpl.getJspApplicationContext()
-                                       .createELContext(
-                                           invokingJspCtxt.getELContext()
-                                                          .getELResolver());
+            elContextImpl.putContext(JspContext.class, this);
+            elContextImpl.setVariableMapper(new VariableMapperImpl());
 
-            elContext.putContext(JspContext.class, this);
-            ((ELContextImpl) elContext).setVariableMapper(new VariableMapperImpl());
+            elContext = new ELContextWrapper(elContextImpl, isErrorOnELNotFound());
         }
 
         return elContext;
+    }
+
+    public PageContextImpl getRootPageContextImpl() {
+        PageContext pageContext = invokingJspCtxt;
+        while (pageContext instanceof JspContextWrapper) {
+            pageContext = ((JspContextWrapper) pageContext).invokingJspCtxt;
+        }
+
+        return (PageContextImpl) pageContext;
+    }
+
+    public boolean isErrorOnELNotFound() {
+        if (jspTag instanceof JspSourceDependent) {
+            return ((JspSourceDependent) jspTag).getErrorOnELNotFound();
+        }
+
+        return false;
     }
 
     @Override

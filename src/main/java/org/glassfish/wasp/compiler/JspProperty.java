@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -26,6 +27,7 @@ public class JspProperty {
     private String scriptingInvalid;
     private String pageEncoding;
     private String trimSpaces;
+    private String errorOnELNotFound;
     private String poundAllowed;
     private List<String> includePrelude;
     private List<String> includeCoda;
@@ -33,13 +35,14 @@ public class JspProperty {
     private String defaultContentType;
     private String errorOnUndeclaredNamespace;
 
-    public JspProperty(String isXml, String elIgnored, String scriptingInvalid, String trimSpaces, String poundAllowed, String pageEncoding,
+    public JspProperty(String isXml, String elIgnored, String scriptingInvalid, String trimSpaces, String errorOnELNotFound, String poundAllowed, String pageEncoding,
             List<String> includePrelude, List<String> includeCoda, String defaultContentType, String buffer, String errorOnUndeclaredNamespace) {
 
         this.isXml = isXml;
         this.elIgnored = elIgnored;
         this.scriptingInvalid = scriptingInvalid;
         this.trimSpaces = trimSpaces;
+        this.errorOnELNotFound = errorOnELNotFound;
         this.poundAllowed = poundAllowed;
         this.pageEncoding = pageEncoding;
         this.includePrelude = includePrelude;
@@ -67,6 +70,10 @@ public class JspProperty {
 
     public String getTrimSpaces() {
         return trimSpaces;
+    }
+
+    public String getErrorOnELNotFound() {
+        return errorOnELNotFound;
     }
 
     public String getPoundAllowed() {

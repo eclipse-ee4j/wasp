@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -33,8 +34,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.glassfish.wasp.Constants;
-import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.JspCompilationContext;
+import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.runtime.JspRuntimeLibrary;
 import org.xml.sax.Attributes;
 
@@ -431,6 +432,17 @@ class Generator {
         out.printil("}");
         out.println();
 
+        out.printil("public boolean getErrorOnELNotFound() {");
+        out.pushIndent();
+        if (pageInfo.isErrorOnELNotFound()) {
+            out.printil("return true;");
+        } else {
+            out.printil("return false;");
+        }
+        out.popIndent();
+        out.printil("}");
+        out.println();
+
         // Method to get bytes from String
         if (genBytes) {
             out.printil("private static byte[] _jspx_getBytes(String s) {");
@@ -490,10 +502,6 @@ class Generator {
         out.print(" extends ");
         out.println(pageInfo.getExtends());
         out.printin("    implements org.glassfish.wasp.runtime.JspSourceDependent");
-        if (!pageInfo.isThreadSafe()) {
-            out.println(",");
-            out.printin("                 SingleThreadModel");
-        }
         out.println(" {");
         out.pushIndent();
 
@@ -3326,9 +3334,9 @@ class Generator {
             out.println(");");
         }
         if (aliasSeen) {
-            out.printil("this.jspContext = new org.glassfish.wasp.runtime.JspContextWrapper(ctx, _jspx_nested, _jspx_at_begin, _jspx_at_end, aliasMap);");
+            out.printil("this.jspContext = new org.glassfish.wasp.runtime.JspContextWrapper(this, ctx, _jspx_nested, _jspx_at_begin, _jspx_at_end, aliasMap);");
         } else {
-            out.printil("this.jspContext = new org.glassfish.wasp.runtime.JspContextWrapper(ctx, _jspx_nested, _jspx_at_begin, _jspx_at_end, null);");
+            out.printil("this.jspContext = new org.glassfish.wasp.runtime.JspContextWrapper(this, ctx, _jspx_nested, _jspx_at_begin, _jspx_at_end, null);");
         }
         out.popIndent();
         out.printil("}");

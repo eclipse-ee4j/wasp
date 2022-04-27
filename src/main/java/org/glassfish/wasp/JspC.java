@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -96,8 +97,6 @@ import jakarta.servlet.jsp.tagext.TagLibraryInfo;
  */
 public class JspC implements Options {
 
-    public static final String DEFAULT_IE_CLASS_ID = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
-
     private static final String JAVA_1_1 = "1.1";
     private static final String JAVA_1_2 = "1.2";
     private static final String JAVA_1_3 = "1.3";
@@ -167,7 +166,6 @@ public class JspC implements Options {
     private boolean mappedFile;
     private boolean poolingEnabled = true;
     private File scratchDir;
-    private String ieClassId = DEFAULT_IE_CLASS_ID;
     private String targetPackage;
     private String targetClassName;
     private String uriBase;
@@ -556,25 +554,6 @@ public class JspC implements Options {
 
     public void setDefaultBufferNone(boolean defaultBufferNone) {
         this.defaultBufferNone = defaultBufferNone;
-    }
-
-    /**
-     * Sets the class-id value to be sent to Internet Explorer when using <code>&lt;jsp:plugin&gt;</code> tags.
-     *
-     * @param ieClassId Class-id value
-     */
-    public void setIeClassId(String ieClassId) {
-        this.ieClassId = ieClassId;
-    }
-
-    /**
-     * Gets the class-id value that is sent to Internet Explorer when using <code>&lt;jsp:plugin&gt;</code> tags.
-     *
-     * @return Class-id value
-     */
-    @Override
-    public String getIeClassId() {
-        return ieClassId;
     }
 
     @Override

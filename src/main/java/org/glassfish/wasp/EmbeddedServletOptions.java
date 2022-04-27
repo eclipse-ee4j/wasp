@@ -1,7 +1,7 @@
 /*
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,12 +124,6 @@ public final class EmbeddedServletOptions implements Options {
      * I want to see my generated servlets. Which directory are they in?
      */
     private File scratchDir;
-
-    /**
-     * Need to have this as is for versions 4 and 5 of IE. Can be set from the initParams so if it changes in the future all
-     * that is needed is to have a jsp initParam of type ieClassId="<value>"
-     */
-    private String ieClassId = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
 
     /**
      * What classpath should I use while compiling generated servlets?
@@ -316,14 +310,6 @@ public final class EmbeddedServletOptions implements Options {
     }
 
     /**
-     * Class ID for use in the plugin tag when the browser is IE.
-     */
-    @Override
-    public String getIeClassId() {
-        return ieClassId;
-    }
-
-    /**
      * What is my scratch dir?
      */
     @Override
@@ -339,7 +325,6 @@ public final class EmbeddedServletOptions implements Options {
         return classpath;
     }
 
-    // START PWC 1.2 6311155
     /**
      * Gets the system class path.
      *
@@ -349,7 +334,6 @@ public final class EmbeddedServletOptions implements Options {
     public String getSystemClassPath() {
         return sysClassPath;
     }
-    // END PWC 1.2 6311155
 
     /**
      * Is generation of X-Powered-By response header enabled/disabled?
@@ -500,21 +484,14 @@ public final class EmbeddedServletOptions implements Options {
             parseModificationTestInterval(modificationTestIntervalStr);
         }
 
-        String ieClassId = config.getInitParameter("ieClassId");
-        if (ieClassId != null) {
-            this.ieClassId = ieClassId;
-        }
-
         String classpath = config.getInitParameter("classpath");
         if (classpath != null) {
             this.classpath = classpath;
         }
 
-        // START PWC 1.2 6311155
         String sysClassPath = config.getInitParameter("com.sun.appserv.jsp.classpath");
         if (sysClassPath != null) {
             this.sysClassPath = sysClassPath;
-            // END PWC 1.2 6311155
         }
 
         /*

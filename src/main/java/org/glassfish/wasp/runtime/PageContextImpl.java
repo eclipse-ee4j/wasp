@@ -914,11 +914,12 @@ public class PageContextImpl extends PageContext {
         if (SecurityUtil.isPackageProtectionEnabled()) {
             try {
                 retValue = AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                    ELContextImpl elContext = (ELContextImpl) pageContext.getELContext();
-                    elContext.setFunctionMapper(functionMap);
-                    ExpressionFactory expFactory = getExpressionFactory(pageContext);
-                    ValueExpression expr = expFactory.createValueExpression(elContext, expression, expectedType);
-                    return expr.getValue(elContext);
+                    ELContext elContext = pageContext.getELContext();
+                    toELContextImpl(elContext).setFunctionMapper(functionMap);
+
+                    return getExpressionFactory(pageContext)
+                                .createValueExpression(elContext, expression, expectedType)
+                                .getValue(elContext);
                 });
             } catch (PrivilegedActionException ex) {
                 Exception realEx = ex.getException();

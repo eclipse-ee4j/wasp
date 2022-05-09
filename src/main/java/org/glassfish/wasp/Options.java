@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -87,11 +88,6 @@ public interface Options {
      * Should white spaces between directives or actions be trimmed?
      */
     boolean getTrimSpaces();
-
-    /**
-     * Class ID for use in the plugin tag when the browser is IE.
-     */
-    String getIeClassId();
 
     /**
      * What is my scratch dir?

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,8 @@
 
 package org.glassfish.wasp.runtime;
 
+import java.util.List;
+
 /**
  * Interface for tracking the source files dependencies, for the purpose of compiling out of date pages. This is used
  * for 1) files that are included by page directives 2) files that are included by include-prelude and include-coda in
@@ -28,5 +31,9 @@ public interface JspSourceDependent {
     /**
      * Returns a list of files names that the current page has a source dependency on.
      */
-    java.util.List<String> getDependants();
+    List<String> getDependants();
+
+    default boolean getErrorOnELNotFound() {
+        return false;
+    }
 }

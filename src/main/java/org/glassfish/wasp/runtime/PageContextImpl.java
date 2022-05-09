@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -16,6 +17,8 @@
  */
 
 package org.glassfish.wasp.runtime;
+
+import static java.lang.Boolean.TRUE;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -56,12 +59,15 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.jsp.JspContext;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspFactory;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.el.ExpressionEvaluator;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
+import jakarta.servlet.jsp.el.ImportELResolver;
+import jakarta.servlet.jsp.el.NotFoundELResolver;
 import jakarta.servlet.jsp.el.ScopedAttributeELResolver;
 import jakarta.servlet.jsp.el.VariableResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
@@ -665,6 +671,8 @@ public class PageContextImpl extends PageContext {
             celResolver.add(new ArrayELResolver());
             celResolver.add(new BeanELResolver());
             celResolver.add(new ScopedAttributeELResolver());
+            celResolver.add(new ImportELResolver());
+            celResolver.add(new NotFoundELResolver());
             elResolver = celResolver;
         }
         return elResolver;
@@ -674,9 +682,16 @@ public class PageContextImpl extends PageContext {
     public ELContext getELContext() {
         if (elContext == null) {
             elContext = getJspApplicationContext().createELContext(getELResolver());
-            elContext.putContext(jakarta.servlet.jsp.JspContext.class, this);
+            elContext.putContext(JspContext.class, this);
             ((ELContextImpl) elContext).setVariableMapper(new VariableMapperImpl());
+
+            if (servlet instanceof JspSourceDependent) {
+                if (((JspSourceDependent) servlet).getErrorOnELNotFound()) {
+                    elContext.putContext(NotFoundELResolver.class, TRUE);
+                }
+            }
         }
+
         return elContext;
     }
 
@@ -816,7 +831,6 @@ public class PageContextImpl extends PageContext {
     }
 
     private void doHandlePageException(Throwable t) throws IOException, ServletException {
-
         if (errorPageURL != null && !errorPageURL.equals("")) {
 
             /*
@@ -869,9 +883,7 @@ public class PageContextImpl extends PageContext {
             }
 
             Throwable rootCause = null;
-            if (t instanceof JspException) {
-                rootCause = ((JspException) t).getRootCause();
-            } else if (t instanceof ELException) {
+            if (t instanceof ELException || t instanceof JspException) {
                 rootCause = t.getCause();
             }
 
@@ -884,7 +896,6 @@ public class PageContextImpl extends PageContext {
     }
 
     private static ExpressionFactory getExpressionFactory(PageContext pageContext) {
-
         PageContextImpl pc = (PageContextImpl) JspContextWrapper.getRootPageContext(pageContext);
         return pc.getJspApplicationContext().getExpressionFactory();
     }
@@ -898,61 +909,69 @@ public class PageContextImpl extends PageContext {
      * @param functionMap Maps prefix and name to Method
      * @return The result of the evaluation
      */
-    public static Object evaluateExpression(final String expression, final Class expectedType, final PageContext pageContext,
-            final ProtectedFunctionMapper functionMap) throws ELException {
+    public static Object evaluateExpression(final String expression, final Class<?> expectedType, final PageContext pageContext, final ProtectedFunctionMapper functionMap) throws ELException {
         Object retValue;
         if (SecurityUtil.isPackageProtectionEnabled()) {
             try {
                 retValue = AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                    ELContextImpl elContext = (ELContextImpl) pageContext.getELContext();
-                    elContext.setFunctionMapper(functionMap);
-                    ExpressionFactory expFactory = getExpressionFactory(pageContext);
-                    ValueExpression expr = expFactory.createValueExpression(elContext, expression, expectedType);
-                    return expr.getValue(elContext);
+                    ELContext elContext = pageContext.getELContext();
+                    toELContextImpl(elContext).setFunctionMapper(functionMap);
+
+                    return getExpressionFactory(pageContext)
+                                .createValueExpression(elContext, expression, expectedType)
+                                .getValue(elContext);
                 });
             } catch (PrivilegedActionException ex) {
                 Exception realEx = ex.getException();
                 if (realEx instanceof ELException) {
                     throw (ELException) realEx;
-                } else {
-                    throw new ELException(realEx);
                 }
+
+                throw new ELException(realEx);
             }
         } else {
-            ELContextImpl elContext = (ELContextImpl) pageContext.getELContext();
-            elContext.setFunctionMapper(functionMap);
-            ExpressionFactory expFactory = getExpressionFactory(pageContext);
-            ValueExpression expr = expFactory.createValueExpression(elContext, expression, expectedType);
-            retValue = expr.getValue(elContext);
+            ELContext elContext = pageContext.getELContext();
+            toELContextImpl(elContext).setFunctionMapper(functionMap);
+
+            retValue = getExpressionFactory(pageContext)
+                        .createValueExpression(elContext, expression, expectedType)
+                        .getValue(elContext);
         }
+
         return retValue;
     }
 
-    public static ValueExpression getValueExpression(String expression, PageContext pageContext, Class expectedType, FunctionMapper functionMap) {
+    public static ValueExpression getValueExpression(String expression, PageContext pageContext, Class<?> expectedType, FunctionMapper functionMap) {
         // ELResolvers are not used in createValueExpression
-        ELContextImpl elctxt = (ELContextImpl) pageContext.getELContext();
-        elctxt.setFunctionMapper(functionMap);
-        ExpressionFactory expFactory = getExpressionFactory(pageContext);
-        return expFactory.createValueExpression(elctxt, expression, expectedType);
+        ELContext elctxt = pageContext.getELContext();
+        toELContextImpl(elctxt).setFunctionMapper(functionMap);
+        return getExpressionFactory(pageContext).createValueExpression(elctxt, expression, expectedType);
     }
 
-    public static MethodExpression getMethodExpression(String expression, PageContext pageContext, FunctionMapper functionMap, Class expectedType,
-            Class[] paramTypes) {
-
-        ELContextImpl elctxt = (ELContextImpl) pageContext.getELContext();
-        elctxt.setFunctionMapper(functionMap);
-        ExpressionFactory expFactory = getExpressionFactory(pageContext);
-        return expFactory.createMethodExpression(elctxt, expression, expectedType, paramTypes);
+    public static MethodExpression getMethodExpression(String expression, PageContext pageContext, FunctionMapper functionMap, Class<?> expectedType, Class<?>[] paramTypes) {
+        ELContext elctxt = pageContext.getELContext();
+        toELContextImpl(elctxt).setFunctionMapper(functionMap);
+        return getExpressionFactory(pageContext).createMethodExpression(elctxt, expression, expectedType, paramTypes);
     }
 
     public static void setValueVariable(PageContext pageContext, String variable, ValueExpression expression) {
-        ELContextImpl elctxt = (ELContextImpl) pageContext.getELContext();
-        elctxt.getVariableMapper().setVariable(variable, expression);
+        toELContextImpl(pageContext.getELContext())
+            .getVariableMapper()
+            .setVariable(variable, expression);
     }
 
     public static void setMethodVariable(PageContext pageContext, String variable, MethodExpression expression) {
-        ExpressionFactory expFactory = getExpressionFactory(pageContext);
-        ValueExpression exp = expFactory.createValueExpression(expression, Object.class);
-        setValueVariable(pageContext, variable, exp);
+        setValueVariable(
+            pageContext,
+            variable,
+            getExpressionFactory(pageContext).createValueExpression(expression, Object.class));
+    }
+
+    public static ELContextImpl toELContextImpl(ELContext elContext) {
+        if (elContext instanceof ELContextWrapper) {
+            return (ELContextImpl) ((ELContextWrapper) elContext).getWrappedELContext();
+        }
+
+        return (ELContextImpl) elContext;
     }
 }

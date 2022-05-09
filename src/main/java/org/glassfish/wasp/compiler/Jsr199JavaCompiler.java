@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -34,10 +35,10 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -273,7 +274,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         Map<String, Map<String, JavaFileObject>> packageMap = rtctxt.getPackageMap();
         Map<String, JavaFileObject> packageFiles = packageMap.get(packageName);
         if (packageFiles == null) {
-            packageFiles = new HashMap<>();
+            packageFiles = new ConcurrentHashMap<>();
             packageMap.put(packageName, packageFiles);
         }
         packageFiles.put(className, classFile);

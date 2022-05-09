@@ -2,6 +2,7 @@
  * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
+ * Copyright (c) 2021 Contributors to the Eclipse Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,20 +98,6 @@ import jakarta.servlet.jsp.tagext.TagLibraryInfo;
  */
 public class JspC implements Options {
 
-    private static final String JAVA_1_1 = "1.1";
-    private static final String JAVA_1_2 = "1.2";
-    private static final String JAVA_1_3 = "1.3";
-    private static final String JAVA_1_4 = "1.4";
-    private static final String JAVA_1_5 = "1.5";
-    private static final String JAVA_1_6 = "1.6";
-    private static final String JAVA_1_7 = "1.7";
-    private static final String JAVA_1_8 = "1.8";
-    private static final String JAVA_5 = "5";
-    private static final String JAVA_6 = "6";
-    private static final String JAVA_7 = "7";
-    private static final String JAVA_8 = "8";
-    // END SJSAS 6402545
-
     // Logger
     private static Logger log = Logger.getLogger(JspC.class.getName());
 
@@ -154,6 +141,8 @@ public class JspC implements Options {
             "<error-page>", "<taglib>", "<resource-env-ref>", "<resource-ref>", "<security-constraint>", "<login-config>", "<security-role>", "<env-entry>",
             "<ejb-ref>", "<ejb-local-ref>" };
 
+    private static final String runtimeJavaVersion = System.getProperty("java.specification.version");
+
     private int dieLevel;
     private String classPath;
     private String sysClassPath;
@@ -177,8 +166,8 @@ public class JspC implements Options {
 
     private String compiler;
 
-    private String compilerTargetVM = JAVA_1_5;
-    private String compilerSourceVM = JAVA_1_5;
+    private String compilerTargetVM = runtimeJavaVersion;
+    private String compilerSourceVM = runtimeJavaVersion;
 
     private boolean classDebugInfo = true;
 
@@ -592,28 +581,21 @@ public class JspC implements Options {
     }
 
     public void setCompilerTargetVM(String vm) {
-        // START SJSAS 6402545
-        String tvm = vm;
-        if (JAVA_5.equals(vm)) {
-            vm = JAVA_1_5;
-        } else if (JAVA_6.equals(vm)) {
-            vm = JAVA_1_6;
-        } else if (JAVA_7.equals(vm)) {
-            vm = JAVA_1_7;
-        } else if (JAVA_8.equals(vm)) {
-            vm = JAVA_1_8;
+        int version = getJVMMajorVersion(vm);
+
+        if (version == -1) {
+            throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerTargetVM", vm));
         }
-        if (!JAVA_1_1.equals(vm) && !JAVA_1_2.equals(vm) && !JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm) && !JAVA_1_5.equals(vm) && !JAVA_1_6.equals(vm)
-                && !JAVA_1_7.equals(vm) && !JAVA_1_8.equals(vm)) {
-            throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerTargetVM", tvm));
-        }
-        // END SJSAS 6402545
-        // START SJSAS 6403017
-        Double targetVersion = Double.valueOf(vm);
-        if (targetVersion.compareTo(Double.valueOf(myJavaVersion)) > 0) {
+        if (version > getJVMMajorVersion(runtimeJavaVersion)) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.compilerTargetVMTooHigh", vm));
         }
-        // END SJSAS 6403017
+
+        if (version <= 8) {
+            vm = "1." + Integer.toString(version);
+        } else {
+            vm = Integer.toString(version);
+        }
+
         compilerTargetVM = vm;
     }
 
@@ -629,13 +611,28 @@ public class JspC implements Options {
      * @see Options#getCompilerSourceVM
      */
     public void setCompilerSourceVM(String vm) {
-        // START SJSAS 6402545
-        if (!JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm) && !JAVA_1_5.equals(vm) && !JAVA_5.equals(vm) && !JAVA_1_6.equals(vm) && !JAVA_6.equals(vm)
-                && !JAVA_1_7.equals(vm) && !JAVA_7.equals(vm) && !JAVA_1_8.equals(vm) && !JAVA_8.equals(vm)) {
+        int version = getJVMMajorVersion(vm);
+        if (version == -1) {
             throw new IllegalArgumentException(Localizer.getMessage("jspc.illegalCompilerSourceVM", vm));
         }
-        // END SJSAS 6402545
+
+        if (version <= 8) {
+            vm = "1." + Integer.toString(version);
+        } else {
+            vm = Integer.toString(version);
+        }
+
         compilerSourceVM = vm;
+    }
+
+    private int getJVMMajorVersion(String vm) {
+        if (vm.matches("1\\.[0-9]|1\\.10")) {
+            return Integer.parseInt(vm.substring(2));
+        }
+        if (vm.matches("[1-9][0-9]*")) {
+            return Integer.parseInt(vm);
+        }
+        return -1;
     }
 
     /**

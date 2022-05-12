@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-	Copyright (c) 2021 Contributors to Eclipse Foundation.
+	Copyright (c) 2021, 2022 Contributors to Eclipse Foundation.
     Copyright (c) 1997, 2020 Oracle and/or its affiliates and others.
     All rights reserved.
 
@@ -91,19 +91,6 @@
             <artifactId>jakarta.el-api</artifactId>
             <version>5.0.0</version>
         </dependency>
-
-        <!-- Other dependencies -->
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.10.12</version>
-        </dependency>
-        <dependency>
-            <groupId>eclipse</groupId>
-            <artifactId>jdtcore</artifactId>
-            <version>3.1.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -159,18 +146,6 @@
                     <source>11</source>
                     <target>11</target>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
-                    <excludes>
-                        <exclude>
-                            org/glassfish/wasp/compiler/JDTJavaCompiler.java
-                        </exclude>
-                        <exclude>
-                            org/glassfish/wasp/compiler/AntJavaCompiler.java
-                        </exclude>
-                        <exclude>
-                            <!-- This is only used by AntJavaCompiler -->
-                            org/glassfish/wasp/util/SystemLogHandler.java
-                        </exclude>
-                    </excludes>
                 </configuration>
             </plugin>
 
@@ -242,7 +217,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -263,7 +238,7 @@
                             </groups>
                             <bottom><![CDATA[
 Comments to: <a href="mailto:wasp-dev@eclipse.org">wasp-dev@eclipse.org</a>.<br>
-Copyright &#169; 2018, 2021 Eclipse Foundation. All rights reserved.<br>
+Copyright &#169; 2018, 2022 Eclipse Foundation. All rights reserved.<br>
 Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">license terms</a>.]]>
                             </bottom>
                         </configuration>

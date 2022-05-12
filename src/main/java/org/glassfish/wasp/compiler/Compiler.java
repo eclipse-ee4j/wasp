@@ -19,6 +19,8 @@
 
 package org.glassfish.wasp.compiler;
 
+import static java.util.logging.Level.FINE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -53,14 +55,21 @@ public class Compiler {
 
     // ----------------------------------------------------------------- Static
 
+    /*
+     * System jars should be exclude from the classpath for javac.
+     */
+    private static String systemJars[] = { "jstl.jar" };
+
+    private static String systemFacesJars[] = { "jsf-api.jar", "jsf-impl.jar" };
+
     // ----------------------------------------------------- Instance Variables
 
-    protected JspCompilationContext ctxt;
+    protected JspCompilationContext pagesCompilationContext;
 
     private ErrorDispatcher errDispatcher;
     private PageInfo pageInfo;
-    private JspServletWrapper jsw;
-    private TagFileProcessor tfp;
+    private JspServletWrapper pagesServletWrapper;
+    private TagFileProcessor tagFileProcessor;
     private JavaCompiler javaCompiler;
     private Logger log;
     private boolean jspcMode;
@@ -74,8 +83,8 @@ public class Compiler {
 
     // Compiler for parsing only, needed by netbeans
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw) {
-        this.jsw = jsw;
-        this.ctxt = ctxt;
+        this.pagesServletWrapper = jsw;
+        this.pagesCompilationContext = ctxt;
         this.jspcMode = false;
         this.options = ctxt.getOptions();
         this.log = Logger.getLogger(Compiler.class.getName());
@@ -87,8 +96,8 @@ public class Compiler {
     }
 
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw, boolean jspcMode) throws WaspException {
-        this.jsw = jsw;
-        this.ctxt = ctxt;
+        this.pagesServletWrapper = jsw;
+        this.pagesCompilationContext = ctxt;
         this.jspcMode = jspcMode;
         this.options = ctxt.getOptions();
         this.log = Logger.getLogger(Compiler.class.getName());
@@ -104,22 +113,21 @@ public class Compiler {
     // --------------------------------------------------------- Public Methods
 
     /**
-     * Compile the jsp file into equivalent servlet in java source
+     * Compile the Pages file into equivalent servlet in java source
      */
     private void generateJava() throws Exception {
-
         long t1, t2, t3, t4;
         t1 = t2 = t3 = t4 = 0;
 
-        if (log.isLoggable(Level.FINE)) {
+        if (log.isLoggable(FINE)) {
             t1 = System.currentTimeMillis();
         }
 
         // Setup page info area
-        pageInfo = new PageInfo(new BeanRepository(ctxt.getClassLoader(), errDispatcher), ctxt.getJspFile());
+        pageInfo = new PageInfo(new BeanRepository(pagesCompilationContext.getClassLoader(), errDispatcher), pagesCompilationContext.getJspFile());
 
         JspConfig jspConfig = options.getJspConfig();
-        JspProperty jspProperty = jspConfig.findJspProperty(ctxt.getJspFile());
+        JspProperty jspProperty = jspConfig.findJspProperty(pagesCompilationContext.getJspFile());
 
         /*
          * If the current uri is matched by a pattern specified in a jsp-property-group in web.xml, initialize pageInfo with
@@ -147,23 +155,23 @@ public class Compiler {
             pageInfo.setBuffer(0);
         }
 
-        String javaFileName = ctxt.getServletJavaFileName();
+        String javaFileName = pagesCompilationContext.getServletJavaFileName();
         ServletWriter writer = null;
 
         try {
             // Setup the ServletWriter
-            Writer javaWriter = javaCompiler.getJavaWriter(javaFileName, ctxt.getOptions().getJavaEncoding());
+            Writer javaWriter = javaCompiler.getJavaWriter(javaFileName, pagesCompilationContext.getOptions().getJavaEncoding());
             writer = new ServletWriter(new PrintWriter(javaWriter));
-            ctxt.setWriter(writer);
+            pagesCompilationContext.setWriter(writer);
 
             // Reset the temporary variable counter for the generator.
             JspUtil.resetTemporaryVariableName();
 
             // Parse the file
-            ParserController parserCtl = new ParserController(ctxt, this);
-            pageNodes = parserCtl.parse(ctxt.getJspFile());
+            ParserController parserCtl = new ParserController(pagesCompilationContext, this);
+            pageNodes = parserCtl.parse(pagesCompilationContext.getJspFile());
 
-            if (ctxt.isPrototypeMode()) {
+            if (pagesCompilationContext.isPrototypeMode()) {
                 // generate prototype .java file for the tag file
                 Generator.generate(writer, this, pageNodes);
                 writer.close();
@@ -174,7 +182,7 @@ public class Compiler {
             // Validate and process attributes
             Validator.validate(this, pageNodes);
 
-            if (log.isLoggable(Level.FINE)) {
+            if (log.isLoggable(FINE)) {
                 t2 = System.currentTimeMillis();
             }
 
@@ -183,10 +191,10 @@ public class Compiler {
 
             // Compile (if necessary) and load the tag files referenced in
             // this compilation unit.
-            tfp = new TagFileProcessor();
-            tfp.loadTagFiles(this, pageNodes);
+            tagFileProcessor = new TagFileProcessor();
+            tagFileProcessor.loadTagFiles(this, pageNodes);
 
-            if (log.isLoggable(Level.FINE)) {
+            if (log.isLoggable(FINE)) {
                 t3 = System.currentTimeMillis();
             }
 
@@ -211,9 +219,9 @@ public class Compiler {
             // The writer is only used during the compile, dereference
             // it in the JspCompilationContext when done to allow it
             // to be GC'd and save memory.
-            ctxt.setWriter(null);
+            pagesCompilationContext.setWriter(null);
 
-            if (log.isLoggable(Level.FINE)) {
+            if (log.isLoggable(FINE)) {
                 t4 = System.currentTimeMillis();
                 log.fine("Generated " + javaFileName + " total=" + (t4 - t1) + " generate=" + (t4 - t3) + " validate=" + (t2 - t1));
             }
@@ -250,7 +258,7 @@ public class Compiler {
         // compilation (if the tag file is self referencing), but the
         // .class file need to be removed, to make sure that javac would
         // generate .class again from the new .java file just generated.
-        tfp.removeProtoTypeFiles(ctxt.getClassFileName());
+        tagFileProcessor.removeProtoTypeFiles(pagesCompilationContext.getClassFileName());
     }
 
     private void setJavaCompilerOptions() {
@@ -260,7 +268,7 @@ public class Compiler {
         }
         javaCompilerOptionsSet = true;
 
-        String classpath = ctxt.getClassPath();
+        String classpath = pagesCompilationContext.getClassPath();
         String sep = System.getProperty("path.separator");
 
         // Initializing classpath
@@ -290,7 +298,7 @@ public class Compiler {
                 }
             }
         }
-        if (log.isLoggable(Level.FINE)) {
+        if (log.isLoggable(FINE)) {
             log.fine("Using classpath: " + sysClassPath + sep + classpath);
         }
         javaCompiler.setClassPath(cpath);
@@ -318,18 +326,17 @@ public class Compiler {
      * Compile the servlet from .java file to .class file
      */
     private void generateClass() throws FileNotFoundException, WaspException, Exception {
-
         long t1 = 0;
-        if (log.isLoggable(Level.FINE)) {
+        if (log.isLoggable(FINE)) {
             t1 = System.currentTimeMillis();
         }
 
-        String javaFileName = ctxt.getServletJavaFileName();
+        String javaFileName = pagesCompilationContext.getServletJavaFileName();
 
         setJavaCompilerOptions();
 
         // Start java compilation
-        JavacErrorDetail[] javacErrors = javaCompiler.compile(ctxt.getFullClassName(), pageNodes);
+        JavacErrorDetail[] javacErrors = javaCompiler.compile(pagesCompilationContext.getFullClassName(), pageNodes);
 
         if (javacErrors != null) {
             // If there are errors, always generate java files to disk.
@@ -339,35 +346,33 @@ public class Compiler {
             errDispatcher.javacError(javacErrors);
         }
 
-        if (log.isLoggable(Level.FINE)) {
+        if (log.isLoggable(FINE)) {
             long t2 = System.currentTimeMillis();
             log.fine("Compiled " + javaFileName + " " + (t2 - t1) + "ms");
         }
 
         // Save or delete the generated Java files, depending on the
         // value of "keepgenerated" attribute
-        javaCompiler.doJavaFile(ctxt.keepGenerated());
+        javaCompiler.doJavaFile(pagesCompilationContext.keepGenerated());
 
         // JSR45 Support
-        if (!ctxt.isPrototypeMode() && !options.isSmapSuppressed()) {
+        if (!pagesCompilationContext.isPrototypeMode() && !options.isSmapSuppressed()) {
             smapUtil.installSmap();
         }
 
-        // START CR 6373479
-        if (jsw != null && jsw.getServletClassLastModifiedTime() <= 0) {
-            jsw.setServletClassLastModifiedTime(javaCompiler.getClassLastModified());
+        if (pagesServletWrapper != null && pagesServletWrapper.getServletClassLastModifiedTime() <= 0) {
+            pagesServletWrapper.setServletClassLastModifiedTime(javaCompiler.getClassLastModified());
         }
-        // END CR 6373479
 
         if (options.getSaveBytecode()) {
-            javaCompiler.saveClassFile(ctxt.getFullClassName(), ctxt.getClassFileName());
+            javaCompiler.saveClassFile(pagesCompilationContext.getFullClassName(), pagesCompilationContext.getClassFileName());
         }
 
         // On some systems, due to file caching, the time stamp for the updated
-        // JSP file may actually be greater than that of the newly created byte
+        // Pages file may actually be greater than that of the newly created byte
         // codes in the cache. In such cases, adjust the cache time stamp to
-        // JSP page time, to avoid unnecessary recompilations.
-        ctxt.getRuntimeContext().adjustBytecodeTime(ctxt.getFullClassName(), jspModTime);
+        // Pages page time, to avoid unnecessary recompilations.
+        pagesCompilationContext.getRuntimeContext().adjustBytecodeTime(pagesCompilationContext.getFullClassName(), jspModTime);
     }
 
     /**
@@ -382,7 +387,7 @@ public class Compiler {
             // Create the output directory for the generated files
             // Always try and create the directory tree, in case the generated
             // directories were deleted after the server was started.
-            ctxt.makeOutputDir(ctxt.getOutputDir());
+            pagesCompilationContext.makeOutputDir(pagesCompilationContext.getOutputDir());
 
             // If errDispatcher is nulled from a previous compilation of the
             // same page, instantiate one here.
@@ -395,26 +400,27 @@ public class Compiler {
             } else {
                 // If called from jspc to only compile to .java files,
                 // make sure that .java files are written to disk.
-                javaCompiler.doJavaFile(ctxt.keepGenerated());
+                javaCompiler.doJavaFile(pagesCompilationContext.keepGenerated());
             }
         } finally {
-            if (tfp != null) {
-                tfp.removeProtoTypeFiles(null);
+            if (tagFileProcessor != null) {
+                tagFileProcessor.removeProtoTypeFiles(null);
             }
             javaCompiler.release();
             // Make sure these object which are only used during the
             // generation and compilation of the JSP page get
             // dereferenced so that they can be GC'd and reduce the
             // memory footprint.
-            tfp = null;
+            tagFileProcessor = null;
             errDispatcher = null;
             if (!jspcMode) {
                 pageInfo = null;
             }
+
             pageNodes = null;
-            if (ctxt.getWriter() != null) {
-                ctxt.getWriter().close();
-                ctxt.setWriter(null);
+            if (pagesCompilationContext.getWriter() != null) {
+                pagesCompilationContext.getWriter().close();
+                pagesCompilationContext.setWriter(null);
             }
         }
     }
@@ -435,26 +441,24 @@ public class Compiler {
      * @param checkClass If true, check against .class file, if false, check against .java file.
      */
     public boolean isOutDated(boolean checkClass) {
+        String pagesFile = pagesCompilationContext.getJspFile();
 
-        String jsp = ctxt.getJspFile();
+        if (pagesServletWrapper != null && pagesCompilationContext.getOptions().getModificationTestInterval() > 0) {
 
-        if (jsw != null && ctxt.getOptions().getModificationTestInterval() > 0) {
-
-            if (jsw.getLastModificationTest() + ctxt.getOptions().getModificationTestInterval() * 1000 > System.currentTimeMillis()) {
+            if (pagesServletWrapper.getLastModificationTest() + pagesCompilationContext.getOptions().getModificationTestInterval() * 1000 > System.currentTimeMillis()) {
                 return false;
-            } else {
-                jsw.setLastModificationTest(System.currentTimeMillis());
             }
+
+            pagesServletWrapper.setLastModificationTest(System.currentTimeMillis());
         }
 
         long jspRealLastModified = 0;
-        // START PWC 6468930
         File targetFile;
 
         if (checkClass) {
-            targetFile = new File(ctxt.getClassFileName());
+            targetFile = new File(pagesCompilationContext.getClassFileName());
         } else {
-            targetFile = new File(ctxt.getServletJavaFileName());
+            targetFile = new File(pagesCompilationContext.getServletJavaFileName());
         }
 
         // Get the target file's last modified time. File.lastModified()
@@ -463,15 +467,15 @@ public class Compiler {
 
         // Check cached class file
         if (checkClass) {
-            JspRuntimeContext rtctxt = ctxt.getRuntimeContext();
-            String className = ctxt.getFullClassName();
-            long cachedTime = rtctxt.getBytecodeBirthTime(className);
+            JspRuntimeContext runtimeContext = pagesCompilationContext.getRuntimeContext();
+            String className = pagesCompilationContext.getFullClassName();
+            long cachedTime = runtimeContext.getBytecodeBirthTime(className);
             if (cachedTime > targetLastModified) {
                 targetLastModified = cachedTime;
             } else {
                 // Remove from cache, since the bytecodes from the file is more
                 // current, so that WaspLoader won't load the cached version
-                rtctxt.setBytecode(className, null);
+                runtimeContext.setBytecode(className, null);
             }
         }
 
@@ -479,25 +483,25 @@ public class Compiler {
             return true;
         }
 
-        // Check if the jsp exists in the filesystem (instead of a jar
+        // Check if the Pages file exists in the filesystem (instead of a jar
         // or a remote location). If yes, then do a File.lastModified()
         // to determine its last modified time. This is more performant
         // (fewer stat calls) than the ctxt.getResource() followed by
         // openConnection(). However, it only works for file system jsps.
         // If the file has indeed changed, then need to call URL.OpenConnection()
         // so that the cache loads the latest jsp file
-        if (jsw != null) {
-            File jspFile = jsw.getJspFile();
+        if (pagesServletWrapper != null) {
+            File jspFile = pagesServletWrapper.getJspFile();
             if (jspFile != null) {
                 jspRealLastModified = jspFile.lastModified();
             }
         }
+
         if (jspRealLastModified == 0 || targetLastModified < jspRealLastModified) {
-            // END PWC 6468930
             try {
-                URL jspUrl = ctxt.getResource(jsp);
+                URL jspUrl = pagesCompilationContext.getResource(pagesFile);
                 if (jspUrl == null) {
-                    ctxt.incrementRemoved();
+                    pagesCompilationContext.incrementRemoved();
                     return false;
                 }
                 URLConnection uc = jspUrl.openConnection();
@@ -511,27 +515,16 @@ public class Compiler {
                 e.printStackTrace();
                 return true;
             }
-            // START PWC 6468930
         }
-        // END PWC 6468930
-        /*
-         * PWC 6468930 long targetLastModified = 0; File targetFile;
-         *
-         * if( checkClass ) { targetFile = new File(ctxt.getClassFileName()); } else { targetFile = new
-         * File(ctxt.getServletJavaFileName()); }
-         *
-         * if (!targetFile.exists()) { return true; }
-         *
-         * targetLastModified = targetFile.lastModified();
-         */
-        if (checkClass && jsw != null) {
-            jsw.setServletClassLastModifiedTime(targetLastModified);
+
+        if (checkClass && pagesServletWrapper != null) {
+            pagesServletWrapper.setServletClassLastModifiedTime(targetLastModified);
         }
 
         if (targetLastModified < jspRealLastModified) {
-            // Remember JSP mod time
+            // Remember Pages mod time
             jspModTime = jspRealLastModified;
-            if (log.isLoggable(Level.FINE)) {
+            if (log.isLoggable(FINE)) {
                 log.fine("Compiler: outdated: " + targetFile + " " + targetLastModified);
             }
             return true;
@@ -539,18 +532,18 @@ public class Compiler {
 
         // determine if source dependent files (e.g. includes using include
         // directives) have been changed.
-        if (jsw == null) {
+        if (pagesServletWrapper == null) {
             return false;
         }
 
-        List<String> depends = jsw.getDependants();
+        List<String> depends = pagesServletWrapper.getDependants();
         if (depends == null) {
             return false;
         }
 
         for (String include : depends) {
             try {
-                URL includeUrl = ctxt.getResource(include);
+                URL includeUrl = pagesCompilationContext.getResource(include);
                 if (includeUrl == null) {
                     return true;
                 }
@@ -568,8 +561,8 @@ public class Compiler {
                 if (includeLastModified > targetLastModified) {
                     // START GlassFish 750
                     if (include.endsWith(".tld")) {
-                        ctxt.clearTaglibs();
-                        ctxt.clearTagFileJarUrls();
+                        pagesCompilationContext.clearTaglibs();
+                        pagesCompilationContext.clearTagFileJarUrls();
                     }
                     // END GlassFish 750
                     return true;
@@ -606,7 +599,7 @@ public class Compiler {
     }
 
     public JspCompilationContext getCompilationContext() {
-        return ctxt;
+        return pagesCompilationContext;
     }
 
     /**
@@ -614,10 +607,10 @@ public class Compiler {
      */
     public void removeGeneratedFiles() {
         try {
-            String classFileName = ctxt.getClassFileName();
+            String classFileName = pagesCompilationContext.getClassFileName();
             if (classFileName != null) {
                 File classFile = new File(classFileName);
-                if (log.isLoggable(Level.FINE)) {
+                if (log.isLoggable(FINE)) {
                     log.fine("Deleting " + classFile);
                 }
                 classFile.delete();
@@ -625,11 +618,12 @@ public class Compiler {
         } catch (Exception e) {
             // Remove as much as possible, ignore possible exceptions
         }
+
         try {
-            String javaFileName = ctxt.getServletJavaFileName();
+            String javaFileName = pagesCompilationContext.getServletJavaFileName();
             if (javaFileName != null) {
                 File javaFile = new File(javaFileName);
-                if (log.isLoggable(Level.FINE)) {
+                if (log.isLoggable(FINE)) {
                     log.fine("Deleting " + javaFile);
                 }
                 javaFile.delete();
@@ -641,10 +635,10 @@ public class Compiler {
 
     public void removeGeneratedClassFiles() {
         try {
-            String classFileName = ctxt.getClassFileName();
+            String classFileName = pagesCompilationContext.getClassFileName();
             if (classFileName != null) {
                 File classFile = new File(classFileName);
-                if (log.isLoggable(Level.FINE)) {
+                if (log.isLoggable(FINE)) {
                     log.fine("Deleting " + classFile);
                 }
                 classFile.delete();
@@ -655,85 +649,45 @@ public class Compiler {
     }
 
     /**
-     * Get an instance of JavaCompiler. If a compiler is specified in Options, use that, else if Running with JDK 6, use a
-     * Jsr199JavaCompiler that supports JSR199, else if eclipse's JDT compiler is available, use that. The default is to use
-     * javac from ant.
+     * Get an instance of JavaCompiler. If a compiler is specified in Options else use a
+     * Jsr199JavaCompiler that supports JSR199.
      */
     private void initJavaCompiler() throws WaspException {
         if (options.getCompilerClassName() != null) {
-            Class c = getClassFor(options.getCompilerClassName());
+            Class<?> compilerClass = getClassFor(options.getCompilerClassName());
             try {
-                javaCompiler = (JavaCompiler) c.newInstance();
+                javaCompiler = (JavaCompiler) compilerClass.getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
             }
         }
         if (javaCompiler == null) {
-            boolean disablejsr199 = Boolean.TRUE.toString().equals(System.getProperty("org.glassfish.wasp.compiler.disablejsr199"));
-            Double version = Double.valueOf(System.getProperty("java.specification.version"));
-            if (!disablejsr199 && (version >= 1.6 || getClassFor("javax.tools.Tool") != null)) {
-                // JDK 6 or bundled with jsr199 compiler
-                javaCompiler = new Jsr199JavaCompiler();
-            } else {
-                Class c = getClassFor("org.eclipse.jdt.internal.compiler.Compiler");
-                if (c != null) {
-                    c = getClassFor("org.glassfish.wasp.compiler.JDTJavaCompiler");
-                    if (c != null) {
-                        try {
-                            javaCompiler = (JavaCompiler) c.newInstance();
-                        } catch (Exception ex) {
-                        }
-                    }
-                }
-            }
-        }
-        if (javaCompiler == null) {
-            Class c = getClassFor("org.apache.tools.ant.taskdefs.Javac");
-            if (c != null) {
-                c = getClassFor("org.glassfish.wasp.compiler.AntJavaCompiler");
-                if (c != null) {
-                    try {
-                        javaCompiler = (JavaCompiler) c.newInstance();
-                    } catch (Exception ex) {
-                    }
-                }
-            }
-        }
-        if (javaCompiler == null) {
-            errDispatcher.jspError("jsp.error.nojavac");
+            javaCompiler = new Jsr199JavaCompiler();
         }
 
-        javaCompiler.init(ctxt, errDispatcher, jspcMode);
+        javaCompiler.init(pagesCompilationContext, errDispatcher, jspcMode);
     }
 
-    private Class getClassFor(String className) {
-        Class c = null;
+    private Class<?> getClassFor(String className) {
         try {
-            c = Class.forName(className, false, getClass().getClassLoader());
+            return Class.forName(className, false, getClass().getClassLoader());
         } catch (ClassNotFoundException ex) {
+            return null;
         }
-        return c;
     }
 
-    /*
-     * System jars should be exclude from the classpath for javac.
-     */
-    private static String systemJars[] = { "jstl.jar" };
-
-    private static String systemJsfJars[] = { "jsf-api.jar", "jsf-impl.jar" };
 
     /**
      * Return true if the path refers to a jar file in WEB-INF and is a system jar.
      */
     private boolean systemJarInWebinf(String path) {
-
         if (path.indexOf("/WEB-INF/") < 0) {
             return false;
         }
 
-        Boolean useMyFaces = (Boolean) ctxt.getServletContext().getAttribute("com.sun.faces.useMyFaces");
+        Boolean useMyFaces = (Boolean) pagesCompilationContext.getServletContext().getAttribute("com.sun.faces.useMyFaces");
 
         if (useMyFaces == null || !useMyFaces) {
-            for (String jar : systemJsfJars) {
+            for (String jar : systemFacesJars) {
                 if (path.indexOf(jar) > 0) {
                     return true;
                 }
@@ -745,6 +699,7 @@ public class Compiler {
                 return true;
             }
         }
+
         return false;
     }
 }

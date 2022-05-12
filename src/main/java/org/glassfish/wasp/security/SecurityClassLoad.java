@@ -17,7 +17,10 @@
 
 package org.glassfish.wasp.security;
 
-import java.util.logging.Level;
+import static java.util.Arrays.asList;
+import static java.util.logging.Level.SEVERE;
+
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -32,48 +35,31 @@ public final class SecurityClassLoad {
     private static Logger log = Logger.getLogger(SecurityClassLoad.class.getName());
 
     public static void securityClassLoad(ClassLoader loader) {
-
         if (System.getSecurityManager() == null) {
             return;
         }
 
-        String basePackage = "org.glassfish.wasp.";
-        try {
-            loader.loadClass(basePackage + "runtime.JspFactoryImpl$PrivilegedGetPageContext");
-            loader.loadClass(basePackage + "runtime.JspFactoryImpl$PrivilegedReleasePageContext");
+        List<String> classNames = asList(
+            "org.glassfish.wasp.runtime.JspFactoryImpl$PrivilegedGetPageContext",
+            "org.glassfish.wasp.runtime.JspFactoryImpl$PrivilegedReleasePageContext",
+            "org.glassfish.wasp.runtime.JspRuntimeLibrary",
+            "org.glassfish.wasp.runtime.ServletResponseWrapperInclude",
+            "org.glassfish.wasp.runtime.TagHandlerPool",
+            "org.glassfish.wasp.runtime.JspFragmentHelper",
+            "org.glassfish.wasp.runtime.ProtectedFunctionMapper",
+            "org.glassfish.wasp.runtime.PageContextImpl",
+            "org.glassfish.wasp.runtime.JspContextWrapper",
+            "org.glassfish.wasp.servlet.JspServletWrapper",
+            "org.glassfish.wasp.runtime.JspWriterImpl"
+        );
 
-            loader.loadClass(basePackage + "runtime.JspRuntimeLibrary");
-
-            loader.loadClass(basePackage + "runtime.ServletResponseWrapperInclude");
-            loader.loadClass(basePackage + "runtime.TagHandlerPool");
-            loader.loadClass(basePackage + "runtime.JspFragmentHelper");
-
-            loader.loadClass(basePackage + "runtime.ProtectedFunctionMapper");
-            loader.loadClass(basePackage + "runtime.ProtectedFunctionMapper$1");
-            loader.loadClass(basePackage + "runtime.ProtectedFunctionMapper$2");
-            loader.loadClass(basePackage + "runtime.ProtectedFunctionMapper$3");
-            loader.loadClass(basePackage + "runtime.ProtectedFunctionMapper$4");
-
-            loader.loadClass(basePackage + "runtime.PageContextImpl");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$1");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$2");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$3");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$4");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$5");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$6");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$7");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$8");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$9");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$10");
-            loader.loadClass(basePackage + "runtime.PageContextImpl$11");
-
-            loader.loadClass(basePackage + "runtime.JspContextWrapper");
-
-            loader.loadClass(basePackage + "servlet.JspServletWrapper");
-
-            loader.loadClass(basePackage + "runtime.JspWriterImpl$1");
-        } catch (ClassNotFoundException ex) {
-            log.log(Level.SEVERE, "SecurityClassLoad", ex);
+        for (String className : classNames) {
+            try {
+                loader.loadClass(className);
+            } catch (ClassNotFoundException ex) {
+                log.log(SEVERE, "SecurityClassLoad", ex);
+            }
         }
+
     }
 }

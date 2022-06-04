@@ -203,4 +203,10 @@ public class Constants {
      */
     public static final String XML_BLOCK_EXTERNAL_INIT_PARAM = "org.glassfish.wasp.XML_BLOCK_EXTERNAL";
 
+    /**
+     * Name of the ServletContext init-param that determines if the WaSP startup code should not pre-create JSP Tags
+     * found in TLDs in order to validate them. By default this does happen.
+     */
+    public static final String NO_JSPTAG_PRECREATE_INIT_PARAM = "org.glassfish.wasp.NO_JSPTAG_PRECREATE";
+
 }

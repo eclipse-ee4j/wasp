@@ -29,12 +29,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.JspCompilationContext;
+import org.glassfish.wasp.WaspException;
 
 /**
  * Contains static utilities for generating SMAP data based on the current version of Wasp.
- * 
+ *
  * @author Jayson Falkner
  * @author Shawn Bayern
  * @author Robert Field (inner SDEInstaller class)
@@ -308,7 +308,7 @@ public class SmapUtil {
         }
 
         int readU1() {
-            return ((int) orig[origPos++]) & 0xFF;
+            return (orig[origPos++]) & 0xFF;
         }
 
         int readU2() {
@@ -362,24 +362,29 @@ public class SmapUtil {
                 int tag = readU1();
                 writeU1(tag);
                 switch (tag) {
-                case 7: // Class
-                case 8: // String
+                case 7 :  // Class
+                case 8 :  // String
+                case 16 : // MethodType
                     copy(2);
                     break;
-                case 9: // Field
-                case 10: // Method
-                case 11: // InterfaceMethod
-                case 3: // Integer
-                case 4: // Float
-                case 12: // NameAndType
+                case 15 : // MethodHandle
+                    copy(3);
+                    break;
+                case 9 :  // Field
+                case 10 : // Method
+                case 11 : // InterfaceMethod
+                case 3 :  // Integer
+                case 4 :  // Float
+                case 12 : // NameAndType
+                case 18 : // InvokeDynamic
                     copy(4);
                     break;
-                case 5: // Long
-                case 6: // Double
+                case 5 : // Long
+                case 6 : // Double
                     copy(8);
                     i++;
                     break;
-                case 1: // Utf8
+                case 1 : // Utf8
                     int len = readU2();
                     writeU2(len);
                     byte[] utf8 = readBytes(len);
@@ -425,6 +430,7 @@ public class SmapUtil {
             this.classInfos = classInfos;
         }
 
+        @Override
         public void visitBody(Node n) throws WaspException {
             SmapStratum smapStratumSave = smapStratum;
             String innerClass = n.getInnerClassName();
@@ -444,91 +450,110 @@ public class SmapUtil {
             smapStratum = smapStratumSave;
         }
 
+        @Override
         public void visit(Node.Declaration n) throws WaspException {
             doSmapText(n);
         }
 
+        @Override
         public void visit(Node.Expression n) throws WaspException {
             doSmapText(n);
         }
 
+        @Override
         public void visit(Node.Scriptlet n) throws WaspException {
             doSmapText(n);
         }
 
+        @Override
         public void visit(Node.IncludeAction n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.ForwardAction n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.GetProperty n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.SetProperty n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.UseBean n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.PlugIn n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.CustomTag n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.UninterpretedTag n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.JspElement n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.JspText n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.NamedAttribute n) throws WaspException {
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.JspBody n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.InvokeAction n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.DoBodyAction n) throws WaspException {
             doSmap(n);
             visitBody(n);
         }
 
+        @Override
         public void visit(Node.ELExpression n) throws WaspException {
             doSmap(n);
         }
 
+        @Override
         public void visit(Node.TemplateText n) throws WaspException {
             Mark mark = n.getStart();
             if (mark == null) {

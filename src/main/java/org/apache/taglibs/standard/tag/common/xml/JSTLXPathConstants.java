@@ -17,25 +17,25 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
-
 import javax.xml.namespace.QName;
 
 /**
- * This class is added to provide support for a generic Object type in return type
- * arguement for XPath's evaluate instance method.
+ * This class is added to provide support for a generic Object type in return type arguement for XPath's evaluate
+ * instance method.
  *
  * @author dhirup
  */
 public class JSTLXPathConstants {
-    
+
     /**
-     * <p>Private constructor to prevent instantiation.</p>
+     * <p>
+     * Private constructor to prevent instantiation.
+     * </p>
      */
     private JSTLXPathConstants() {
     }
-    
+
     // To support generic Object types
     public static final QName OBJECT = new QName("http://www.w3.org/1999/XSL/Transform", "OBJECT");
 
-    
 }

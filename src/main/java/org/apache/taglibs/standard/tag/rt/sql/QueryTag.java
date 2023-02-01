@@ -27,51 +27,46 @@ import org.apache.taglibs.standard.tag.common.sql.QueryTagSupport;
  */
 public class QueryTag extends QueryTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     /**
-     * Constructs a new QueryTag.  As with TagSupport, subclasses
-     * should not provide other constructors and are expected to call
-     * the superclass constructor
+     * Constructs a new QueryTag. As with TagSupport, subclasses should not provide other constructors and are expected to
+     * call the superclass constructor
      */
     public QueryTag() {
         super();
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
-    
+
     public void setDataSource(Object dataSource) {
-	this.rawDataSource = dataSource;
-	this.dataSourceSpecified = true;
+        this.rawDataSource = dataSource;
+        this.dataSourceSpecified = true;
     }
 
     /**
-     * The index of the first row returned can be
-     * specified using startRow.
+     * The index of the first row returned can be specified using startRow.
      */
     public void setStartRow(int startRow) {
         this.startRow = startRow;
     }
 
     /**
-     * Query result can be limited by specifying
-     * the maximum number of rows returned.
+     * Query result can be limited by specifying the maximum number of rows returned.
      */
     public void setMaxRows(int maxRows) {
         this.maxRows = maxRows;
-	this.maxRowsSpecified = true;
+        this.maxRowsSpecified = true;
     }
 
     /**
-     * Setter method for the SQL statement to use for the
-     * query. The statement may contain parameter markers
-     * (question marks, ?). If so, the parameter values must
-     * be set using nested value elements.
+     * Setter method for the SQL statement to use for the query. The statement may contain parameter markers (question
+     * marks, ?). If so, the parameter values must be set using nested value elements.
      */
     public void setSql(String sql) {
-	this.sql = sql;
+        this.sql = sql;
     }
 
 }

@@ -25,33 +25,27 @@ import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 
 /**
- * <p>Contains some static utilities to facilitate common forms of
- * expression evaluation.</p>
+ * <p>
+ * Contains some static utilities to facilitate common forms of expression evaluation.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class ExpressionUtil {
 
-    /** Evaluates an expression if present, but does not allow the expression
-     *  to evaluate to 'null', throwing a NullAttributeException if it
-     *  does.  The function <b>can</b> return null, however, if the
-     *  expression itself is null.
+    /**
+     * Evaluates an expression if present, but does not allow the expression to evaluate to 'null', throwing a
+     * NullAttributeException if it does. The function <b>can</b> return null, however, if the expression itself is null.
      */
-    public static Object evalNotNull(String tagName,
-				     String attributeName,
-	                             String expression,
-				     Class expectedType,
-				     Tag tag,
-	                             PageContext pageContext)
-	        throws JspException {
+    public static Object evalNotNull(String tagName, String attributeName, String expression, Class expectedType, Tag tag,
+            PageContext pageContext) throws JspException {
         if (expression != null) {
-            Object r = ExpressionEvaluatorManager.evaluate(
-                attributeName, expression, expectedType, tag, pageContext);
+            Object r = ExpressionEvaluatorManager.evaluate(attributeName, expression, expectedType, tag, pageContext);
             if (r == null)
                 throw new NullAttributeException(tagName, attributeName);
-	    return r;
+            return r;
         } else
-	    return null;
+            return null;
     }
 }

@@ -20,10 +20,11 @@ package org.apache.taglibs.standard.tag.common.core;
 import jakarta.servlet.jsp.tagext.TagSupport;
 
 /**
- * <p>Tag handler for &lt;declaregt; in JSTL.  This tag handler is
- * essentially a runtime no-op as far as tag logic is concerned; the
- * only important functionality of the tag is to expose a scripting
- * variable for an existing scoped attribute.</p>
+ * <p>
+ * Tag handler for &lt;declaregt; in JSTL. This tag handler is essentially a runtime no-op as far as tag logic is
+ * concerned; the only important functionality of the tag is to expose a scripting variable for an existing scoped
+ * attribute.
+ * </p>
  * 
  * @author Shawn Bayern
  */
@@ -31,8 +32,8 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 public class DeclareTag extends TagSupport {
 
     /*
-     * We're not identical to TagSupport only because we need to
-     * accept an additional "type" attribute.
+     * We're not identical to TagSupport only because we need to accept an additional "type" attribute.
      */
-    public void setType(String x) { }
+    public void setType(String x) {
+    }
 }

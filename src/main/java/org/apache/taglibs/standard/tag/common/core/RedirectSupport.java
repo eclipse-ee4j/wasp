@@ -24,44 +24,44 @@ import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 
 /**
- * <p>Support for tag handlers for &lt;redirect&gt;, JSTL 1.0's tag
- * for redirecting to a new URL (with optional query parameters).</p>
+ * <p>
+ * Support for tag handlers for &lt;redirect&gt;, JSTL 1.0's tag for redirecting to a new URL (with optional query
+ * parameters).
+ * </p>
  *
  * @author Shawn Bayern
  */
 
-public abstract class RedirectSupport extends BodyTagSupport
-    implements ParamParent {
+public abstract class RedirectSupport extends BodyTagSupport implements ParamParent {
 
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
-    protected String url;                        // 'url' attribute
-    protected String context;                    // 'context' attribute
+    protected String url; // 'url' attribute
+    protected String context; // 'context' attribute
 
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private String var;                          // 'var' attribute
-    private int scope;				 // processed 'scope' attr
-    private ParamSupport.ParamManager params;	 // added parameters
+    private String var; // 'var' attribute
+    private int scope; // processed 'scope' attr
+    private ParamSupport.ParamManager params; // added parameters
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public RedirectSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	url = var = null;
-	params = null;
-	scope = PageContext.PAGE_SCOPE;
+        url = var = null;
+        params = null;
+        scope = PageContext.PAGE_SCOPE;
     }
 
-
-   //*********************************************************************
+    // *********************************************************************
     // Tag attributes known at translation time
 
     public void setVar(String var) {
@@ -69,55 +69,51 @@ public abstract class RedirectSupport extends BodyTagSupport
     }
 
     public void setScope(String scope) {
-	this.scope = Util.getScope(scope);
+        this.scope = Util.getScope(scope);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Collaboration with subtags
 
     // inherit Javadoc
     public void addParameter(String name, String value) {
-	params.addParameter(name, value);
+        params.addParameter(name, value);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // resets any parameters that might be sent
     public int doStartTag() throws JspException {
-	params = new ParamSupport.ParamManager();
-	return EVAL_BODY_BUFFERED;
+        params = new ParamSupport.ParamManager();
+        return EVAL_BODY_BUFFERED;
     }
-
 
     // gets the right value, encodes it, and prints or stores it
     public int doEndTag() throws JspException {
-	String result;				// the eventual result
+        String result; // the eventual result
 
-	// add (already encoded) parameters
+        // add (already encoded) parameters
         String baseUrl = UrlSupport.resolveUrl(url, context, pageContext);
         result = params.aggregateParams(baseUrl);
 
         // if the URL is relative, rewrite it with 'redirect' encoding rules
-        HttpServletResponse response =
-            ((HttpServletResponse) pageContext.getResponse());
+        HttpServletResponse response = ((HttpServletResponse) pageContext.getResponse());
         if (!ImportSupport.isAbsoluteUrl(result))
             result = response.encodeRedirectURL(result);
 
-	// redirect!
-	try {
-	    response.sendRedirect(result);
-	} catch (java.io.IOException ex) {
-	    throw new JspTagException(ex.toString(), ex);
-	}
+        // redirect!
+        try {
+            response.sendRedirect(result);
+        } catch (java.io.IOException ex) {
+            throw new JspTagException(ex.toString(), ex);
+        }
 
-	return SKIP_PAGE;
+        return SKIP_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 }

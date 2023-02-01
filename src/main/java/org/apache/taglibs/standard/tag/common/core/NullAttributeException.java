@@ -22,9 +22,10 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * <p>NullAttributeException is a JspTagException that will be thrown
- * by the JSTL RI handlers when a tag attribute illegally evaluates
- * to 'null'.</p>
+ * <p>
+ * NullAttributeException is a JspTagException that will be thrown by the JSTL RI handlers when a tag attribute
+ * illegally evaluates to 'null'.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -38,6 +39,6 @@ public class NullAttributeException extends JspTagException {
      * @param att The attribute value for which the error occurred.
      */
     public NullAttributeException(String tag, String att) {
-	super(Resources.getMessage("TAG_NULL_ATTRIBUTE", att, tag));
+        super(Resources.getMessage("TAG_NULL_ATTRIBUTE", att, tag));
     }
 }

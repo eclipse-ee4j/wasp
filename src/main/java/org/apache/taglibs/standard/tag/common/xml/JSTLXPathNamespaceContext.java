@@ -27,11 +27,11 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.XMLConstants;
 
 /**
-  * Implemenation of XML Namespace context processing given a URI or prefix
-  */
+ * Implemenation of XML Namespace context processing given a URI or prefix
+ */
 public class JSTLXPathNamespaceContext implements NamespaceContext {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     /**
@@ -46,8 +46,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
     }
 
     /**
-     * The context to resolve the prefix from, if the context
-     * is not given. 
+     * The context to resolve the prefix from, if the context is not given.
      */
     HashMap<String, String> namespaces;
 
@@ -60,8 +59,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
      *
      * @throws IllegalArgumentException if prefix is null
      */
-    public String getNamespaceURI(String prefix) 
-        throws IllegalArgumentException {
+    public String getNamespaceURI(String prefix) throws IllegalArgumentException {
         // p("[getNamespaceURI] prefix: " + prefix);
         if (prefix == null) {
             throw new IllegalArgumentException("Cannot get Namespace URI for null prefix");
@@ -78,7 +76,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
         // p("[getNamespaceURI] namespaceURI: " + namespaceURI);
         if (namespaceURI != null) {
             return namespaceURI;
-        } 
+        }
 
         return XMLConstants.NULL_NS_URI;
     }
@@ -86,7 +84,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
     /**
      * Get Prefix bound to Namespace URI in the current scope
      *
-     * @param namespaceURI Namespace URI 
+     * @param namespaceURI Namespace URI
      *
      * @return Prefix bound to Namespace URI
      *
@@ -120,7 +118,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
     /**
      * Get all Prefixes bound to Namespace URI in the current scope
      *
-     * @param namespaceURI Namespace URI 
+     * @param namespaceURI Namespace URI
      *
      * @return Iterator of Prefixes bound to Namespace URI
      *
@@ -134,10 +132,10 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
         }
 
         if (namespaceURI.equals(XMLConstants.XML_NS_URI)) {
-            return Arrays.asList(new String[] {XMLConstants.XML_NS_PREFIX}).iterator();
+            return Arrays.asList(new String[] { XMLConstants.XML_NS_PREFIX }).iterator();
         }
         if (namespaceURI.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-            return Arrays.asList(new String[] {XMLConstants.XMLNS_ATTRIBUTE}).iterator();
+            return Arrays.asList(new String[] { XMLConstants.XMLNS_ATTRIBUTE }).iterator();
         }
 
         ArrayList<String> prefixList = new ArrayList<>();
@@ -155,11 +153,11 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
     /**
      * Populate map of Prefix and NameSpace URI's entries
      */
-    protected void addNamespace(String prefix, String uri ) {
-        namespaces.put(prefix, uri );
+    protected void addNamespace(String prefix, String uri) {
+        namespaces.put(prefix, uri);
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Utility methods
 
     private static void p(String s) {

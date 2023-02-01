@@ -25,9 +25,8 @@ import jakarta.servlet.jsp.tagext.Tag;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * Support for tag handlers for &lt;param&gt;, the message argument
- * subtag in JSTL 1.0 which supplies an argument for parametric replacement
- * to its parent &lt;message&gt; tag.
+ * Support for tag handlers for &lt;param&gt;, the message argument subtag in JSTL 1.0 which supplies an argument for
+ * parametric replacement to its parent &lt;message&gt; tag.
  *
  * @see MessageSupport
  * @author Jan Luehe
@@ -35,61 +34,57 @@ import org.apache.taglibs.standard.resources.Resources;
 
 public abstract class ParamSupport extends BodyTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
-    protected Object value;                          // 'value' attribute
-    protected boolean valueSpecified;	             // status
+    protected Object value; // 'value' attribute
+    protected boolean valueSpecified; // status
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public ParamSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	value = null;
-	valueSpecified = false;
+        value = null;
+        valueSpecified = false;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // Supply our value to our parent <fmt:message> tag
     public int doEndTag() throws JspException {
-	Tag t = findAncestorWithClass(this, MessageSupport.class);
-	if (t == null) {
-	    throw new JspTagException(Resources.getMessage(
-                            "PARAM_OUTSIDE_MESSAGE"));
-	}
-	MessageSupport parent = (MessageSupport) t;
+        Tag t = findAncestorWithClass(this, MessageSupport.class);
+        if (t == null) {
+            throw new JspTagException(Resources.getMessage("PARAM_OUTSIDE_MESSAGE"));
+        }
+        MessageSupport parent = (MessageSupport) t;
 
-	/*
-	 * Get argument from 'value' attribute or body, as appropriate, and
-	 * add it to enclosing <fmt:message> tag, even if it is null or equal
-	 * to "".
-	 */
-	Object input = null;
+        /*
+         * Get argument from 'value' attribute or body, as appropriate, and add it to enclosing <fmt:message> tag, even if it is
+         * null or equal to "".
+         */
+        Object input = null;
         // determine the input by...
-	if (valueSpecified) {
-	    // ... reading 'value' attribute
-	    input = value;
-	} else {
-	    // ... retrieving and trimming our body (TLV has ensured that it's
-	    // non-empty)
-	    input = bodyContent.getString().trim();
-	}
-	parent.addParam(input);
+        if (valueSpecified) {
+            // ... reading 'value' attribute
+            input = value;
+        } else {
+            // ... retrieving and trimming our body (TLV has ensured that it's
+            // non-empty)
+            input = bodyContent.getString().trim();
+        }
+        parent.addParam(input);
 
-	return EVAL_PAGE;
+        return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 }

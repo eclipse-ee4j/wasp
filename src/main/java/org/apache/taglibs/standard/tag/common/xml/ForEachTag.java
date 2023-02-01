@@ -25,25 +25,27 @@ import jakarta.servlet.jsp.jstl.core.LoopTagSupport;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * <p>Support for the XML library's &lt;forEach&gt; tag.</p>
+ * <p>
+ * Support for the XML library's &lt;forEach&gt; tag.
+ * </p>
  *
  * @see jakarta.servlet.jsp.jstl.core.LoopTagSupport
  * @author Shawn Bayern
  */
 public class ForEachTag extends LoopTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private String select;				// tag attribute
-    private List nodes;					// XPath result
-    private int nodesIndex;				// current index
-    private org.w3c.dom.Node current;			// current node
+    private String select; // tag attribute
+    private List nodes; // XPath result
+    private int nodesIndex; // current index
+    private org.w3c.dom.Node current; // current node
 
-    //*********************************************************************
+    // *********************************************************************
     // Iteration control methods
 
-    // (We inherit semantics and Javadoc from LoopTagSupport.) 
+    // (We inherit semantics and Javadoc from LoopTagSupport.)
 
     protected void prepare() throws JspTagException {
         nodesIndex = 0;
@@ -56,30 +58,27 @@ public class ForEachTag extends LoopTagSupport {
     }
 
     protected Object next() throws JspTagException {
-	Object o = nodes.get(nodesIndex++);
-	if (!(o instanceof org.w3c.dom.Node))
-	    throw new JspTagException(
-		Resources.getMessage("FOREACH_NOT_NODESET"));
-	current = (org.w3c.dom.Node) o;
+        Object o = nodes.get(nodesIndex++);
+        if (!(o instanceof org.w3c.dom.Node))
+            throw new JspTagException(Resources.getMessage("FOREACH_NOT_NODESET"));
+        current = (org.w3c.dom.Node) o;
         return current;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic and lifecycle management
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
         super.release();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Attribute accessors
 
     public void setSelect(String select) {
-	this.select = select;
+        this.select = select;
     }
 
     public void setBegin(int begin) throws JspTagException {
@@ -99,25 +98,23 @@ public class ForEachTag extends LoopTagSupport {
         this.step = step;
         validateStep();
     }
-    
-    //*********************************************************************
+
+    // *********************************************************************
     // Public methods for subtags
 
     /* Retrieves the current context. */
     public org.w3c.dom.Node getContext() throws JspTagException {
-	// expose the current node as the context
+        // expose the current node as the context
         return current;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     private void init() {
-	select = null;
-	nodes = null;
-	nodesIndex = 0;
-	current = null;
-    }	
+        select = null;
+        nodes = null;
+        nodesIndex = 0;
+        current = null;
+    }
 }
-

@@ -23,44 +23,42 @@ import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.fmt.FormatNumberSupport;
 
 /**
- * <p>A handler for &lt;formatNumber&gt; that accepts attributes as Strings
- * and evaluates them as expressions at runtime.</p>
+ * <p>
+ * A handler for &lt;formatNumber&gt; that accepts attributes as Strings and evaluates them as expressions at runtime.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class FormatNumberTag extends FormatNumberSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // 'Private' state (implementation details)
 
-    private String value_;                       // stores EL-based property
-    private String type_;                        // stores EL-based property
-    private String pattern_;		         // stores EL-based property
-    private String currencyCode_;   	         // stores EL-based property
-    private String currencySymbol_;   	         // stores EL-based property
-    private String groupingUsed_;   	         // stores EL-based property
-    private String maxIntegerDigits_;   	 // stores EL-based property
-    private String minIntegerDigits_;   	 // stores EL-based property
-    private String maxFractionDigits_;   	 // stores EL-based property
-    private String minFractionDigits_;   	 // stores EL-based property
+    private String value_; // stores EL-based property
+    private String type_; // stores EL-based property
+    private String pattern_; // stores EL-based property
+    private String currencyCode_; // stores EL-based property
+    private String currencySymbol_; // stores EL-based property
+    private String groupingUsed_; // stores EL-based property
+    private String maxIntegerDigits_; // stores EL-based property
+    private String minIntegerDigits_; // stores EL-based property
+    private String maxFractionDigits_; // stores EL-based property
+    private String minFractionDigits_; // stores EL-based property
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     /**
-     * Constructs a new FormatNumberTag.  As with TagSupport, subclasses
-     * should not provide other constructors and are expected to call
-     * the superclass constructor
+     * Constructs a new FormatNumberTag. As with TagSupport, subclasses should not provide other constructors and are
+     * expected to call the superclass constructor
      */
     public FormatNumberTag() {
         super();
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // evaluates expression and chains to parent
@@ -69,8 +67,8 @@ public class FormatNumberTag extends FormatNumberSupport {
         // evaluate any expressions we were passed, once per invocation
         evaluateExpressions();
 
-	// chain to the parent implementation
-	return super.doStartTag();
+        // chain to the parent implementation
+        return super.doStartTag();
     }
 
     // Releases any resources we may have (or inherit)
@@ -79,14 +77,13 @@ public class FormatNumberTag extends FormatNumberSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for EL-based attribute
     public void setValue(String value_) {
         this.value_ = value_;
-	this.valueSpecified = true;
+        this.valueSpecified = true;
     }
 
     // for EL-based attribute
@@ -112,140 +109,120 @@ public class FormatNumberTag extends FormatNumberSupport {
     // for EL-based attribute
     public void setGroupingUsed(String groupingUsed_) {
         this.groupingUsed_ = groupingUsed_;
-	this.groupingUsedSpecified = true;
+        this.groupingUsedSpecified = true;
     }
 
     // for EL-based attribute
     public void setMaxIntegerDigits(String maxIntegerDigits_) {
         this.maxIntegerDigits_ = maxIntegerDigits_;
-	this.maxIntegerDigitsSpecified = true;
+        this.maxIntegerDigitsSpecified = true;
     }
 
     // for EL-based attribute
     public void setMinIntegerDigits(String minIntegerDigits_) {
         this.minIntegerDigits_ = minIntegerDigits_;
-	this.minIntegerDigitsSpecified = true;
+        this.minIntegerDigitsSpecified = true;
     }
 
     // for EL-based attribute
     public void setMaxFractionDigits(String maxFractionDigits_) {
         this.maxFractionDigits_ = maxFractionDigits_;
-	this.maxFractionDigitsSpecified = true;
+        this.maxFractionDigitsSpecified = true;
     }
 
     // for EL-based attribute
     public void setMinFractionDigits(String minFractionDigits_) {
         this.minFractionDigits_ = minFractionDigits_;
-	this.minFractionDigitsSpecified = true;
+        this.minFractionDigitsSpecified = true;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private (utility) methods
 
     // (re)initializes state (during release() or construction)
     private void init() {
         // null implies "no expression"
-	value_ = type_ = pattern_ = null;
-	currencyCode_ = currencySymbol_ = null;
-	groupingUsed_ = null;
-	maxIntegerDigits_ = minIntegerDigits_ = null;
-	maxFractionDigits_ = minFractionDigits_ = null;
+        value_ = type_ = pattern_ = null;
+        currencyCode_ = currencySymbol_ = null;
+        groupingUsed_ = null;
+        maxIntegerDigits_ = minIntegerDigits_ = null;
+        maxFractionDigits_ = minFractionDigits_ = null;
     }
 
     // Evaluates expressions as necessary
     private void evaluateExpressions() throws JspException {
-	Object obj = null;
+        Object obj = null;
 
-        /* 
-         * Note: we don't check for type mismatches here; we assume
-         * the expression evaluator will return the expected type
-         * (by virtue of knowledge we give it about what that type is).
-         * A ClassCastException here is truly unexpected, so we let it
+        /*
+         * Note: we don't check for type mismatches here; we assume the expression evaluator will return the expected type (by
+         * virtue of knowledge we give it about what that type is). A ClassCastException here is truly unexpected, so we let it
          * propagate up.
          */
 
-	// 'value' attribute
-	if (value_ != null) {
-	    value = ExpressionEvaluatorManager.evaluate(
-	        "value", value_, Object.class, this, pageContext);
-	}
+        // 'value' attribute
+        if (value_ != null) {
+            value = ExpressionEvaluatorManager.evaluate("value", value_, Object.class, this, pageContext);
+        }
 
-	// 'type' attribute
-	if (type_ != null) {
-	    type = (String) ExpressionEvaluatorManager.evaluate(
-	        "type", type_, String.class, this, pageContext);
-	}
+        // 'type' attribute
+        if (type_ != null) {
+            type = (String) ExpressionEvaluatorManager.evaluate("type", type_, String.class, this, pageContext);
+        }
 
-	// 'pattern' attribute
-	if (pattern_ != null) {
-	    pattern = (String) ExpressionEvaluatorManager.evaluate(
-	        "pattern", pattern_, String.class, this, pageContext);
-	}
+        // 'pattern' attribute
+        if (pattern_ != null) {
+            pattern = (String) ExpressionEvaluatorManager.evaluate("pattern", pattern_, String.class, this, pageContext);
+        }
 
-	// 'currencyCode' attribute
-	if (currencyCode_ != null) {
-	    currencyCode = (String) ExpressionEvaluatorManager.evaluate(
-	        "currencyCode", currencyCode_, String.class, this,
-		pageContext);
-	}
+        // 'currencyCode' attribute
+        if (currencyCode_ != null) {
+            currencyCode = (String) ExpressionEvaluatorManager.evaluate("currencyCode", currencyCode_, String.class, this, pageContext);
+        }
 
-	// 'currencySymbol' attribute
-	if (currencySymbol_ != null) {
-	    currencySymbol = (String) ExpressionEvaluatorManager.evaluate(
-	        "currencySymbol", currencySymbol_, String.class, this,
-		pageContext);
-	}
+        // 'currencySymbol' attribute
+        if (currencySymbol_ != null) {
+            currencySymbol = (String) ExpressionEvaluatorManager.evaluate("currencySymbol", currencySymbol_, String.class, this,
+                    pageContext);
+        }
 
-	// 'groupingUsed' attribute
-	if (groupingUsed_ != null) {
-	    obj = ExpressionEvaluatorManager.evaluate(
-	        "groupingUsed", groupingUsed_, Boolean.class, this,
-		pageContext);
-	    if (obj != null) {
-		isGroupingUsed = ((Boolean) obj).booleanValue();
-	    }
-	}
+        // 'groupingUsed' attribute
+        if (groupingUsed_ != null) {
+            obj = ExpressionEvaluatorManager.evaluate("groupingUsed", groupingUsed_, Boolean.class, this, pageContext);
+            if (obj != null) {
+                isGroupingUsed = ((Boolean) obj).booleanValue();
+            }
+        }
 
-	// 'maxIntegerDigits' attribute
-	if (maxIntegerDigits_ != null) {
-	    obj = ExpressionEvaluatorManager.evaluate(
-	        "maxIntegerDigits", maxIntegerDigits_, Integer.class, this,
-		pageContext);
-	    if (obj != null) {
-		maxIntegerDigits = ((Integer) obj).intValue();
-	    }
-	}
+        // 'maxIntegerDigits' attribute
+        if (maxIntegerDigits_ != null) {
+            obj = ExpressionEvaluatorManager.evaluate("maxIntegerDigits", maxIntegerDigits_, Integer.class, this, pageContext);
+            if (obj != null) {
+                maxIntegerDigits = ((Integer) obj).intValue();
+            }
+        }
 
-	// 'minIntegerDigits' attribute	
-	if (minIntegerDigits_ != null) {
-	    obj = ExpressionEvaluatorManager.evaluate(
-	        "minIntegerDigits", minIntegerDigits_, Integer.class, this,
-		pageContext);
-	    if (obj != null) {
-		minIntegerDigits = ((Integer) obj).intValue();
-	    }
-	}
+        // 'minIntegerDigits' attribute
+        if (minIntegerDigits_ != null) {
+            obj = ExpressionEvaluatorManager.evaluate("minIntegerDigits", minIntegerDigits_, Integer.class, this, pageContext);
+            if (obj != null) {
+                minIntegerDigits = ((Integer) obj).intValue();
+            }
+        }
 
-	// 'maxFractionDigits' attribute
-	if (maxFractionDigits_ != null) {
-	    obj = ExpressionEvaluatorManager.evaluate(
-	        "maxFractionDigits", maxFractionDigits_, Integer.class, this,
-		pageContext);
-	    if (obj != null) {
-		maxFractionDigits = ((Integer) obj).intValue();
-	    }
-	}
+        // 'maxFractionDigits' attribute
+        if (maxFractionDigits_ != null) {
+            obj = ExpressionEvaluatorManager.evaluate("maxFractionDigits", maxFractionDigits_, Integer.class, this, pageContext);
+            if (obj != null) {
+                maxFractionDigits = ((Integer) obj).intValue();
+            }
+        }
 
-	// 'minFractionDigits' attribute
-	if (minFractionDigits_ != null) {
-	    obj = ExpressionEvaluatorManager.evaluate(
-	        "minFractionDigits", minFractionDigits_, Integer.class, this,
-		pageContext);
-	    if (obj != null) {
-		minFractionDigits = ((Integer) obj).intValue();
-	    }
-	}
+        // 'minFractionDigits' attribute
+        if (minFractionDigits_ != null) {
+            obj = ExpressionEvaluatorManager.evaluate("minFractionDigits", minFractionDigits_, Integer.class, this, pageContext);
+            if (obj != null) {
+                minFractionDigits = ((Integer) obj).intValue();
+            }
+        }
     }
 }
-

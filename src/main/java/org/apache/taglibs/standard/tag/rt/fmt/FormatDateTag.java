@@ -24,15 +24,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.fmt.FormatDateSupport;
 
 /**
- * <p>A handler for &lt;formatDate&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;formatDate&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class FormatDateTag extends FormatDateSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // 'value' attribute

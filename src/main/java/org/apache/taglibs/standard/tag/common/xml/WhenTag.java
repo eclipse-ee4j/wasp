@@ -22,14 +22,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.core.WhenTagSupport;
 
 /**
- * <p>Tag handler for &lt;if&gt; in JSTL's XML library.</p>
+ * <p>
+ * Tag handler for &lt;if&gt; in JSTL's XML library.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class WhenTag extends WhenTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and lifecycle management
 
     // initialize inherited and local state
@@ -44,8 +46,7 @@ public class WhenTag extends WhenTagSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Supplied conditional logic
 
     protected boolean condition() throws JspTagException {
@@ -53,21 +54,19 @@ public class WhenTag extends WhenTagSupport {
         return (xu.booleanValueOf(XPathUtil.getContext(this), select));
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private String select;               // the value of the 'test' attribute
+    private String select; // the value of the 'test' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Attribute accessors
 
     public void setSelect(String select) {
         this.select = select;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     // resets internal state

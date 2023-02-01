@@ -25,15 +25,16 @@ import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 import org.apache.taglibs.standard.tag.common.core.WhenTagSupport;
 
 /**
- * <p>Tag handler for &lt;when&gt; in JSTL's expression-evaluating
- * library.</p>
+ * <p>
+ * Tag handler for &lt;when&gt; in JSTL's expression-evaluating library.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class WhenTag extends WhenTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and lifecycle management
 
     // initialize inherited and local state
@@ -48,31 +49,27 @@ public class WhenTag extends WhenTagSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Supplied conditional logic
 
     protected boolean condition() throws JspTagException {
-        try { 
-            Object r = ExpressionEvaluatorManager.evaluate(
-                "test", test, Boolean.class, this, pageContext);
+        try {
+            Object r = ExpressionEvaluatorManager.evaluate("test", test, Boolean.class, this, pageContext);
             if (r == null)
-	        throw new NullAttributeException("when", "test");
+                throw new NullAttributeException("when", "test");
             else
                 return (((Boolean) r).booleanValue());
-	} catch (JspException ex) {
-	    throw new JspTagException(ex.toString(), ex);
-	}
+        } catch (JspException ex) {
+            throw new JspTagException(ex.toString(), ex);
+        }
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private String test;               // the value of the 'test' attribute
+    private String test; // the value of the 'test' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessors
 
     // receives the tag's 'test' attribute
@@ -80,8 +77,7 @@ public class WhenTag extends WhenTagSupport {
         this.test = test;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     // resets internal state

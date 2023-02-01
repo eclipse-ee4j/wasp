@@ -19,56 +19,43 @@ package org.apache.taglibs.standard.lang.jstl;
 
 /**
  *
- * <p>This is the superclass for all relational operators (except ==
- * or !=)
+ * <p>
+ * This is the superclass for all relational operators (except == or !=)
  * 
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
 
-public abstract class RelationalOperator
-  extends BinaryOperator
-{
-  //-------------------------------------
-  /**
-   *
-   * Applies the operator to the given value
-   **/
-  public Object apply (Object pLeft,
-		       Object pRight,
-		       Object pContext,
-		       Logger pLogger)
-    throws ELException
-  {
-    return Coercions.applyRelationalOperator (pLeft, pRight, this, pLogger);
-  }
+public abstract class RelationalOperator extends BinaryOperator {
+    // -------------------------------------
+    /**
+     *
+     * Applies the operator to the given value
+     **/
+    public Object apply(Object pLeft, Object pRight, Object pContext, Logger pLogger) throws ELException {
+        return Coercions.applyRelationalOperator(pLeft, pRight, this, pLogger);
+    }
 
-  //-------------------------------------
-  /**
-   *
-   * Applies the operator to the given double values
-   **/
-  public abstract boolean apply (double pLeft,
-				 double pRight,
-				 Logger pLogger);
-  
-  //-------------------------------------
-  /**
-   *
-   * Applies the operator to the given long values
-   **/
-  public abstract boolean apply (long pLeft,
-				 long pRight,
-				 Logger pLogger);
-  
-  //-------------------------------------
-  /**
-   *
-   * Applies the operator to the given String values
-   **/
-  public abstract boolean apply (String pLeft,
-				 String pRight,
-				 Logger pLogger);
+    // -------------------------------------
+    /**
+     *
+     * Applies the operator to the given double values
+     **/
+    public abstract boolean apply(double pLeft, double pRight, Logger pLogger);
 
-  //-------------------------------------
+    // -------------------------------------
+    /**
+     *
+     * Applies the operator to the given long values
+     **/
+    public abstract boolean apply(long pLeft, long pRight, Logger pLogger);
+
+    // -------------------------------------
+    /**
+     *
+     * Applies the operator to the given String values
+     **/
+    public abstract boolean apply(String pLeft, String pRight, Logger pLogger);
+
+    // -------------------------------------
 }

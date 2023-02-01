@@ -26,36 +26,35 @@ import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 
 /**
- * <p>Support for handlers of the &lt;out&gt; tag, which simply evalutes and
- * prints the result of the expression it's passed.  If the result is
- * null, we print the value of the 'default' attribute's expression or
- * our body (which two are mutually exclusive, although this constraint
- * is enforced outside this handler, in our TagLibraryValidator).</p>
+ * <p>
+ * Support for handlers of the &lt;out&gt; tag, which simply evalutes and prints the result of the expression it's
+ * passed. If the result is null, we print the value of the 'default' attribute's expression or our body (which two are
+ * mutually exclusive, although this constraint is enforced outside this handler, in our TagLibraryValidator).
+ * </p>
  *
  * @author Shawn Bayern
  */
 public class OutSupport extends BodyTagSupport {
 
     /*
-     * (One almost wishes XML and JSP could support "anonymous tags,"
-     * given the amount of trouble we had naming this one!)  :-)  - sb
+     * (One almost wishes XML and JSP could support "anonymous tags," given the amount of trouble we had naming this one!)
+     * :-) - sb
      */
 
-    //*********************************************************************
+    // *********************************************************************
     // Internal state
 
-    protected Object value;                     // tag attribute
-    protected String def;			// tag attribute
-    protected boolean escapeXml;		// tag attribute
-    private boolean needBody;			// non-space body needed?
+    protected Object value; // tag attribute
+    protected String def; // tag attribute
+    protected boolean escapeXml; // tag attribute
+    private boolean needBody; // non-space body needed?
 
-    //*********************************************************************
+    // *********************************************************************
     // Construction and initialization
 
     /**
-     * Constructs a new handler.  As with TagSupport, subclasses should
-     * not provide other constructors and are expected to call the
-     * superclass constructor.
+     * Constructs a new handler. As with TagSupport, subclasses should not provide other constructors and are expected to
+     * call the superclass constructor.
      */
     public OutSupport() {
         super();
@@ -66,7 +65,7 @@ public class OutSupport extends BodyTagSupport {
     private void init() {
         value = def = null;
         escapeXml = true;
-	needBody = false;
+        needBody = false;
     }
 
     // Releases any resources we may have (or inherit)
@@ -75,83 +74,75 @@ public class OutSupport extends BodyTagSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // evaluates 'value' and determines if the body should be evaluted
     public int doStartTag() throws JspException {
 
-      needBody = false;			// reset state related to 'default'
-      this.bodyContent = null;  // clean-up body (just in case container is pooling tag handlers)
-      
-      try {
-	// print value if available; otherwise, try 'default'
-	if (value != null) {
-            out(pageContext, escapeXml, value);
-	    return SKIP_BODY;
-	} else {
-	    // if we don't have a 'default' attribute, just go to the body
-	    if (def == null) {
-		needBody = true;
-		return EVAL_BODY_BUFFERED;
-	    }
+        needBody = false; // reset state related to 'default'
+        this.bodyContent = null; // clean-up body (just in case container is pooling tag handlers)
 
-	    // if we do have 'default', print it
-	    if (def != null) {
-		// good 'default'
-                out(pageContext, escapeXml, def);
-	    }
-	    return SKIP_BODY;
-	}
-      } catch (IOException ex) {
-	throw new JspException(ex.toString(), ex);
-      }
+        try {
+            // print value if available; otherwise, try 'default'
+            if (value != null) {
+                out(pageContext, escapeXml, value);
+                return SKIP_BODY;
+            } else {
+                // if we don't have a 'default' attribute, just go to the body
+                if (def == null) {
+                    needBody = true;
+                    return EVAL_BODY_BUFFERED;
+                }
+
+                // if we do have 'default', print it
+                if (def != null) {
+                    // good 'default'
+                    out(pageContext, escapeXml, def);
+                }
+                return SKIP_BODY;
+            }
+        } catch (IOException ex) {
+            throw new JspException(ex.toString(), ex);
+        }
     }
 
     // prints the body if necessary; reports errors
     public int doEndTag() throws JspException {
-      try {
-	if (!needBody)
-	    return EVAL_PAGE;		// nothing more to do
+        try {
+            if (!needBody)
+                return EVAL_PAGE; // nothing more to do
 
-	// trim and print out the body
-	if (bodyContent != null && bodyContent.getString() != null)
-            out(pageContext, escapeXml, bodyContent.getString().trim());
-	return EVAL_PAGE;
-      } catch (IOException ex) {
-	throw new JspException(ex.toString(), ex);
-      }
+            // trim and print out the body
+            if (bodyContent != null && bodyContent.getString() != null)
+                out(pageContext, escapeXml, bodyContent.getString().trim());
+            return EVAL_PAGE;
+        } catch (IOException ex) {
+            throw new JspException(ex.toString(), ex);
+        }
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Public utility methods
 
     /**
-     * Outputs <tt>text</tt> to <tt>pageContext</tt>'s current JspWriter.
-     * If <tt>escapeXml</tt> is true, performs the following substring
-     * replacements (to facilitate output to XML/HTML pages):
+     * Outputs <tt>text</tt> to <tt>pageContext</tt>'s current JspWriter. If <tt>escapeXml</tt> is true, performs the
+     * following substring replacements (to facilitate output to XML/HTML pages):
      *
-     *    {@literal &} -{@literal >} {@literal &amp;}
-     *    {@literal <} -{@literal >} {@literal &lt;}
-     *    {@literal >} -{@literal >} {@literal &gt;}
-     *    {@literal "} -{@literal >} {@literal &#034;}
-     *    {@literal '} -{@literal >} {@literal &#039;}
+     * {@literal &} -{@literal >} {@literal &amp;} {@literal <} -{@literal >} {@literal &lt;} {@literal >} -{@literal >}
+     * {@literal &gt;} {@literal "} -{@literal >} {@literal &#034;} {@literal '} -{@literal >} {@literal &#039;}
      *
      * See also Util.escapeXml().
      */
-    public static void out(PageContext pageContext,
-                           boolean escapeXml,
-                           Object obj) throws IOException {
+    public static void out(PageContext pageContext, boolean escapeXml, Object obj) throws IOException {
         JspWriter w = pageContext.getOut();
-	if (!escapeXml) {
+        if (!escapeXml) {
             // write chars as is
             if (obj instanceof Reader) {
-                Reader reader = (Reader)obj;
+                Reader reader = (Reader) obj;
                 char[] buf = new char[4096];
                 int count;
-                while ((count=reader.read(buf, 0, 4096)) != -1) {
+                while ((count = reader.read(buf, 0, 4096)) != -1) {
                     w.write(buf, 0, count);
                 }
             } else {
@@ -160,7 +151,7 @@ public class OutSupport extends BodyTagSupport {
         } else {
             // escape XML chars
             if (obj instanceof Reader) {
-                Reader reader = (Reader)obj;
+                Reader reader = (Reader) obj;
                 char[] buf = new char[4096];
                 int count;
                 while ((count = reader.read(buf, 0, 4096)) != -1) {
@@ -173,13 +164,13 @@ public class OutSupport extends BodyTagSupport {
         }
     }
 
-   /**
+    /**
      *
-     *  Optimized to create no extra objects and write directly
-     *  to the JspWriter using blocks of escaped and unescaped characters
+     * Optimized to create no extra objects and write directly to the JspWriter using blocks of escaped and unescaped
+     * characters
      *
      */
-    private static void writeEscapedXml(char[] buffer, int length, JspWriter w) throws IOException{
+    private static void writeEscapedXml(char[] buffer, int length, JspWriter w) throws IOException {
         int start = 0;
 
         for (int i = 0; i < length; i++) {
@@ -189,7 +180,7 @@ public class OutSupport extends BodyTagSupport {
                 if (escaped != null) {
                     // add unescaped portion
                     if (start < i) {
-                        w.write(buffer,start,i-start);
+                        w.write(buffer, start, i - start);
                     }
                     // add escaped xml
                     w.write(escaped);
@@ -199,7 +190,7 @@ public class OutSupport extends BodyTagSupport {
         }
         // add rest of unescaped portion
         if (start < length) {
-            w.write(buffer,start,length-start);
+            w.write(buffer, start, length - start);
         }
     }
 }

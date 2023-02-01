@@ -33,58 +33,53 @@ import org.apache.taglibs.standard.resources.Resources;
 import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
- * Support for tag handlers for &lt;formatDate&gt;, the date and time
- * formatting tag in JSTL 1.0.
+ * Support for tag handlers for &lt;formatDate&gt;, the date and time formatting tag in JSTL 1.0.
  *
  * @author Jan Luehe
  */
 
 public abstract class FormatDateSupport extends TagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Private constants
 
     private static final String DATE = "date";
     private static final String TIME = "time";
     private static final String DATETIME = "both";
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
-    protected Date value;                        // 'value' attribute
-    protected String type;                       // 'type' attribute
-    protected String pattern;                    // 'pattern' attribute
-    protected Object timeZone;                   // 'timeZone' attribute
-    protected String dateStyle;                  // 'dateStyle' attribute
-    protected String timeStyle;                  // 'timeStyle' attribute
+    protected Date value; // 'value' attribute
+    protected String type; // 'type' attribute
+    protected String pattern; // 'pattern' attribute
+    protected Object timeZone; // 'timeZone' attribute
+    protected String dateStyle; // 'dateStyle' attribute
+    protected String timeStyle; // 'timeStyle' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private String var;                          // 'var' attribute
-    private int scope;                           // 'scope' attribute
+    private String var; // 'var' attribute
+    private int scope; // 'scope' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public FormatDateSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	type = dateStyle = timeStyle = null;
-	pattern = var = null;
-	value = null;
-	timeZone = null;
-	scope = PageContext.PAGE_SCOPE;
+        type = dateStyle = timeStyle = null;
+        pattern = var = null;
+        value = null;
+        timeZone = null;
+        scope = PageContext.PAGE_SCOPE;
     }
 
-
-   //*********************************************************************
+    // *********************************************************************
     // Tag attributes known at translation time
 
     public void setVar(String var) {
@@ -92,11 +87,10 @@ public abstract class FormatDateSupport extends TagSupport {
     }
 
     public void setScope(String scope) {
-	this.scope = Util.getScope(scope);
+        this.scope = Util.getScope(scope);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     /*
@@ -104,103 +98,89 @@ public abstract class FormatDateSupport extends TagSupport {
      */
     public int doEndTag() throws JspException {
 
-	String formatted = null;
+        String formatted = null;
 
-	if (value == null) {
-	    if (var != null) {
-		pageContext.removeAttribute(var, scope);
-	    }
-	    return EVAL_PAGE;
-	}
+        if (value == null) {
+            if (var != null) {
+                pageContext.removeAttribute(var, scope);
+            }
+            return EVAL_PAGE;
+        }
 
-	// Create formatter
-	Locale locale = SetLocaleSupport.getFormattingLocale(pageContext,
-                                                             this,
-                                                             true,
-                                                             true);
-	if (locale != null) {
-	    DateFormat formatter = createFormatter(locale);
+        // Create formatter
+        Locale locale = SetLocaleSupport.getFormattingLocale(pageContext, this, true, true);
+        if (locale != null) {
+            DateFormat formatter = createFormatter(locale);
 
-	    // Apply pattern, if present
-	    if (pattern != null) {
-		try {
-		    ((SimpleDateFormat) formatter).applyPattern(pattern);
-		} catch (ClassCastException cce) {
-		    formatter = new SimpleDateFormat(pattern, locale);
-		}
-	    }
+            // Apply pattern, if present
+            if (pattern != null) {
+                try {
+                    ((SimpleDateFormat) formatter).applyPattern(pattern);
+                } catch (ClassCastException cce) {
+                    formatter = new SimpleDateFormat(pattern, locale);
+                }
+            }
 
-	    // Set time zone
-	    TimeZone tz = null;
-	    if ((timeZone instanceof String)
-		&& ((String) timeZone).equals("")) {
-		timeZone = null;
-	    }
-	    if (timeZone != null) {
-		if (timeZone instanceof String) {
-		    tz = TimeZone.getTimeZone((String) timeZone);
-		} else if (timeZone instanceof TimeZone) {
-		    tz = (TimeZone) timeZone;
-		} else {
-		    throw new JspTagException(
-                            Resources.getMessage("FORMAT_DATE_BAD_TIMEZONE"));
-		}
-	    } else {
-		tz = TimeZoneSupport.getTimeZone(pageContext, this);
-	    }
-	    if (tz != null) {
-		formatter.setTimeZone(tz);
-	    }
-	    formatted = formatter.format(value);
-	} else {
-	    // no formatting locale available, use Date.toString()
-	    formatted = value.toString();
-	}
+            // Set time zone
+            TimeZone tz = null;
+            if ((timeZone instanceof String) && ((String) timeZone).equals("")) {
+                timeZone = null;
+            }
+            if (timeZone != null) {
+                if (timeZone instanceof String) {
+                    tz = TimeZone.getTimeZone((String) timeZone);
+                } else if (timeZone instanceof TimeZone) {
+                    tz = (TimeZone) timeZone;
+                } else {
+                    throw new JspTagException(Resources.getMessage("FORMAT_DATE_BAD_TIMEZONE"));
+                }
+            } else {
+                tz = TimeZoneSupport.getTimeZone(pageContext, this);
+            }
+            if (tz != null) {
+                formatter.setTimeZone(tz);
+            }
+            formatted = formatter.format(value);
+        } else {
+            // no formatting locale available, use Date.toString()
+            formatted = value.toString();
+        }
 
-	if (var != null) {
-	    pageContext.setAttribute(var, formatted, scope);	
-	} else {
-	    try {
-		pageContext.getOut().print(formatted);
-	    } catch (IOException ioe) {
-		throw new JspTagException(ioe.toString(), ioe);
-	    }
-	}
+        if (var != null) {
+            pageContext.setAttribute(var, formatted, scope);
+        } else {
+            try {
+                pageContext.getOut().print(formatted);
+            } catch (IOException ioe) {
+                throw new JspTagException(ioe.toString(), ioe);
+            }
+        }
 
-	return EVAL_PAGE;
+        return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     private DateFormat createFormatter(Locale loc) throws JspException {
-	DateFormat formatter = null;
+        DateFormat formatter = null;
 
-	if ((type == null) || DATE.equalsIgnoreCase(type)) {
-	    formatter = DateFormat.getDateInstance(
-	        Util.getStyle(dateStyle, "FORMAT_DATE_INVALID_DATE_STYLE"),
-		loc);
-	} else if (TIME.equalsIgnoreCase(type)) {
-	    formatter = DateFormat.getTimeInstance(
-	        Util.getStyle(timeStyle, "FORMAT_DATE_INVALID_TIME_STYLE"),
-		loc);
-	} else if (DATETIME.equalsIgnoreCase(type)) {
-	    formatter = DateFormat.getDateTimeInstance(
-	        Util.getStyle(dateStyle, "FORMAT_DATE_INVALID_DATE_STYLE"),
-		Util.getStyle(timeStyle, "FORMAT_DATE_INVALID_TIME_STYLE"),
-		loc);
-	} else {
-	    throw new JspException(
-                    Resources.getMessage("FORMAT_DATE_INVALID_TYPE", 
-					 type));
-	}
+        if ((type == null) || DATE.equalsIgnoreCase(type)) {
+            formatter = DateFormat.getDateInstance(Util.getStyle(dateStyle, "FORMAT_DATE_INVALID_DATE_STYLE"), loc);
+        } else if (TIME.equalsIgnoreCase(type)) {
+            formatter = DateFormat.getTimeInstance(Util.getStyle(timeStyle, "FORMAT_DATE_INVALID_TIME_STYLE"), loc);
+        } else if (DATETIME.equalsIgnoreCase(type)) {
+            formatter = DateFormat.getDateTimeInstance(Util.getStyle(dateStyle, "FORMAT_DATE_INVALID_DATE_STYLE"),
+                    Util.getStyle(timeStyle, "FORMAT_DATE_INVALID_TIME_STYLE"), loc);
+        } else {
+            throw new JspException(Resources.getMessage("FORMAT_DATE_INVALID_TYPE", type));
+        }
 
-	return formatter;
+        return formatter;
     }
 }

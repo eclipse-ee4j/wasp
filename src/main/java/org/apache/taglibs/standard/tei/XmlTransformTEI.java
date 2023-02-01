@@ -21,8 +21,9 @@ import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>An implementation of TagExtraInfo that implements validation for
- * &lt;x:transform&gt;'s attributes</p>
+ * <p>
+ * An implementation of TagExtraInfo that implements validation for &lt;x:transform&gt;'s attributes
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -33,13 +34,13 @@ public class XmlTransformTEI extends TagExtraInfo {
     final private static String VAR = "var";
 
     public boolean isValid(TagData us) {
-	// require XSLT
-	if (!Util.isSpecified(us, XSLT))
-	    return false;
+        // require XSLT
+        if (!Util.isSpecified(us, XSLT))
+            return false;
 
-	// disallow both VAR and RESULT
-	if (Util.isSpecified(us, VAR) && Util.isSpecified(us, RESULT))
-	    return false;
+        // disallow both VAR and RESULT
+        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, RESULT))
+            return false;
         return true;
     }
 

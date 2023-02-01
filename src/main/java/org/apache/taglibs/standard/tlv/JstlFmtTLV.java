@@ -29,13 +29,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * <p>A SAX-based TagLibraryValidator for the JSTL i18n-capable formatting
- * library. Currently implements the following checks:</p>
+ * <p>
+ * A SAX-based TagLibraryValidator for the JSTL i18n-capable formatting library. Currently implements the following
+ * checks:
+ * </p>
  * 
  * <ul>
- *   <li>Expression syntax validation.
- *   <li>Tag bodies that must either be empty or non-empty given
- *      particular attributes.</li>
+ * <li>Expression syntax validation.
+ * <li>Tag bodies that must either be empty or non-empty given particular attributes.</li>
  * </ul>
  * 
  * @author Shawn Bayern
@@ -43,32 +44,23 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class JstlFmtTLV extends JstlBaseTLV {
 
-    //*********************************************************************
+    // *********************************************************************
     // Implementation Overview
 
     /*
-     * We essentially just run the page through a SAX parser, handling
-     * the callbacks that interest us.  We collapse <jsp:text> elements
-     * into the text they contain, since this simplifies processing
-     * somewhat.  Even a quick glance at the implementation shows its
-     * necessary, tree-oriented nature:  multiple Stacks, an understanding
-     * of 'depth', and so on all are important as we recover necessary
-     * state upon each callback.  This TLV demonstrates various techniques,
-     * from the general "how do I use a SAX parser for a TLV?" to
-     * "how do I read my init parameters and then validate?"  But also,
-     * the specific SAX methodology was kept as general as possible to
-     * allow for experimentation and flexibility.
+     * We essentially just run the page through a SAX parser, handling the callbacks that interest us. We collapse
+     * <jsp:text> elements into the text they contain, since this simplifies processing somewhat. Even a quick glance at the
+     * implementation shows its necessary, tree-oriented nature: multiple Stacks, an understanding of 'depth', and so on all
+     * are important as we recover necessary state upon each callback. This TLV demonstrates various techniques, from the
+     * general "how do I use a SAX parser for a TLV?" to "how do I read my init parameters and then validate?" But also, the
+     * specific SAX methodology was kept as general as possible to allow for experimentation and flexibility.
      *
-     * Much of the code and structure is duplicated from JstlCoreTLV.
-     * An effort has been made to re-use code where unambiguously useful.
-     * However, splitting logic among parent/child classes isn't
-     * necessarily the cleanest approach when writing a parser like the
-     * one we need.  I'd like to reorganize this somewhat, but it's not
-     * a priority.
+     * Much of the code and structure is duplicated from JstlCoreTLV. An effort has been made to re-use code where
+     * unambiguously useful. However, splitting logic among parent/child classes isn't necessarily the cleanest approach
+     * when writing a parser like the one we need. I'd like to reorganize this somewhat, but it's not a priority.
      */
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constants
 
     // tag names
@@ -90,66 +82,55 @@ public class JstlFmtTLV extends JstlBaseTLV {
     private final String BUNDLE_PREFIX = "prefix";
     private final String VALUE = "value";
 
-
-    //*********************************************************************
+    // *********************************************************************
     // set its type and delegate validation to super-class
-    public  ValidationMessage[] validate(
-	    String prefix, String uri, PageData page) {
-	return super.validate( TYPE_FMT, prefix, uri, page );
+    public ValidationMessage[] validate(String prefix, String uri, PageData page) {
+        return super.validate(TYPE_FMT, prefix, uri, page);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Contract fulfillment
 
     protected DefaultHandler getHandler() {
-	return new Handler();
+        return new Handler();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // SAX event handler
 
     /** The handler that provides the base of our implementation. */
     private class Handler extends DefaultHandler {
 
-	// parser state
-	private int depth = 0;
-	private Stack<Integer> messageDepths = new Stack<>();
-	private String lastElementName = null;
-	private boolean bodyNecessary = false;
-	private boolean bodyIllegal = false;
+        // parser state
+        private int depth = 0;
+        private Stack<Integer> messageDepths = new Stack<>();
+        private String lastElementName = null;
+        private boolean bodyNecessary = false;
+        private boolean bodyIllegal = false;
 
-	// process under the existing context (state), then modify it
-	public void startElement(
-	        String ns, String ln, String qn, Attributes a) {
+        // process under the existing context (state), then modify it
+        public void startElement(String ns, String ln, String qn, Attributes a) {
 
             // substitute our own parsed 'ln' if it's not provided
             if (ln == null)
                 ln = getLocalPart(qn);
 
-	    // for simplicity, we can ignore <jsp:text> for our purposes
-	    // (don't bother distinguishing between it and its characters)
-	    if (qn.equals(JSP_TEXT))
-		return;
+            // for simplicity, we can ignore <jsp:text> for our purposes
+            // (don't bother distinguishing between it and its characters)
+            if (qn.equals(JSP_TEXT))
+                return;
 
-	    // check body-related constraint
-	    if (bodyIllegal)
-		fail(Resources.getMessage("TLV_ILLEGAL_BODY",
-					  lastElementName));
+            // check body-related constraint
+            if (bodyIllegal)
+                fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
 
             // validate expression syntax if we need to
             Set expAtts;
-            if (qn.startsWith(prefix + ":")
-                    && (expAtts = (Set) config.get(ln)) != null) {
+            if (qn.startsWith(prefix + ":") && (expAtts = (Set) config.get(ln)) != null) {
                 for (int i = 0; i < a.getLength(); i++) {
                     String attName = a.getLocalName(i);
                     if (expAtts.contains(attName)) {
-                        String vMsg =
-                            validateExpression(
-                                ln,
-                                attName,
-                                a.getValue(i));
+                        String vMsg = validateExpression(ln, attName, a.getValue(i));
                         if (vMsg != null)
                             fail(vMsg);
                     }
@@ -158,100 +139,86 @@ public class JstlFmtTLV extends JstlBaseTLV {
 
             // validate attributes
             if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a))
-                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE",
-                    SCOPE, qn, a.getValue(SCOPE)));
-	    if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
-		fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
-            if (qn.startsWith(prefix + ":")
-                && !isFmtTag(ns, ln, SETLOCALE) 
-		&& !isFmtTag(ns, ln, SETBUNDLE)
-		&& !isFmtTag(ns, ln, SETTIMEZONE)
-                && hasDanglingScope(a))
+                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
+            if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
+                fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
+            if (qn.startsWith(prefix + ":") && !isFmtTag(ns, ln, SETLOCALE) && !isFmtTag(ns, ln, SETBUNDLE)
+                    && !isFmtTag(ns, ln, SETTIMEZONE) && hasDanglingScope(a))
                 fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
 
-	    /*
-	     * Make sure <fmt:param> is nested inside <fmt:message>. Note that
-	     * <fmt:param> does not need to be a direct child of <fmt:message>.
-	     * Otherwise, the following would not work:
-	     *
-	     *  <fmt:message key="..." bundle="...">
-	     *   <c:forEach var="arg" items="...">
-	     *    <fmt:param value="${arg}"/>
-	     *   </c:forEach>
-	     *  </fmt:message>
-	     */
-	    if (isFmtTag(ns, ln, MESSAGE_PARAM) && messageDepths.empty()) {
-		fail(Resources.getMessage("PARAM_OUTSIDE_MESSAGE"));
-	    }
+            /*
+             * Make sure <fmt:param> is nested inside <fmt:message>. Note that <fmt:param> does not need to be a direct child of
+             * <fmt:message>. Otherwise, the following would not work:
+             *
+             * <fmt:message key="..." bundle="..."> <c:forEach var="arg" items="..."> <fmt:param value="${arg}"/> </c:forEach>
+             * </fmt:message>
+             */
+            if (isFmtTag(ns, ln, MESSAGE_PARAM) && messageDepths.empty()) {
+                fail(Resources.getMessage("PARAM_OUTSIDE_MESSAGE"));
+            }
 
-	    // now, modify state
+            // now, modify state
 
-	    // If we're in a <message>, record relevant state
-	    if (isFmtTag(ns, ln, MESSAGE)) {
+            // If we're in a <message>, record relevant state
+            if (isFmtTag(ns, ln, MESSAGE)) {
                 messageDepths.push(Integer.valueOf(depth));
             }
 
-	    // set up a check against illegal attribute/body combinations
-	    bodyIllegal = false;
-	    bodyNecessary = false;
-	    if (isFmtTag(ns, ln, MESSAGE_PARAM)
-		    || isFmtTag(ns, ln, FORMAT_NUMBER)
-		    || isFmtTag(ns, ln, PARSE_NUMBER)
-		    || isFmtTag(ns, ln,  PARSE_DATE)) {
-		if (hasAttribute(a, VALUE))
-		    bodyIllegal = true;
-		else
-		    bodyNecessary = true;
-	    } else if (isFmtTag(ns, ln, MESSAGE)
-		    && !hasAttribute(a, MESSAGE_KEY)) {
-		bodyNecessary = true;
-	    } else if (isFmtTag(ns, ln, BUNDLE)
-		    && hasAttribute(a, BUNDLE_PREFIX)) {
-		bodyNecessary = true;
-	    }
+            // set up a check against illegal attribute/body combinations
+            bodyIllegal = false;
+            bodyNecessary = false;
+            if (isFmtTag(ns, ln, MESSAGE_PARAM) || isFmtTag(ns, ln, FORMAT_NUMBER) || isFmtTag(ns, ln, PARSE_NUMBER)
+                    || isFmtTag(ns, ln, PARSE_DATE)) {
+                if (hasAttribute(a, VALUE))
+                    bodyIllegal = true;
+                else
+                    bodyNecessary = true;
+            } else if (isFmtTag(ns, ln, MESSAGE) && !hasAttribute(a, MESSAGE_KEY)) {
+                bodyNecessary = true;
+            } else if (isFmtTag(ns, ln, BUNDLE) && hasAttribute(a, BUNDLE_PREFIX)) {
+                bodyNecessary = true;
+            }
 
-	    // record the most recent tag (for error reporting)
-	    lastElementName = qn;
+            // record the most recent tag (for error reporting)
+            lastElementName = qn;
             lastElementId = a.getValue(JSP, "id");
 
-	    // we're a new element, so increase depth
-	    depth++;
-	}
+            // we're a new element, so increase depth
+            depth++;
+        }
 
-	public void characters(char[] ch, int start, int length) {
+        public void characters(char[] ch, int start, int length) {
 
-	    bodyNecessary = false;		// body is no longer necessary!
+            bodyNecessary = false; // body is no longer necessary!
 
-	    // ignore strings that are just whitespace
-	    String s = new String(ch, start, length).trim();
-	    if (s.equals(""))
-		return;
+            // ignore strings that are just whitespace
+            String s = new String(ch, start, length).trim();
+            if (s.equals(""))
+                return;
 
-	    // check and update body-related constraints
-	    if (bodyIllegal)
-		fail(Resources.getMessage("TLV_ILLEGAL_BODY",
-					  lastElementName));
-	}
+            // check and update body-related constraints
+            if (bodyIllegal)
+                fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+        }
 
-	public void endElement(String ns, String ln, String qn) {
+        public void endElement(String ns, String ln, String qn) {
 
-	    // consistently, we ignore JSP_TEXT
-	    if (qn.equals(JSP_TEXT))
-		return;
+            // consistently, we ignore JSP_TEXT
+            if (qn.equals(JSP_TEXT))
+                return;
 
-	    // handle body-related invariant
-	    if (bodyNecessary)
-		fail(Resources.getMessage("TLV_MISSING_BODY",
-		    lastElementName));
-	    bodyIllegal = false;	// reset: we've left the tag
+            // handle body-related invariant
+            if (bodyNecessary)
+                fail(Resources.getMessage("TLV_MISSING_BODY", lastElementName));
+            bodyIllegal = false; // reset: we've left the tag
 
-	    // update <message>-related state
-	    if (isFmtTag(ns, ln, MESSAGE)) {
-		messageDepths.pop();
-	    }
+            // update <message>-related state
+            if (isFmtTag(ns, ln, MESSAGE)) {
+                messageDepths.pop();
+            }
 
-	    // update our depth
-	    depth--;
-	}
+            // update our depth
+            depth--;
+        }
     }
 }

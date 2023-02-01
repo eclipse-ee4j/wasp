@@ -17,12 +17,13 @@
 
 package org.apache.taglibs.standard.extra.spath;
 
-
 /**
- * <p>Represents a simple predicate expression.</p>
+ * <p>
+ * Represents a simple predicate expression.
+ * </p>
  *
  * @author Shawn Bayern
  */
 public abstract class Predicate {
 
-} 
+}

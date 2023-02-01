@@ -29,8 +29,9 @@ import jakarta.servlet.jsp.tagext.Tag;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * <p>Support for tag handlers for &lt;param&gt;, the URL parameter
- * subtag for &lt;import&gt; in JSTL 1.0.</p>
+ * <p>
+ * Support for tag handlers for &lt;param&gt;, the URL parameter subtag for &lt;import&gt; in JSTL 1.0.
+ * </p>
  *
  * @see ParamParent
  * @see ImportSupport
@@ -40,144 +41,138 @@ import org.apache.taglibs.standard.resources.Resources;
 
 public abstract class ParamSupport extends BodyTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
-    protected String name;                       // 'name' attribute
-    protected String value;                      // 'value' attribute
+    protected String name; // 'name' attribute
+    protected String value; // 'value' attribute
 
     /**
-     * There used to be an 'encode' attribute; I've left this as a
-     * vestige in case custom subclasses want to use our functionality
-     * but NOT encode parameters.
+     * There used to be an 'encode' attribute; I've left this as a vestige in case custom subclasses want to use our
+     * functionality but NOT encode parameters.
      */
     protected boolean encode = true;
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public ParamSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	name = value = null;
+        name = value = null;
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // simply send our name and value to our appropriate ancestor
     public int doEndTag() throws JspException {
-	Tag t = findAncestorWithClass(this, ParamParent.class);
-	if (t == null)
-	    throw new JspTagException(
-		Resources.getMessage("PARAM_OUTSIDE_PARENT"));
+        Tag t = findAncestorWithClass(this, ParamParent.class);
+        if (t == null)
+            throw new JspTagException(Resources.getMessage("PARAM_OUTSIDE_PARENT"));
 
-	// take no action for null or empty names
-	if (name == null || name.equals(""))
-	    return EVAL_PAGE;
+        // take no action for null or empty names
+        if (name == null || name.equals(""))
+            return EVAL_PAGE;
 
-	// send the parameter to the appropriate ancestor
-	ParamParent parent = (ParamParent) t;
-	String value = this.value;
-	if (value == null) {
-	    if (bodyContent == null || bodyContent.getString() == null)
-		value = "";
-	    else
-		value = bodyContent.getString().trim();
-	}
+        // send the parameter to the appropriate ancestor
+        ParamParent parent = (ParamParent) t;
+        String value = this.value;
+        if (value == null) {
+            if (bodyContent == null || bodyContent.getString() == null)
+                value = "";
+            else
+                value = bodyContent.getString().trim();
+        }
         if (encode) {
             // FIXME: revert to java.net.URLEncoder.encode(s, enc) once
             // we have a dependency on J2SE 1.4+.
             String enc = pageContext.getResponse().getCharacterEncoding();
-            parent.addParameter(
-            Util.URLEncode(name, enc), Util.URLEncode(value, enc));
+            parent.addParameter(Util.URLEncode(name, enc), Util.URLEncode(value, enc));
         } else {
             parent.addParameter(name, value);
         }
-	return EVAL_PAGE;
+        return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Support for parameter management
 
-    /** 
-     * Provides support for aggregating query parameters in URLs.
-     * Specifically, accepts a series of parameters, ensuring that
-     *  - newer parameters will precede older ones in the output URL
-     *  - all supplied parameters precede those in the input URL
+    /**
+     * Provides support for aggregating query parameters in URLs. Specifically, accepts a series of parameters, ensuring
+     * that - newer parameters will precede older ones in the output URL - all supplied parameters precede those in the
+     * input URL
      */
     public static class ParamManager {
 
-        //*********************************
+        // *********************************
         // Private state
 
-	private List<String> names = new LinkedList<>();
+        private List<String> names = new LinkedList<>();
         private List<String> values = new LinkedList<>();
-	private boolean done = false;
-        
-	//*********************************
+        private boolean done = false;
+
+        // *********************************
         // Public interface
 
-	/** Adds a new parameter to the list. */
+        /** Adds a new parameter to the list. */
         public void addParameter(String name, String value) {
-	    if (done)
-		throw new IllegalStateException();
-	    if (name != null) {
-	        names.add(name);
-	        if (value != null) {
-		    values.add(value);
+            if (done)
+                throw new IllegalStateException();
+            if (name != null) {
+                names.add(name);
+                if (value != null) {
+                    values.add(value);
                 } else {
-		    values.add("");
+                    values.add("");
                 }
-	    }
-	}
+            }
+        }
 
-	/**
-         * Produces a new URL with the stored parameters, in the appropriate
-         * order.
+        /**
+         * Produces a new URL with the stored parameters, in the appropriate order.
          */
-	public String aggregateParams(String url) {
-	    /* 
-             * Since for efficiency we're destructive to the param lists,
-             * we don't want to run multiple times.
+        public String aggregateParams(String url) {
+            /*
+             * Since for efficiency we're destructive to the param lists, we don't want to run multiple times.
              */
-	    if (done)
-		throw new IllegalStateException();
-	    done = true;
+            if (done)
+                throw new IllegalStateException();
+            done = true;
 
-	    //// reverse the order of our two lists
-	    // Collections.reverse(this.names);
-	    // Collections.reverse(this.values);
+            //// reverse the order of our two lists
+            // Collections.reverse(this.names);
+            // Collections.reverse(this.values);
 
-	    // build a string from the parameter list 
-	    StringBuffer newParams = new StringBuffer();
-	    for (int i = 0; i < names.size(); i++) {
-		newParams.append(names.get(i)).append("=").append(values.get(i));
-		if (i < (names.size() - 1))
-		    newParams.append("&");
-	    }
+            // build a string from the parameter list
+            StringBuffer newParams = new StringBuffer();
+            for (int i = 0; i < names.size(); i++) {
+                newParams.append(names.get(i)).append("=").append(values.get(i));
+                if (i < (names.size() - 1))
+                    newParams.append("&");
+            }
 
-	    // insert these parameters into the URL as appropriate
-	    if (newParams.length() > 0) {
-	        int questionMark = url.indexOf('?');
-	        if (questionMark == -1) {
-		    return (url + "?" + newParams);
-	        } else {
-		    StringBuilder workingUrl = new StringBuilder(url);
-		    workingUrl.insert(questionMark + 1, (newParams + "&"));
-		    return workingUrl.toString();
-	        }
-	    } else {
-		return url;
-	    }
-	}
+            // insert these parameters into the URL as appropriate
+            if (newParams.length() > 0) {
+                int questionMark = url.indexOf('?');
+                if (questionMark == -1) {
+                    return (url + "?" + newParams);
+                } else {
+                    StringBuilder workingUrl = new StringBuilder(url);
+                    workingUrl.insert(questionMark + 1, (newParams + "&"));
+                    return workingUrl.toString();
+                }
+            } else {
+                return url;
+            }
+        }
     }
 }

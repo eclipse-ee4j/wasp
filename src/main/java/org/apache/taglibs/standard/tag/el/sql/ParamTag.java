@@ -28,19 +28,17 @@ import org.apache.taglibs.standard.tag.common.sql.ParamTagSupport;
  * @author Hans Bergsten
  */
 public class ParamTag extends ParamTagSupport {
-    
+
     private String valueEL;
 
     public void setValue(String valueEL) {
-	this.valueEL = valueEL;
+        this.valueEL = valueEL;
     }
 
     public int doStartTag() throws JspException {
-	if (valueEL != null) {
-	    value = (Object) 
-		ExpressionEvaluatorManager.evaluate("value", valueEL, 
-		    Object.class, this, pageContext);
-	}
-	return super.doStartTag();
+        if (valueEL != null) {
+            value = (Object) ExpressionEvaluatorManager.evaluate("value", valueEL, Object.class, this, pageContext);
+        }
+        return super.doStartTag();
     }
 }

@@ -23,15 +23,16 @@ import javax.xml.transform.Result;
 import org.apache.taglibs.standard.tag.common.xml.TransformSupport;
 
 /**
- * <p>A handler for &lt;transform&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;transform&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class TransformTag extends TransformSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // Deprecated as of JSTL 1.1

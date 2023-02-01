@@ -21,8 +21,9 @@ import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>An implementation of TagExtraInfo that implements validation for
- * &lt;c:import&gt;'s attributes</p>
+ * <p>
+ * An implementation of TagExtraInfo that implements validation for &lt;c:import&gt;'s attributes
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -32,9 +33,9 @@ public class ImportTEI extends TagExtraInfo {
     final private static String VAR_READER = "varReader";
 
     public boolean isValid(TagData us) {
-	// don't allow both VAR and VAR_READER, together
-	if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_READER))
-	    return false;
+        // don't allow both VAR and VAR_READER, together
+        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_READER))
+            return false;
 
         return true;
     }

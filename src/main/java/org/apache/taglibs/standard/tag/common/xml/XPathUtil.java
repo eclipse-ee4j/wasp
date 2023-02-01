@@ -60,13 +60,11 @@ public class XPathUtil {
     private final PageContext pageContext;
 
     /**
-     * Constructs a new XPathUtil object associated with the given
-     * PageContext.
+     * Constructs a new XPathUtil object associated with the given PageContext.
      */
     public XPathUtil(PageContext pc) {
         pageContext = pc;
     }
-
 
     /**
      * Evaluate an XPath expression to a String value.
@@ -82,7 +80,6 @@ public class XPathUtil {
         }
     }
 
-
     /**
      * Evaluate an XPath expression to a boolean value.
      */
@@ -96,7 +93,6 @@ public class XPathUtil {
             throw new JspTagException(Resources.getMessage("XPATH_ERROR_XOBJECT", ex.toString()), ex);
         }
     }
-
 
     /**
      * Evaluate an XPath expression to a List of nodes.
@@ -113,7 +109,6 @@ public class XPathUtil {
         }
     }
 
-
     /**
      * Evaluate an XPath expression to a single node.
      */
@@ -129,7 +124,6 @@ public class XPathUtil {
         }
     }
 
-
     public static Node getContext(Tag t) throws JspTagException {
         ForEachTag xt = (ForEachTag) TagSupport.findAncestorWithClass(t, ForEachTag.class);
         if (xt == null) {
@@ -137,7 +131,6 @@ public class XPathUtil {
         }
         return xt.getContext();
     }
-
 
     /**
      * Initialize globally useful data.
@@ -159,8 +152,8 @@ public class XPathUtil {
     /**
      * Create a new empty document.
      *
-     * This method always allocates a new document as its root node might be
-     * exposed to other tags and potentially be mutated.
+     * This method always allocates a new document as its root node might be exposed to other tags and potentially be
+     * mutated.
      *
      * @return a new empty document
      */
@@ -168,7 +161,3 @@ public class XPathUtil {
         return DocumentBuilderProvider.createDocumentBuilder().newDocument();
     }
 }
-
-
-
-

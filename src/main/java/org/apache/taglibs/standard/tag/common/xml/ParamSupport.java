@@ -25,8 +25,9 @@ import jakarta.servlet.jsp.tagext.Tag;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * <p>Support for tag handlers for &lt;param&gt;, the XML parameter
- * subtag for &lt;transformt&lt;.</p>
+ * <p>
+ * Support for tag handlers for &lt;param&gt;, the XML parameter subtag for &lt;transformt&lt;.
+ * </p>
  *
  * @see TransformSupport
  * @author Shawn Bayern
@@ -34,50 +35,48 @@ import org.apache.taglibs.standard.resources.Resources;
 
 public abstract class ParamSupport extends BodyTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
-    protected String name;                       // 'name' attribute
-    protected Object value;                      // 'value' attribute
+    protected String name; // 'name' attribute
+    protected Object value; // 'value' attribute
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public ParamSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	name = null;
-	value = null;
+        name = null;
+        value = null;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // simply send our name and value to our parent <transform> tag
     public int doEndTag() throws JspException {
-	Tag t = findAncestorWithClass(this, TransformSupport.class);
-	if (t == null)
-	    throw new JspTagException(
-		Resources.getMessage("PARAM_OUTSIDE_TRANSFORM"));
-	TransformSupport parent = (TransformSupport) t;
+        Tag t = findAncestorWithClass(this, TransformSupport.class);
+        if (t == null)
+            throw new JspTagException(Resources.getMessage("PARAM_OUTSIDE_TRANSFORM"));
+        TransformSupport parent = (TransformSupport) t;
 
-	Object value = this.value;
-	if (value == null) {
+        Object value = this.value;
+        if (value == null) {
             if (bodyContent == null || bodyContent.getString() == null)
                 value = "";
             else
                 value = bodyContent.getString().trim();
         }
-	parent.addParameter(name, value);
-	return EVAL_PAGE;
+        parent.addParameter(name, value);
+        return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 }

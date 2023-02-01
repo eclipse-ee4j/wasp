@@ -22,15 +22,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.core.UrlSupport;
 
 /**
- * <p>A handler for &lt;urlEncode&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;urlEncode&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class UrlTag extends UrlSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute

@@ -22,15 +22,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.fmt.BundleSupport;
 
 /**
- * <p>A handler for &lt;bundle&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;bundle&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class BundleTag extends BundleSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute

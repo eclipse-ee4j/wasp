@@ -23,9 +23,8 @@ import javax.xml.xpath.XPath;
 import org.apache.xpath.jaxp.XPathFactoryImpl;
 
 /**
- * This factory class is added to provide access to our own implementation
- * of XPath, so that we can support a generic Object type in return type
- * arguement for XPath's evaluate instance method.
+ * This factory class is added to provide access to our own implementation of XPath, so that we can support a generic
+ * Object type in return type arguement for XPath's evaluate instance method.
  *
  * @author dhirup
  */

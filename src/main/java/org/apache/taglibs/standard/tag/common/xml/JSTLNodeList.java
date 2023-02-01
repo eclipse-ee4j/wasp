@@ -21,7 +21,7 @@ import java.util.Vector;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-class JSTLNodeList extends Vector<Object> implements NodeList   {
+class JSTLNodeList extends Vector<Object> implements NodeList {
 
     private static final long serialVersionUID = -1217630367839271134L;
 
@@ -30,7 +30,6 @@ class JSTLNodeList extends Vector<Object> implements NodeList   {
     JSTLNodeList(Vector<Object> nodeVector) {
         this.nodeVector = nodeVector;
     }
-
 
     JSTLNodeList(NodeList nl) {
         nodeVector = new Vector<>();
@@ -42,12 +41,10 @@ class JSTLNodeList extends Vector<Object> implements NodeList   {
         }
     }
 
-
     JSTLNodeList(Node n) {
         nodeVector = new Vector<>();
         nodeVector.addElement(n);
     }
-
 
     JSTLNodeList(Object o) {
         nodeVector = new Vector<>();
@@ -64,30 +61,25 @@ class JSTLNodeList extends Vector<Object> implements NodeList   {
         }
     }
 
-
     @Override
     public Node item(int index) {
         return (Node) nodeVector.elementAt(index);
     }
-
 
     @Override
     public Object elementAt(int index) {
         return nodeVector.elementAt(index);
     }
 
-
     @Override
     public Object get(int index) {
         return nodeVector.get(index);
     }
 
-
     @Override
     public int getLength() {
         return nodeVector.size();
     }
-
 
     @Override
     public int size() {

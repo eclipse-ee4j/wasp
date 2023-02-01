@@ -21,8 +21,9 @@ package org.apache.taglibs.standard.extra.spath;
 import java.util.List;
 
 /**
- * <p>Represents an absolute SPath expression.  Essentially a marker
- * class.</p>
+ * <p>
+ * Represents an absolute SPath expression. Essentially a marker class.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -32,21 +33,19 @@ public class AbsolutePath extends Path {
     private RelativePath base;
 
     /**
-     * Constructs a new AbsolutePath object based on a RelativePath.
-     * An absolute path is the same as a relative path, except that it
-     * begins with '/' or '//' (which one, of those two, can be
-     * determined by the first Step returned from getSteps()).
+     * Constructs a new AbsolutePath object based on a RelativePath. An absolute path is the same as a relative path, except
+     * that it begins with '/' or '//' (which one, of those two, can be determined by the first Step returned from
+     * getSteps()).
      */
     public AbsolutePath(RelativePath base) {
-	if (base == null)
-	    throw new IllegalArgumentException("non-null base required");
-	this.base = base;
+        if (base == null)
+            throw new IllegalArgumentException("non-null base required");
+        this.base = base;
     }
 
-    // inherit JavaDoc comment
     @Override
     public List<Step> getSteps() {
-	// simply return our base's Step objects
-	return base.getSteps();
+        // simply return our base's Step objects
+        return base.getSteps();
     }
 }

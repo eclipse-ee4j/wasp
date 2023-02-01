@@ -22,26 +22,27 @@ import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.tagext.TagSupport;
 
 /**
- * <p>Tag handler for &lt;expr&gt; in JSTL's XML library.</p>
+ * <p>
+ * Tag handler for &lt;expr&gt; in JSTL's XML library.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public abstract class ExprSupport extends TagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Internal state
 
-    private String select;                       // tag attribute
-    protected boolean escapeXml;		 // tag attribute
+    private String select; // tag attribute
+    protected boolean escapeXml; // tag attribute
 
-    //*********************************************************************
+    // *********************************************************************
     // Construction and initialization
 
     /**
-     * Constructs a new handler.  As with TagSupport, subclasses should
-     * not provide other constructors and are expected to call the
-     * superclass constructor.
+     * Constructs a new handler. As with TagSupport, subclasses should not provide other constructors and are expected to
+     * call the superclass constructor.
      */
     public ExprSupport() {
         super();
@@ -50,24 +51,22 @@ public abstract class ExprSupport extends TagSupport {
 
     // resets local state
     private void init() {
-	select = null;
+        select = null;
         escapeXml = true;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // applies XPath expression from 'select' and prints the result
     public int doStartTag() throws JspException {
         try {
-	    XPathUtil xu = new XPathUtil(pageContext);
-	    String result = xu.valueOf(XPathUtil.getContext(this), select);
-	    org.apache.taglibs.standard.tag.common.core.OutSupport.out(
-              pageContext, escapeXml, result);
-	    return SKIP_BODY;
+            XPathUtil xu = new XPathUtil(pageContext);
+            String result = xu.valueOf(XPathUtil.getContext(this), select);
+            org.apache.taglibs.standard.tag.common.core.OutSupport.out(pageContext, escapeXml, result);
+            return SKIP_BODY;
         } catch (java.io.IOException ex) {
-	    throw new JspTagException(ex.toString(), ex);
+            throw new JspTagException(ex.toString(), ex);
         }
     }
 
@@ -77,11 +76,10 @@ public abstract class ExprSupport extends TagSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Attribute accessors
 
     public void setSelect(String select) {
-	this.select = select;
+        this.select = select;
     }
 }

@@ -20,17 +20,18 @@ package org.apache.taglibs.standard.tag.rt.core;
 import jakarta.servlet.jsp.jstl.core.ConditionalTagSupport;
 
 /**
- * <p>Tag handler for &lt;if&gt; in JSTL's rtexprvalue library.  Because
- * of the support provided by the ConditionalTagSupport class, this
- * tag is trivial enough not to require a separate base supporting class
- * common to both libraries.</p>
+ * <p>
+ * Tag handler for &lt;if&gt; in JSTL's rtexprvalue library. Because of the support provided by the
+ * ConditionalTagSupport class, this tag is trivial enough not to require a separate base supporting class common to
+ * both libraries.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class IfTag extends ConditionalTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and lifecycle management
 
     // initialize inherited and local state
@@ -45,22 +46,19 @@ public class IfTag extends ConditionalTagSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Supplied conditional logic
 
     protected boolean condition() {
         return test;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private boolean test;               // the value of the 'test' attribute
+    private boolean test; // the value of the 'test' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessors
 
     // receives the tag's 'test' attribute
@@ -68,8 +66,7 @@ public class IfTag extends ConditionalTagSupport {
         this.test = test;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     // resets internal state

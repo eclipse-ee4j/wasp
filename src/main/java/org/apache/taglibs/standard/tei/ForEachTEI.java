@@ -21,8 +21,9 @@ import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>An implementation of TagExtraInfo that implements validation for
- * ForEachTag's attributes</p>
+ * <p>
+ * An implementation of TagExtraInfo that implements validation for ForEachTag's attributes
+ * </p>
  *
  * @author Shawn Bayern
  */

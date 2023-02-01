@@ -23,58 +23,61 @@ import java.util.Map;
 
 /**
  *
- * <p>Represents a dynamic value, which consists of a prefix and an
- * optional set of ValueSuffix elements.  A prefix is something like
- * an identifier, and a suffix is something like a "property of" or
- * "indexed element of" operator.
+ * <p>
+ * Represents a dynamic value, which consists of a prefix and an optional set of ValueSuffix elements. A prefix is
+ * something like an identifier, and a suffix is something like a "property of" or "indexed element of" operator.
  * 
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
 
-public class ComplexValue
-  extends Expression
-{
-  //-------------------------------------
-  // Properties
-  //-------------------------------------
-  // property prefix
+public class ComplexValue extends Expression {
+    // -------------------------------------
+    // Properties
+    // -------------------------------------
+    // property prefix
 
-  Expression mPrefix;
-  public Expression getPrefix ()
-  { return mPrefix; }
-  public void setPrefix (Expression pPrefix)
-  { mPrefix = pPrefix; }
+    Expression mPrefix;
 
-  //-------------------------------------
-  // property suffixes
+    public Expression getPrefix() {
+        return mPrefix;
+    }
 
-  List mSuffixes;
-  public List getSuffixes ()
-  { return mSuffixes; }
-  public void setSuffixes (List pSuffixes)
-  { mSuffixes = pSuffixes; }
+    public void setPrefix(Expression pPrefix) {
+        mPrefix = pPrefix;
+    }
 
-  //-------------------------------------
-  /**
-   *
-   * Constructor
-   **/
-  public ComplexValue (Expression pPrefix,
-		       List pSuffixes)
-  {
-    mPrefix = pPrefix;
-    mSuffixes = pSuffixes;
-  }
+    // -------------------------------------
+    // property suffixes
 
-  //-------------------------------------
-  // Expression methods
-  //-------------------------------------
-  /**
-   *
-   * Returns the expression in the expression language syntax
-   **/
+    List mSuffixes;
+
+    public List getSuffixes() {
+        return mSuffixes;
+    }
+
+    public void setSuffixes(List pSuffixes) {
+        mSuffixes = pSuffixes;
+    }
+
+    // -------------------------------------
+    /**
+     *
+     * Constructor
+     **/
+    public ComplexValue(Expression pPrefix, List pSuffixes) {
+        mPrefix = pPrefix;
+        mSuffixes = pSuffixes;
+    }
+
+    // -------------------------------------
+    // Expression methods
+    // -------------------------------------
+    /**
+     *
+     * Returns the expression in the expression language syntax
+     **/
     @Override
     public String getExpressionString() {
         StringBuilder buf = new StringBuilder();
@@ -88,30 +91,23 @@ public class ComplexValue
         return buf.toString();
     }
 
-  //-------------------------------------
-  /**
-   *
-   * Evaluates by evaluating the prefix, then applying the suffixes
-   **/
-  public Object evaluate (Object pContext,
-			  VariableResolver pResolver,
-			  Map functions,
-			  String defaultPrefix,
-			  Logger pLogger)
-    throws ELException
-  {
-    Object ret = mPrefix.evaluate (pContext, pResolver, functions,
-				   defaultPrefix, pLogger);
+    // -------------------------------------
+    /**
+     *
+     * Evaluates by evaluating the prefix, then applying the suffixes
+     **/
+    public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+            throws ELException {
+        Object ret = mPrefix.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
 
-    // Apply the suffixes
-    for (int i = 0; mSuffixes != null && i < mSuffixes.size (); i++) {
-      ValueSuffix suffix = (ValueSuffix) mSuffixes.get (i);
-      ret = suffix.evaluate (ret, pContext, pResolver, functions,
-			     defaultPrefix, pLogger);
+        // Apply the suffixes
+        for (int i = 0; mSuffixes != null && i < mSuffixes.size(); i++) {
+            ValueSuffix suffix = (ValueSuffix) mSuffixes.get(i);
+            ret = suffix.evaluate(ret, pContext, pResolver, functions, defaultPrefix, pLogger);
+        }
+
+        return ret;
     }
 
-    return ret;
-  }
-
-  //-------------------------------------
+    // -------------------------------------
 }

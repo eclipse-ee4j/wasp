@@ -48,8 +48,8 @@ public class DocumentBuilderProvider {
     /**
      * Creates a namespace-aware {@link DocumentBuilder} with disabled validation.
      * <p>
-     * Note that {@link DocumentBuilder} instances are not thread-safe and their implementation can
-     * be chosen as described in {@link DocumentBuilderFactory} documentation.
+     * Note that {@link DocumentBuilder} instances are not thread-safe and their implementation can be chosen as described
+     * in {@link DocumentBuilderFactory} documentation.
      *
      * @return new {@link DocumentBuilder} instance.
      */
@@ -61,13 +61,12 @@ public class DocumentBuilderProvider {
         }
     }
 
-
     /**
      * Creates a namespace-aware {@link DocumentBuilder} with disabled validation and enabled
      * {@link XMLConstants#FEATURE_SECURE_PROCESSING}.
      * <p>
-     * Note that {@link DocumentBuilder} instances are not thread-safe and their implementation can
-     * be chosen as described in {@link DocumentBuilderFactory} documentation.
+     * Note that {@link DocumentBuilder} instances are not thread-safe and their implementation can be chosen as described
+     * in {@link DocumentBuilderFactory} documentation.
      *
      * @return new {@link DocumentBuilder} instance.
      */

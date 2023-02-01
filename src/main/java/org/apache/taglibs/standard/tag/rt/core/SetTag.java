@@ -20,20 +20,22 @@ package org.apache.taglibs.standard.tag.rt.core;
 import org.apache.taglibs.standard.tag.common.core.SetSupport;
 
 /**
- * <p>Tag handler for &lt;set&gt; in JSTL's rtexprvalue library.</p>
+ * <p>
+ * Tag handler for &lt;set&gt; in JSTL's rtexprvalue library.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class SetTag extends SetSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessors
 
     // for tag attribute
     public void setValue(Object value) {
         this.value = value;
-	this.valueSpecified = true;
+        this.valueSpecified = true;
     }
 
     // for tag attribute

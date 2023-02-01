@@ -23,21 +23,22 @@ import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 import org.apache.taglibs.standard.tag.common.fmt.MessageSupport;
 
 /**
- * <p>A handler for &lt;message&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;message&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class MessageTag extends MessageSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute
     public void setKey(String key) throws JspTagException {
         this.keyAttrValue = key;
-	this.keySpecified = true;
+        this.keySpecified = true;
     }
 
     // for tag attribute

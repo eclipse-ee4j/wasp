@@ -22,15 +22,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.fmt.SetBundleSupport;
 
 /**
- * <p>A handler for &lt;setBundle&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;setBundle&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class SetBundleTag extends SetBundleSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute

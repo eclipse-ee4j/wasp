@@ -22,15 +22,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.fmt.SetTimeZoneSupport;
 
 /**
- * <p>A handler for &lt;setTimeZone&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;setTimeZone&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class SetTimeZoneTag extends SetTimeZoneSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute

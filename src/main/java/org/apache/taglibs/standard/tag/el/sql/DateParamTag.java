@@ -30,36 +30,34 @@ import org.apache.taglibs.standard.tag.common.sql.DateParamTagSupport;
  * @author Justyna Horwat
  */
 public class DateParamTag extends DateParamTagSupport {
-    
+
     private String valueEL;
     private String typeEL;
 
     public void setValue(String valueEL) {
-	this.valueEL = valueEL;
+        this.valueEL = valueEL;
     }
 
     public void setType(String typeEL) {
-	this.typeEL = typeEL;
+        this.typeEL = typeEL;
     }
 
     public int doStartTag() throws JspException {
         evaluateExpressions();
-	return super.doStartTag();
+        return super.doStartTag();
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     // Evaluates expressions as necessary
     private void evaluateExpressions() throws JspException {
-	if (valueEL != null) {
-	    value = (Date) ExpressionEvaluatorManager.evaluate(
-                "value", valueEL, Date.class, this, pageContext);
-	}
+        if (valueEL != null) {
+            value = (Date) ExpressionEvaluatorManager.evaluate("value", valueEL, Date.class, this, pageContext);
+        }
 
-	if (typeEL != null) {
-	    type = (String) ExpressionEvaluatorManager.evaluate(
-                "type", typeEL, String.class, this, pageContext);
+        if (typeEL != null) {
+            type = (String) ExpressionEvaluatorManager.evaluate("type", typeEL, String.class, this, pageContext);
         }
     }
 

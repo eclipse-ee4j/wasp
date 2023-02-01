@@ -23,15 +23,16 @@ import org.apache.taglibs.standard.tag.common.xml.ParseSupport;
 import org.xml.sax.XMLFilter;
 
 /**
- * <p>A handler for &lt;parse&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;parse&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class ParseTag extends ParseSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // Deprecated as of JSTL 1.1
@@ -46,12 +47,12 @@ public class ParseTag extends ParseSupport {
     }
 
     public void setSystemId(String systemId) throws JspTagException {
-	this.systemId = systemId;
+        this.systemId = systemId;
     }
 
     // for tag attribute
     public void setFilter(XMLFilter filter) throws JspTagException {
-	this.filter = filter;
+        this.filter = filter;
     }
 
 }

@@ -25,29 +25,29 @@ import jakarta.servlet.jsp.tagext.Tag;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * <p>WhenTagSupport is an abstract class that facilitates
- * implementation of &lt;when&gt;-style tags in both the rtexprvalue
- * and expression-evaluating libraries.  It also supports
- * &lt;otherwise&gt;.</p>
+ * <p>
+ * WhenTagSupport is an abstract class that facilitates implementation of &lt;when&gt;-style tags in both the
+ * rtexprvalue and expression-evaluating libraries. It also supports &lt;otherwise&gt;.
+ * </p>
  *
- * <p>In particular, this base class does the following:</p>
+ * <p>
+ * In particular, this base class does the following:
+ * </p>
  * 
  * <ul>
- *  <li> overrides ConditionalTagSupport.doStartTag() to implement the
- *       appropriate semantics of subtags of &lt;choose&gt; </li>
+ * <li>overrides ConditionalTagSupport.doStartTag() to implement the appropriate semantics of subtags of &lt;choose&gt;
+ * </li>
  * </ul>
  *
  * @author Shawn Bayern
  */
-public abstract class WhenTagSupport extends ConditionalTagSupport
-{
-    //*********************************************************************
+public abstract class WhenTagSupport extends ConditionalTagSupport {
+    // *********************************************************************
     // Implementation of exclusive-conditional behavior
 
     /*
-     * Includes its body if condition() evalutes to true AND its parent
-     * ChooseTag wants it to do so.  The condition will not even be
-     * evaluated if ChooseTag instructs us not to run.
+     * Includes its body if condition() evalutes to true AND its parent ChooseTag wants it to do so. The condition will not
+     * even be evaluated if ChooseTag instructs us not to run.
      */
     public int doStartTag() throws JspException {
 
@@ -55,12 +55,11 @@ public abstract class WhenTagSupport extends ConditionalTagSupport
 
         // make sure we're contained properly
         if (!((parent = getParent()) instanceof ChooseTag))
-            throw new JspTagException(
-		Resources.getMessage("WHEN_OUTSIDE_CHOOSE"));
+            throw new JspTagException(Resources.getMessage("WHEN_OUTSIDE_CHOOSE"));
 
         // make sure our parent wants us to continue
         if (!((ChooseTag) parent).gainPermission())
-            return SKIP_BODY;                   // we've been reeled in
+            return SKIP_BODY; // we've been reeled in
 
         // handle conditional behavior
         if (condition()) {

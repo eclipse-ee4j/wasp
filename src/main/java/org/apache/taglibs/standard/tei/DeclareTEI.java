@@ -22,11 +22,11 @@ import jakarta.servlet.jsp.tagext.TagExtraInfo;
 import jakarta.servlet.jsp.tagext.VariableInfo;
 
 /**
- * <p>An implementation of TagExtraInfo provided for &lt;declare&gt;.
- * We simply set up a scripting variable for the ID and value that
- * &lt;declare&gt; already stored.  For EA2, DefineTEI *always* declares
- * the variable; no option is given via a tag attribute.  Visibility is
- * always AT_END.</p>
+ * <p>
+ * An implementation of TagExtraInfo provided for &lt;declare&gt;. We simply set up a scripting variable for the ID and
+ * value that &lt;declare&gt; already stored. For EA2, DefineTEI *always* declares the variable; no option is given via
+ * a tag attribute. Visibility is always AT_END.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -35,12 +35,8 @@ public class DeclareTEI extends TagExtraInfo {
     // purposely inherit JavaDoc and semantics from TagExtraInfo
     public VariableInfo[] getVariableInfo(TagData data) {
         // construct the relevant VariableInfo object
-        VariableInfo id = new VariableInfo(
-            data.getAttributeString("id"),
-            data.getAttributeString("type") == null ?
-		"java.lang.Object" : data.getAttributeString("type"),
-            true,
-            VariableInfo.AT_END);
+        VariableInfo id = new VariableInfo(data.getAttributeString("id"),
+                data.getAttributeString("type") == null ? "java.lang.Object" : data.getAttributeString("type"), true, VariableInfo.AT_END);
         return new VariableInfo[] { id };
     }
 }

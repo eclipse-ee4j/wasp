@@ -20,20 +20,21 @@ package org.apache.taglibs.standard.tag.rt.xml;
 import org.apache.taglibs.standard.tag.common.xml.ExprSupport;
 
 /**
- * <p>A handler for &lt;out&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;out&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class ExprTag extends ExprSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute
     public void setEscapeXml(boolean escapeXml) {
-      this.escapeXml = escapeXml;
+        this.escapeXml = escapeXml;
     }
 
 }

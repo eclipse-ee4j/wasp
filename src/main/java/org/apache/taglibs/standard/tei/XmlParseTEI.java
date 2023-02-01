@@ -21,8 +21,9 @@ import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>An implementation of TagExtraInfo that implements validation for
- * {@literal <}x:parse{@literal >}'s attributes</p>
+ * <p>
+ * An implementation of TagExtraInfo that implements validation for {@literal <}x:parse{@literal >}'s attributes
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -34,19 +35,19 @@ public class XmlParseTEI extends TagExtraInfo {
     final private static String SCOPE_DOM = "scopeDom";
 
     public boolean isValid(TagData us) {
-	// must have no more than one of VAR and VAR_DOM ...
-	if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_DOM))
-	    return false;
+        // must have no more than one of VAR and VAR_DOM ...
+        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_DOM))
+            return false;
 
-	// ... and must have no less than one of VAR and VAR_DOM
-	if (!(Util.isSpecified(us, VAR) || Util.isSpecified(us, VAR_DOM)))
-	    return false;
+        // ... and must have no less than one of VAR and VAR_DOM
+        if (!(Util.isSpecified(us, VAR) || Util.isSpecified(us, VAR_DOM)))
+            return false;
 
-	// When either 'scope' is specified, its 'var' must be specified
-	if (Util.isSpecified(us, SCOPE) && !Util.isSpecified(us, VAR))
-	    return false;
-	if (Util.isSpecified(us, SCOPE_DOM) && !Util.isSpecified(us, VAR_DOM))
-	    return false;
+        // When either 'scope' is specified, its 'var' must be specified
+        if (Util.isSpecified(us, SCOPE) && !Util.isSpecified(us, VAR))
+            return false;
+        if (Util.isSpecified(us, SCOPE_DOM) && !Util.isSpecified(us, VAR_DOM))
+            return false;
 
         return true;
     }

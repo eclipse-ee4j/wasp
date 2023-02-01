@@ -24,11 +24,11 @@ import jakarta.servlet.jsp.jstl.core.LoopTagSupport;
 import org.apache.taglibs.standard.resources.Resources;
 
 /**
- * <p>Support for tag handlers for &lt;forTokens&gt;, the tokenizing
- * iteration tag in JSTL 1.0.  This class extends LoopTagSupport and
- * provides ForTokens-specific functionality.  The rtexprvalue and
- * expression-evaluating libraries each have handlers that extend this
- * class.</p>
+ * <p>
+ * Support for tag handlers for &lt;forTokens&gt;, the tokenizing iteration tag in JSTL 1.0. This class extends
+ * LoopTagSupport and provides ForTokens-specific functionality. The rtexprvalue and expression-evaluating libraries
+ * each have handlers that extend this class.
+ * </p>
  *
  * @see jakarta.servlet.jsp.jstl.core.LoopTagSupport
  * @author Shawn Bayern
@@ -36,32 +36,27 @@ import org.apache.taglibs.standard.resources.Resources;
 
 public abstract class ForTokensSupport extends LoopTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Implementation overview
 
     /*
-     * This handler simply constructs a StringTokenizer based on its input
-     * and relays tokens to the iteration implementation that it inherits.
-     * The 'items' and 'delims' attributes are expected to be provided by
-     * a subtag (presumably in the rtexprvalue or expression-evaluating
-     * versions of the JSTL library).
+     * This handler simply constructs a StringTokenizer based on its input and relays tokens to the iteration implementation
+     * that it inherits. The 'items' and 'delims' attributes are expected to be provided by a subtag (presumably in the
+     * rtexprvalue or expression-evaluating versions of the JSTL library).
      */
 
-
-    //*********************************************************************
+    // *********************************************************************
     // ForEachTokens-specific state (protected)
 
-    protected Object items;                       // 'items' attribute
-    protected String delims;                      // 'delims' attribute
-    protected StringTokenizer st;                 // digested tokenizer
+    protected Object items; // 'items' attribute
+    protected String delims; // 'delims' attribute
+    protected StringTokenizer st; // digested tokenizer
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Iteration control methods
 
     /*
-     * These just create and use a StringTokenizer.
-     * We inherit semantics and Javadoc from LoopTagSupport.
+     * These just create and use a StringTokenizer. We inherit semantics and Javadoc from LoopTagSupport.
      */
 
     protected void prepare() throws JspTagException {
@@ -70,10 +65,9 @@ public abstract class ForTokensSupport extends LoopTagSupport {
             items = deferredExpression.getValue(pageContext.getELContext());
         }
         if (!(items instanceof String)) {
-            throw new JspTagException(
-                Resources.getMessage("FORTOKENS_BAD_ITEMS"));
+            throw new JspTagException(Resources.getMessage("FORTOKENS_BAD_ITEMS"));
         }
-        st = new StringTokenizer((String)items, delims);
+        st = new StringTokenizer((String) items, delims);
     }
 
     protected boolean hasNext() throws JspTagException {
@@ -88,9 +82,8 @@ public abstract class ForTokensSupport extends LoopTagSupport {
         return delims;
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic and lifecycle management
-
 
     // Releases any resources we may have (or inherit)
     public void release() {

@@ -18,8 +18,9 @@
 package org.apache.taglibs.standard.tag.common.core;
 
 /**
- * <p>Interface for tag handlers implementing valid parent tags for
- * &lt;c:param&gt;.</p>
+ * <p>
+ * Interface for tag handlers implementing valid parent tags for &lt;c:param&gt;.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -27,11 +28,9 @@ package org.apache.taglibs.standard.tag.common.core;
 public interface ParamParent {
 
     /**
-     * Adds a parameter to this tag's URL.  The intent is that the
-     * &lt;param&gt; subtag will call this to register URL parameters.
-     * Assumes that 'name' and 'value' are appropriately encoded and do
-     * not contain any meaningful metacharacters; in order words, escaping
-     * is the responsibility of the caller.
+     * Adds a parameter to this tag's URL. The intent is that the &lt;param&gt; subtag will call this to register URL
+     * parameters. Assumes that 'name' and 'value' are appropriately encoded and do not contain any meaningful
+     * metacharacters; in order words, escaping is the responsibility of the caller.
      *
      * @see ParamSupport
      */

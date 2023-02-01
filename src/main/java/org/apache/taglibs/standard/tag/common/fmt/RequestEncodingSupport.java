@@ -25,8 +25,7 @@ import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.TagSupport;
 
 /**
- * Support for tag handlers for &lt;requestEncoding&gt;, the tag for setting
- * the request character encoding in JSTL 1.0.
+ * Support for tag handlers for &lt;requestEncoding&gt;, the tag for setting the request character encoding in JSTL 1.0.
  *
  * @author Jan Luehe
  * @author Pierre Delisle
@@ -34,78 +33,68 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 
 public abstract class RequestEncodingSupport extends TagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Package-scoped constants
 
-    static final String REQUEST_CHAR_SET =
-	"jakarta.servlet.jsp.jstl.fmt.request.charset";
+    static final String REQUEST_CHAR_SET = "jakarta.servlet.jsp.jstl.fmt.request.charset";
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private constants
 
     private static final String DEFAULT_ENCODING = "ISO-8859-1";
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag attributes
 
-    protected String value;             // 'value' attribute
-    
+    protected String value; // 'value' attribute
 
-    //*********************************************************************
+    // *********************************************************************
     // Derived information
-    
-    protected String charEncoding;   // derived from 'value' attribute  
-    
 
-    //*********************************************************************
+    protected String charEncoding; // derived from 'value' attribute
+
+    // *********************************************************************
     // Constructor and initialization
 
     public RequestEncodingSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	value = null;
+        value = null;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     public int doEndTag() throws JspException {
         charEncoding = value;
-	if ((charEncoding == null)
-	        && (pageContext.getRequest().getCharacterEncoding() == null)) { 
+        if ((charEncoding == null) && (pageContext.getRequest().getCharacterEncoding() == null)) {
             // Use charset from session-scoped attribute
-	    charEncoding = (String)
-		pageContext.getAttribute(REQUEST_CHAR_SET,
-					 PageContext.SESSION_SCOPE);
-	    if (charEncoding == null) {
-		// Use default encoding
-		charEncoding = DEFAULT_ENCODING;
-	    }
-	}
+            charEncoding = (String) pageContext.getAttribute(REQUEST_CHAR_SET, PageContext.SESSION_SCOPE);
+            if (charEncoding == null) {
+                // Use default encoding
+                charEncoding = DEFAULT_ENCODING;
+            }
+        }
 
-	/*
-	 * If char encoding was already set in the request, we don't need to 
-	 * set it again.
-	 */
-	if (charEncoding != null) {
-	    try {
-		pageContext.getRequest().setCharacterEncoding(charEncoding);
-	    } catch (UnsupportedEncodingException uee) {
-		throw new JspTagException(uee.toString(), uee);
-	    }
-	}
+        /*
+         * If char encoding was already set in the request, we don't need to set it again.
+         */
+        if (charEncoding != null) {
+            try {
+                pageContext.getRequest().setCharacterEncoding(charEncoding);
+            } catch (UnsupportedEncodingException uee) {
+                throw new JspTagException(uee.toString(), uee);
+            }
+        }
 
-	return EVAL_PAGE;
+        return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 }

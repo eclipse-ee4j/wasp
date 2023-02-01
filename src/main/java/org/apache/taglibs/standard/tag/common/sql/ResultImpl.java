@@ -29,13 +29,15 @@ import java.util.TreeMap;
 import jakarta.servlet.jsp.jstl.sql.Result;
 
 /**
- * <p>This class creates a cached version of a <tt>ResultSet</tt>.
- * It's represented as a <tt>Result</tt> implementation, capable of 
- * returing an array of <tt>Row</tt> objects containing a <tt>Column</tt> 
- * instance for each column in the row.</p>
+ * <p>
+ * This class creates a cached version of a <tt>ResultSet</tt>. It's represented as a <tt>Result</tt> implementation,
+ * capable of returing an array of <tt>Row</tt> objects containing a <tt>Column</tt> instance for each column in the
+ * row.
+ * </p>
  *
- * <p>Note -- this is a private copy for the RI to avoid making the
- * corresponding class in jakarta.servlet.* public.</p>
+ * <p>
+ * Note -- this is a private copy for the RI to avoid making the corresponding class in jakarta.servlet.* public.
+ * </p>
  *
  * @author Hans Bergsten
  * @author Justyna Horwat
@@ -48,18 +50,14 @@ public class ResultImpl implements Result {
     private boolean isLimited;
 
     /**
-     * This constructor reads the ResultSet and saves a cached
-     * copy.
+     * This constructor reads the ResultSet and saves a cached copy.
      *
-     * @param rs an open <tt>ResultSet</tt>, positioned before the first
-     * row
+     * @param rs an open <tt>ResultSet</tt>, positioned before the first row
      * @param startRow beginning row to be cached
      * @param maxRows query maximum rows limit
      * @exception if a database error occurs
      */
-    public ResultImpl(ResultSet rs, int startRow, int maxRows)
-        throws SQLException 
-    {
+    public ResultImpl(ResultSet rs, int startRow, int maxRows) throws SQLException {
         rowMap = new ArrayList<>();
         rowByIndex = new ArrayList<>();
 
@@ -69,7 +67,7 @@ public class ResultImpl implements Result {
         // Create the column name array
         columnNames = new String[noOfColumns];
         for (int i = 1; i <= noOfColumns; i++) {
-            columnNames[i-1] = rsmd.getColumnName(i);
+            columnNames[i - 1] = rsmd.getColumnName(i);
         }
 
         // Throw away all rows upto startRow
@@ -81,7 +79,7 @@ public class ResultImpl implements Result {
         int processedRows = 0;
         while (rs.next()) {
             if ((maxRows != -1) && (processedRows == maxRows)) {
-                isLimited = true; 
+                isLimited = true;
                 break;
             }
             Object[] columns = new Object[noOfColumns];
@@ -89,12 +87,12 @@ public class ResultImpl implements Result {
 
             // JDBC uses 1 as the lowest index!
             for (int i = 1; i <= noOfColumns; i++) {
-                Object value =  rs.getObject(i);
+                Object value = rs.getObject(i);
                 if (rs.wasNull()) {
                     value = null;
                 }
-                columns[i-1] = value;
-                columnMap.put(columnNames[i-1], value);
+                columns[i - 1] = value;
+                columnMap.put(columnNames[i - 1], value);
             }
             rowMap.add(columnMap);
             rowByIndex.add(columns);
@@ -103,10 +101,8 @@ public class ResultImpl implements Result {
     }
 
     /**
-     * Returns an array of SortedMap objects. The SortedMap
-     * object key is the ColumnName and the value is the ColumnValue.
-     * SortedMap was created using the CASE_INSENSITIVE_ORDER
-     * Comparator so the key is the case insensitive representation
+     * Returns an array of SortedMap objects. The SortedMap object key is the ColumnName and the value is the ColumnValue.
+     * SortedMap was created using the CASE_INSENSITIVE_ORDER Comparator so the key is the case insensitive representation
      * of the ColumnName.
      *
      * @return an array of Map, or null if there are no rows
@@ -117,15 +113,13 @@ public class ResultImpl implements Result {
             return null;
         }
 
-        //should just be able to return SortedMap[] object
+        // should just be able to return SortedMap[] object
         return rowMap.toArray(new SortedMap[0]);
     }
 
-
     /**
-     * Returns an array of Object[] objects. The first index
-     * designates the Row, the second the Column. The array
-     * stores the value at the specified row and column.
+     * Returns an array of Object[] objects. The first index designates the Row, the second the Column. The array stores the
+     * value at the specified row and column.
      *
      * @return an array of Object[], or null if there are no rows
      */
@@ -135,13 +129,12 @@ public class ResultImpl implements Result {
             return null;
         }
 
-        //should just be able to return Object[][] object
+        // should just be able to return Object[][] object
         return rowByIndex.toArray(new Object[0][0]);
     }
 
     /**
-     * Returns an array of String objects. The array represents
-     * the names of the columns arranged in the same order as in
+     * Returns an array of String objects. The array represents the names of the columns arranged in the same order as in
      * the getRowsByIndex() method.
      *
      * @return an array of String[]
@@ -153,8 +146,7 @@ public class ResultImpl implements Result {
     /**
      * Returns the number of rows in the cached ResultSet
      *
-     * @return the number of cached rows, or -1 if the Result could
-     *    not be initialized due to SQLExceptions
+     * @return the number of cached rows, or -1 if the Result could not be initialized due to SQLExceptions
      */
     public int getRowCount() {
         if (rowMap == null) {

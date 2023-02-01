@@ -22,10 +22,12 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 import jakarta.servlet.jsp.tagext.TryCatchFinally;
 
 /**
- * <p>Tag handler for &lt;catch&gt; in JSTL 1.0.</p>
+ * <p>
+ * Tag handler for &lt;catch&gt; in JSTL 1.0.
+ * </p>
  * 
- * <p>&lt;catch&gt; simply catches any Throwables that occur in its body
- * and optionally exposes them.
+ * <p>
+ * &lt;catch&gt; simply catches any Throwables that occur in its body and optionally exposes them.
  *
  * @author Shawn Bayern
  */
@@ -33,11 +35,10 @@ import jakarta.servlet.jsp.tagext.TryCatchFinally;
 public class CatchTag extends TagSupport implements TryCatchFinally {
 
     /*
-     * If all tags that I proposed were this simple, people might
-     * think I was just trying to avoid work.  :-)
+     * If all tags that I proposed were this simple, people might think I was just trying to avoid work. :-)
      */
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and lifecycle management
 
     // initialize inherited and local state
@@ -56,20 +57,18 @@ public class CatchTag extends TagSupport implements TryCatchFinally {
         var = null;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private String var;                                 // tag attribute
-    private boolean caught;                             // internal status
+    private String var; // tag attribute
+    private boolean caught; // internal status
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     public int doStartTag() {
         caught = false;
-	return EVAL_BODY_INCLUDE;
+        return EVAL_BODY_INCLUDE;
     }
 
     public void doCatch(Throwable t) {
@@ -83,8 +82,7 @@ public class CatchTag extends TagSupport implements TryCatchFinally {
             pageContext.removeAttribute(var, PageContext.PAGE_SCOPE);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Attribute accessors
 
     public void setVar(String var) {

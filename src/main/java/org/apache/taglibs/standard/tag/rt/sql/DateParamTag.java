@@ -27,12 +27,12 @@ import org.apache.taglibs.standard.tag.common.sql.DateParamTagSupport;
  * @author Justyna Horwat
  */
 public class DateParamTag extends DateParamTagSupport {
-    
+
     public void setValue(Date value) {
-	this.value = value;
+        this.value = value;
     }
 
     public void setType(String type) {
-	this.type = type;
+        this.type = type;
     }
 }

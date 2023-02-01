@@ -24,32 +24,30 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 
 import org.apache.taglibs.standard.resources.Resources;
 
-
 /**
- * <p>Tag handler for &lt;Param&gt; in JSTL, used to set
- * parameter values for a SQL statement.</p>
+ * <p>
+ * Tag handler for &lt;Param&gt; in JSTL, used to set parameter values for a SQL statement.
+ * </p>
  * 
  * @author Justyna Horwat
  */
 
 public abstract class DateParamTagSupport extends TagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Private constants
-    
+
     private static final String TIMESTAMP_TYPE = "timestamp";
     private static final String TIME_TYPE = "time";
     private static final String DATE_TYPE = "date";
-	
 
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
     protected String type;
     protected java.util.Date value;
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     public DateParamTagSupport() {
@@ -62,47 +60,42 @@ public abstract class DateParamTagSupport extends TagSupport {
         type = null;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     public int doEndTag() throws JspException {
-	SQLExecutionTag parent = (SQLExecutionTag) 
-	    findAncestorWithClass(this, SQLExecutionTag.class);
-	if (parent == null) {
-	    throw new JspTagException(
-                Resources.getMessage("SQL_PARAM_OUTSIDE_PARENT"));
-	}
+        SQLExecutionTag parent = (SQLExecutionTag) findAncestorWithClass(this, SQLExecutionTag.class);
+        if (parent == null) {
+            throw new JspTagException(Resources.getMessage("SQL_PARAM_OUTSIDE_PARENT"));
+        }
 
         if (value != null) {
             convertValue();
         }
 
-	parent.addSQLParameter(value);
-	return EVAL_PAGE;
+        parent.addSQLParameter(value);
+        return EVAL_PAGE;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     private void convertValue() throws JspException {
 
-	if ((type == null) || (type.equalsIgnoreCase(TIMESTAMP_TYPE))) {
-	    if (!(value instanceof java.sql.Timestamp)) {
-		value = new java.sql.Timestamp(value.getTime());
-	    }
-	} else if (type.equalsIgnoreCase(TIME_TYPE)) {
-	    if (!(value instanceof java.sql.Time)) {
-		value = new java.sql.Time(value.getTime());
-	    }
-	} else if (type.equalsIgnoreCase(DATE_TYPE)) {
-	    if (!(value instanceof java.sql.Date)) {
-		value = new java.sql.Date(value.getTime());
-	    }
-	} else {
-	    throw new JspException(
-                Resources.getMessage("SQL_DATE_PARAM_INVALID_TYPE", type));
-	}
+        if ((type == null) || (type.equalsIgnoreCase(TIMESTAMP_TYPE))) {
+            if (!(value instanceof java.sql.Timestamp)) {
+                value = new java.sql.Timestamp(value.getTime());
+            }
+        } else if (type.equalsIgnoreCase(TIME_TYPE)) {
+            if (!(value instanceof java.sql.Time)) {
+                value = new java.sql.Time(value.getTime());
+            }
+        } else if (type.equalsIgnoreCase(DATE_TYPE)) {
+            if (!(value instanceof java.sql.Date)) {
+                value = new java.sql.Date(value.getTime());
+            }
+        } else {
+            throw new JspException(Resources.getMessage("SQL_DATE_PARAM_INVALID_TYPE", type));
+        }
     }
 }

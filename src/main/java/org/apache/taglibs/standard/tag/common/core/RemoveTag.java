@@ -22,14 +22,14 @@ import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.TagSupport;
 
 /**
- * <p>A handler for the &lt;remove&gt; tag, which removes the variable
- * identified by 'var' (and 'scope', if present).
+ * <p>
+ * A handler for the &lt;remove&gt; tag, which removes the variable identified by 'var' (and 'scope', if present).
  *
  * @author Shawn Bayern
  */
 public class RemoveTag extends TagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constants
 
     /* We support these 'scopes'. */
@@ -39,21 +39,19 @@ public class RemoveTag extends TagSupport {
     private final String REQUEST = "request";
     private final String PAGE = "page";
 
-    //*********************************************************************
+    // *********************************************************************
     // Internal state
 
-    private int scope;					// tag attribute
-    private boolean scopeSpecified;			// ... by tag attribute
-    private String var;					// tag attribute
+    private int scope; // tag attribute
+    private boolean scopeSpecified; // ... by tag attribute
+    private String var; // tag attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Construction and initialization
 
     /**
-     * Constructs a new handler.  As with TagSupport, subclasses should
-     * not provide other constructors and are expected to call the
-     * superclass constructor.
+     * Constructs a new handler. As with TagSupport, subclasses should not provide other constructors and are expected to
+     * call the superclass constructor.
      */
     public RemoveTag() {
         super();
@@ -73,8 +71,7 @@ public class RemoveTag extends TagSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // removes the variable (from a specific scope, if specified)
@@ -83,21 +80,20 @@ public class RemoveTag extends TagSupport {
             pageContext.removeAttribute(var);
         else
             pageContext.removeAttribute(var, scope);
-	return EVAL_PAGE;
+        return EVAL_PAGE;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute
     public void setVar(String var) {
-	this.var = var;
+        this.var = var;
     }
 
     // for tag attribute
     public void setScope(String scope) {
         this.scope = Util.getScope(scope);
-	scopeSpecified = true;
+        scopeSpecified = true;
     }
 }

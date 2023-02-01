@@ -26,27 +26,23 @@ import org.apache.taglibs.standard.tag.common.core.ForTokensSupport;
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 
 /**
- * <p>A handler for &lt;forTokens&gt; that accepts attributes as Strings
- * and evaluates them as expressions at runtime.
+ * <p>
+ * A handler for &lt;forTokens&gt; that accepts attributes as Strings and evaluates them as expressions at runtime.
  *
  * @author Shawn Bayern
  */
-public class ForTokensTag
-    extends ForTokensSupport
-    implements LoopTag, IterationTag
-{
+public class ForTokensTag extends ForTokensSupport implements LoopTag, IterationTag {
 
-    //*********************************************************************
+    // *********************************************************************
     // 'Private' state (implementation details)
 
-    private String begin_;                      // raw EL-based property
-    private String end_;                        // raw EL-based property
-    private String step_;                       // raw EL-based property
-    private String items_;			// raw EL-based property
-    private String delims_;			// raw EL-based property
+    private String begin_; // raw EL-based property
+    private String end_; // raw EL-based property
+    private String step_; // raw EL-based property
+    private String items_; // raw EL-based property
+    private String delims_; // raw EL-based property
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     public ForTokensTag() {
@@ -54,8 +50,7 @@ public class ForTokensTag
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     /* Begins iterating by processing the first item. */
@@ -64,10 +59,9 @@ public class ForTokensTag
         // evaluate any expressions we were passed, once per invocation
         evaluateExpressions();
 
-	// chain to the parent implementation
-	return super.doStartTag();
+        // chain to the parent implementation
+        return super.doStartTag();
     }
-
 
     // Releases any resources we may have (or inherit)
     public void release() {
@@ -75,8 +69,7 @@ public class ForTokensTag
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for EL-based attribute
@@ -104,36 +97,32 @@ public class ForTokensTag
 
     // for EL-based attribute
     public void setDelims(String delims_) {
-	this.delims_ = delims_;
+        this.delims_ = delims_;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private (utility) methods
 
     // (re)initializes state (during release() or construction)
     private void init() {
         // defaults for interface with page author
-        begin_ = null;          // (no expression)
-        end_ = null;            // (no expression)
-        step_ = null;           // (no expression)
-	items_ = null;		// (no expression)
-	delims_ = null;		// (no expression)
+        begin_ = null; // (no expression)
+        end_ = null; // (no expression)
+        step_ = null; // (no expression)
+        items_ = null; // (no expression)
+        delims_ = null; // (no expression)
     }
 
     /* Evaluates expressions as necessary */
     private void evaluateExpressions() throws JspException {
         /*
-         * Note: we don't check for type mismatches here; we assume
-         * the expression evaluator will return the expected type
-         * (by virtue of knowledge we give it about what that type is).
-         * A ClassCastException here is truly unexpected, so we let it
+         * Note: we don't check for type mismatches here; we assume the expression evaluator will return the expected type (by
+         * virtue of knowledge we give it about what that type is). A ClassCastException here is truly unexpected, so we let it
          * propagate up.
          */
 
-       if (begin_ != null) {
-            Object r = ExpressionEvaluatorManager.evaluate(
-                "begin", begin_, Integer.class, this, pageContext);
+        if (begin_ != null) {
+            Object r = ExpressionEvaluatorManager.evaluate("begin", begin_, Integer.class, this, pageContext);
             if (r == null)
                 throw new NullAttributeException("forTokens", "begin");
             begin = ((Integer) r).intValue();
@@ -141,8 +130,7 @@ public class ForTokensTag
         }
 
         if (end_ != null) {
-            Object r = ExpressionEvaluatorManager.evaluate(
-                "end", end_, Integer.class, this, pageContext);
+            Object r = ExpressionEvaluatorManager.evaluate("end", end_, Integer.class, this, pageContext);
             if (r == null)
                 throw new NullAttributeException("forTokens", "end");
             end = ((Integer) r).intValue();
@@ -150,8 +138,7 @@ public class ForTokensTag
         }
 
         if (step_ != null) {
-            Object r = ExpressionEvaluatorManager.evaluate(
-                "step", step_, Integer.class, this, pageContext);
+            Object r = ExpressionEvaluatorManager.evaluate("step", step_, Integer.class, this, pageContext);
             if (r == null)
                 throw new NullAttributeException("forTokens", "step");
             step = ((Integer) r).intValue();
@@ -159,19 +146,17 @@ public class ForTokensTag
         }
 
         if (items_ != null) {
-            items = (String) ExpressionEvaluatorManager.evaluate(
-                "items", items_, String.class, this, pageContext);
-	    // use the empty string to indicate "no iteration"
-	    if (items == null)
-		items = "";
-	}
+            items = (String) ExpressionEvaluatorManager.evaluate("items", items_, String.class, this, pageContext);
+            // use the empty string to indicate "no iteration"
+            if (items == null)
+                items = "";
+        }
 
         if (delims_ != null) {
-            delims = (String) ExpressionEvaluatorManager.evaluate(
-                "delims", delims_, String.class, this, pageContext);
-	    // use the empty string to cause monolithic tokenization
-	    if (delims == null)
-		delims = "";
-	}
+            delims = (String) ExpressionEvaluatorManager.evaluate("delims", delims_, String.class, this, pageContext);
+            // use the empty string to cause monolithic tokenization
+            if (delims == null)
+                delims = "";
+        }
     }
 }

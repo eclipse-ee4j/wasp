@@ -18,9 +18,10 @@
 
 package org.apache.taglibs.standard.extra.spath;
 
-
 /**
- * <p>Represents a predicate expression concerning a single attribute.</p>
+ * <p>
+ * Represents a predicate expression concerning a single attribute.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -29,29 +30,28 @@ public class AttributePredicate extends Predicate {
     private String attribute, target;
 
     /**
-     * Constructs a new AttributePredicate, given an attribute name
-     * and a target literal (with which to test equality).
+     * Constructs a new AttributePredicate, given an attribute name and a target literal (with which to test equality).
      */
     public AttributePredicate(String attribute, String target) {
-	if (attribute == null)
-	    throw new IllegalArgumentException("non-null attribute needed");
-	if (attribute.contains(":")) {
-	    throw new IllegalArgumentException("namespace-qualified attribute names are not currently supported");
+        if (attribute == null)
+            throw new IllegalArgumentException("non-null attribute needed");
+        if (attribute.contains(":")) {
+            throw new IllegalArgumentException("namespace-qualified attribute names are not currently supported");
         }
-	this.attribute = attribute;
+        this.attribute = attribute;
 
-	if (target == null)
-	    throw new IllegalArgumentException("non-null target needed");
-	// strip quotation marks from target
-	this.target = target.substring(1, target.length() - 1);
+        if (target == null)
+            throw new IllegalArgumentException("non-null target needed");
+        // strip quotation marks from target
+        this.target = target.substring(1, target.length() - 1);
     }
 
     /**
-     * Returns true if the given SAX AttributeList is suitable, given our
-     * attribute name and target; returns false otherwise.
+     * Returns true if the given SAX AttributeList is suitable, given our attribute name and target; returns false
+     * otherwise.
      */
     public boolean isMatchingAttribute(org.xml.sax.Attributes a) {
-	String attValue = a.getValue("", attribute);
-	return (attValue != null && attValue.equals(target));
+        String attValue = a.getValue("", attribute);
+        return (attValue != null && attValue.equals(target));
     }
-} 
+}

@@ -28,13 +28,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * <p>A SAX-based TagLibraryValidator for the JSTL SQL tag library.
+ * <p>
+ * A SAX-based TagLibraryValidator for the JSTL SQL tag library.
  * 
  * @author Shawn Bayern
  */
 public class JstlSqlTLV extends JstlBaseTLV {
 
-    //*********************************************************************
+    // *********************************************************************
     // Constants
 
     // tag names
@@ -51,99 +52,81 @@ public class JstlSqlTLV extends JstlBaseTLV {
     private final String SQL = "sql";
     private final String DATASOURCE = "dataSource";
 
-
-    //*********************************************************************
+    // *********************************************************************
     // set its type and delegate validation to super-class
-    public  ValidationMessage[] validate(
-	    String prefix, String uri, PageData page) {
-	return super.validate( TYPE_SQL, prefix, uri, page );
+    public ValidationMessage[] validate(String prefix, String uri, PageData page) {
+        return super.validate(TYPE_SQL, prefix, uri, page);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Contract fulfillment
 
     protected DefaultHandler getHandler() {
-	return new Handler();
+        return new Handler();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // SAX event handler
 
     /** The handler that provides the base of our implementation. */
     private class Handler extends DefaultHandler {
 
-	// parser state
-	private int depth = 0;
+        // parser state
+        private int depth = 0;
         private Stack<Integer> queryDepths = new Stack<>();
         private Stack<Integer> updateDepths = new Stack<>();
         private Stack<Integer> transactionDepths = new Stack<>();
-	private String lastElementName = null;
-	private boolean bodyNecessary = false;
-	private boolean bodyIllegal = false;
+        private String lastElementName = null;
+        private boolean bodyNecessary = false;
+        private boolean bodyIllegal = false;
 
-	// process under the existing context (state), then modify it
-	public void startElement(
-	        String ns, String ln, String qn, Attributes a) {
+        // process under the existing context (state), then modify it
+        public void startElement(String ns, String ln, String qn, Attributes a) {
 
-	    // substitute our own parsed 'ln' if it's not provided
-	    if (ln == null)
-		ln = getLocalPart(qn);
+            // substitute our own parsed 'ln' if it's not provided
+            if (ln == null)
+                ln = getLocalPart(qn);
 
-	    // for simplicity, we can ignore <jsp:text> for our purposes
-	    // (don't bother distinguishing between it and its characters)
-	    if (qn.equals(JSP_TEXT))
-		return;
+            // for simplicity, we can ignore <jsp:text> for our purposes
+            // (don't bother distinguishing between it and its characters)
+            if (qn.equals(JSP_TEXT))
+                return;
 
-	    // check body-related constraint
-	    if (bodyIllegal)
-		fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            // check body-related constraint
+            if (bodyIllegal)
+                fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
 
-	    // validate expression syntax if we need to
-	    Set expAtts;
-	    if (qn.startsWith(prefix + ":")
-		    && (expAtts = (Set) config.get(ln)) != null) {
-		for (int i = 0; i < a.getLength(); i++) {
-		    String attName = a.getLocalName(i);
-		    if (expAtts.contains(attName)) {
-			String vMsg =
-			    validateExpression(
-				ln,
-				attName,
-				a.getValue(i));
-			if (vMsg != null)
-			    fail(vMsg);
-		    }
-		}
-	    }
+            // validate expression syntax if we need to
+            Set expAtts;
+            if (qn.startsWith(prefix + ":") && (expAtts = (Set) config.get(ln)) != null) {
+                for (int i = 0; i < a.getLength(); i++) {
+                    String attName = a.getLocalName(i);
+                    if (expAtts.contains(attName)) {
+                        String vMsg = validateExpression(ln, attName, a.getValue(i));
+                        if (vMsg != null)
+                            fail(vMsg);
+                    }
+                }
+            }
 
             // validate attributes
             if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a))
-                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE",
-                    SCOPE, qn, a.getValue(SCOPE))); 
-	    if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
-		fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
-	    if (qn.startsWith(prefix + ":") && hasDanglingScope(a) &&
-                !qn.startsWith(prefix + ":" + SETDATASOURCE))
-		fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
+            if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
+                fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
+            if (qn.startsWith(prefix + ":") && hasDanglingScope(a) && !qn.startsWith(prefix + ":" + SETDATASOURCE))
+                fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
 
-	    // now, modify state
+            // now, modify state
 
             /*
-             * Make sure <sql:param> is nested inside <sql:query> or
-             * <sql:update>. Note that <sql:param> does not need to
-             * be a direct child of <sql:query> or <sql:update>.
-             * Otherwise, the following would not work:
+             * Make sure <sql:param> is nested inside <sql:query> or <sql:update>. Note that <sql:param> does not need to be a
+             * direct child of <sql:query> or <sql:update>. Otherwise, the following would not work:
              *
-             *  <sql:query sql="..." var="...">
-             *   <c:forEach var="arg" items="...">
-             *    <sql:param value="${arg}"/>
-             *   </c:forEach>
-             *  </sql:query>
+             * <sql:query sql="..." var="..."> <c:forEach var="arg" items="..."> <sql:param value="${arg}"/> </c:forEach>
+             * </sql:query>
              */
-            if ( (isSqlTag(ns, ln, PARAM) || isSqlTag(ns, ln, DATEPARAM)) 
-                && (queryDepths.empty() && updateDepths.empty()) ) {
+            if ((isSqlTag(ns, ln, PARAM) || isSqlTag(ns, ln, DATEPARAM)) && (queryDepths.empty() && updateDepths.empty())) {
                 fail(Resources.getMessage("SQL_PARAM_OUTSIDE_PARENT"));
             }
 
@@ -160,9 +143,9 @@ public class JstlSqlTLV extends JstlBaseTLV {
                 transactionDepths.push(Integer.valueOf(depth));
             }
 
-	    // set up a check against illegal attribute/body combinations
-	    bodyIllegal = false;
-	    bodyNecessary = false;
+            // set up a check against illegal attribute/body combinations
+            bodyIllegal = false;
+            bodyNecessary = false;
 
             if (isSqlTag(ns, ln, QUERY) || isSqlTag(ns, ln, UPDATE)) {
                 if (!hasAttribute(a, SQL)) {
@@ -177,39 +160,38 @@ public class JstlSqlTLV extends JstlBaseTLV {
                 bodyIllegal = true;
             }
 
-	    // record the most recent tag (for error reporting)
-	    lastElementName = qn;
-	    lastElementId = a.getValue("http://java.sun.com/JSP/Page", "id");
+            // record the most recent tag (for error reporting)
+            lastElementName = qn;
+            lastElementId = a.getValue("http://java.sun.com/JSP/Page", "id");
 
-	    // we're a new element, so increase depth
-	    depth++;
-	}
+            // we're a new element, so increase depth
+            depth++;
+        }
 
-	public void characters(char[] ch, int start, int length) {
+        public void characters(char[] ch, int start, int length) {
 
-	    bodyNecessary = false;		// body is no longer necessary!
+            bodyNecessary = false; // body is no longer necessary!
 
-	    // ignore strings that are just whitespace
-	    String s = new String(ch, start, length).trim();
-	    if (s.equals(""))
-		return;
+            // ignore strings that are just whitespace
+            String s = new String(ch, start, length).trim();
+            if (s.equals(""))
+                return;
 
-	    // check and update body-related constraints
-	    if (bodyIllegal)
-		fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
-	}
+            // check and update body-related constraints
+            if (bodyIllegal)
+                fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+        }
 
-	public void endElement(String ns, String ln, String qn) {
+        public void endElement(String ns, String ln, String qn) {
 
-	    // consistently, we ignore JSP_TEXT
-	    if (qn.equals(JSP_TEXT))
-		return;
+            // consistently, we ignore JSP_TEXT
+            if (qn.equals(JSP_TEXT))
+                return;
 
-	    // handle body-related invariant
-	    if (bodyNecessary)
-		fail(Resources.getMessage("TLV_MISSING_BODY",
-		    lastElementName));
-	    bodyIllegal = false;	// reset: we've left the tag
+            // handle body-related invariant
+            if (bodyNecessary)
+                fail(Resources.getMessage("TLV_MISSING_BODY", lastElementName));
+            bodyIllegal = false; // reset: we've left the tag
 
             // update <query>-related state
             if (isSqlTag(ns, ln, QUERY)) {
@@ -224,8 +206,8 @@ public class JstlSqlTLV extends JstlBaseTLV {
                 transactionDepths.pop();
             }
 
-	    // update our depth
-	    depth--;
-	}
+            // update our depth
+            depth--;
+        }
     }
 }

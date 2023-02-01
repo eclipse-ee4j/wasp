@@ -23,35 +23,33 @@ import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.fmt.ParamSupport;
 
 /**
- * <p>A handler for &lt;param&gt; that accepts message arguments as
- * Strings and evaluates them as expressions at runtime.</p>
+ * <p>
+ * A handler for &lt;param&gt; that accepts message arguments as Strings and evaluates them as expressions at runtime.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class ParamTag extends ParamSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // 'Private' state (implementation details)
 
-    private String value_;                    // stores EL-based property
+    private String value_; // stores EL-based property
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     /**
-     * Constructs a new ParamTag.  As with TagSupport, subclasses
-     * should not provide other constructors and are expected to call
-     * the superclass constructor
+     * Constructs a new ParamTag. As with TagSupport, subclasses should not provide other constructors and are expected to
+     * call the superclass constructor
      */
     public ParamTag() {
         super();
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // evaluates expression and chains to parent
@@ -60,8 +58,8 @@ public class ParamTag extends ParamSupport {
         // evaluate any expressions we were passed, once per invocation
         evaluateExpressions();
 
-	// chain to the parent implementation
-	return super.doStartTag();
+        // chain to the parent implementation
+        return super.doStartTag();
     }
 
     // Releases any resources we may have (or inherit)
@@ -70,39 +68,34 @@ public class ParamTag extends ParamSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for EL-based attribute
     public void setValue(String value_) {
         this.value_ = value_;
-	this.valueSpecified = true;
+        this.valueSpecified = true;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private (utility) methods
 
     // (re)initializes state (during release() or construction)
     private void init() {
         // null implies "no expression"
-	value_ = null;
+        value_ = null;
     }
 
     // Evaluates expressions as necessary
     private void evaluateExpressions() throws JspException {
-        /* 
-         * Note: we don't check for type mismatches here; we assume
-         * the expression evaluator will return the expected type
-         * (by virtue of knowledge we give it about what that type is).
-         * A ClassCastException here is truly unexpected, so we let it
+        /*
+         * Note: we don't check for type mismatches here; we assume the expression evaluator will return the expected type (by
+         * virtue of knowledge we give it about what that type is). A ClassCastException here is truly unexpected, so we let it
          * propagate up.
          */
 
-	if (value_ != null) {
-	    value = ExpressionEvaluatorManager.evaluate(
-	        "value", value_, Object.class, this, pageContext);
-	}
+        if (value_ != null) {
+            value = ExpressionEvaluatorManager.evaluate("value", value_, Object.class, this, pageContext);
+        }
     }
 }

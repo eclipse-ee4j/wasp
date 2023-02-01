@@ -22,75 +22,66 @@ import java.util.Map;
 
 /**
  *
- * <p>Represents an expression String consisting of a mixture of
- * Strings and Expressions.
+ * <p>
+ * Represents an expression String consisting of a mixture of Strings and Expressions.
  * 
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
 
-public class ExpressionString
-{
-  //-------------------------------------
-  // Properties
-  //-------------------------------------
-  // property elements
+public class ExpressionString {
+    // -------------------------------------
+    // Properties
+    // -------------------------------------
+    // property elements
 
-  Object [] mElements;
-  public Object [] getElements ()
-  { return mElements; }
-  public void setElements (Object [] pElements)
-  { mElements = pElements; }
+    Object[] mElements;
 
-  //-------------------------------------
-  /**
-   *
-   * Constructor
-   **/
-  public ExpressionString (Object [] pElements)
-  {
-    mElements = pElements;
-  }
+    public Object[] getElements() {
+        return mElements;
+    }
 
-  //-------------------------------------
-  /**
-   *
-   * Evaluates the expression string by evaluating each element,
-   * converting it to a String (using toString, or "" for null values)
-   * and concatenating the results into a single String.
-   **/
-  public String evaluate (Object pContext,
-			  VariableResolver pResolver,
-			  Map functions,
-			  String defaultPrefix,
-			  Logger pLogger)
-    throws ELException
-  {
+    public void setElements(Object[] pElements) {
+        mElements = pElements;
+    }
+
+    // -------------------------------------
+    /**
+     *
+     * Constructor
+     **/
+    public ExpressionString(Object[] pElements) {
+        mElements = pElements;
+    }
+
+    // -------------------------------------
+    /**
+     *
+     * Evaluates the expression string by evaluating each element, converting it to a String (using toString, or "" for null
+     * values) and concatenating the results into a single String.
+     **/
+    public String evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+            throws ELException {
         StringBuilder buf = new StringBuilder();
-      for (Object elem : mElements) {
-          if (elem instanceof String) {
-              buf.append((String) elem);
-          } else if (elem instanceof Expression) {
-              Object val
-                      = ((Expression) elem).evaluate(pContext,
-                              pResolver,
-                              functions,
-                              defaultPrefix,
-                              pLogger);
-              if (val != null) {
-                  buf.append(val.toString());
-              }
-          }
-      }
+        for (Object elem : mElements) {
+            if (elem instanceof String) {
+                buf.append((String) elem);
+            } else if (elem instanceof Expression) {
+                Object val = ((Expression) elem).evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
+                if (val != null) {
+                    buf.append(val.toString());
+                }
+            }
+        }
         return buf.toString();
     }
 
-  //-------------------------------------
-  /**
-   *
-   * Returns the expression in the expression language syntax
-   **/
+    // -------------------------------------
+    /**
+     *
+     * Returns the expression in the expression language syntax
+     **/
     public String getExpressionString() {
         StringBuilder buf = new StringBuilder();
         for (Object elem : mElements) {
@@ -105,5 +96,5 @@ public class ExpressionString
         return buf.toString();
     }
 
-  //-------------------------------------
+    // -------------------------------------
 }

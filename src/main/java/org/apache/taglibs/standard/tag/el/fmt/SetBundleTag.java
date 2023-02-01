@@ -23,8 +23,9 @@ import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.fmt.SetBundleSupport;
 
 /**
- * <p>A handler for &lt;setBundle&gt; that accepts attributes as Strings
- * and evaluates them as expressions at runtime.</p>
+ * <p>
+ * A handler for &lt;setBundle&gt; that accepts attributes as Strings and evaluates them as expressions at runtime.
+ * </p>
  *
  * @author Shawn Bayern
  * @author Jan Luehe
@@ -32,27 +33,24 @@ import org.apache.taglibs.standard.tag.common.fmt.SetBundleSupport;
 
 public class SetBundleTag extends SetBundleSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // 'Private' state (implementation details)
 
-    private String basename_;                    // stores EL-based property
+    private String basename_; // stores EL-based property
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     /**
-     * Constructs a new SetBundleTag.  As with TagSupport, subclasses
-     * should not provide other constructors and are expected to call
-     * the superclass constructor
+     * Constructs a new SetBundleTag. As with TagSupport, subclasses should not provide other constructors and are expected
+     * to call the superclass constructor
      */
     public SetBundleTag() {
         super();
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     // evaluates expression and chains to parent
@@ -61,8 +59,8 @@ public class SetBundleTag extends SetBundleSupport {
         // evaluate any expressions we were passed, once per invocation
         evaluateExpressions();
 
-	// chain to the parent implementation
-	return super.doStartTag();
+        // chain to the parent implementation
+        return super.doStartTag();
     }
 
     // Releases any resources we may have (or inherit)
@@ -71,8 +69,7 @@ public class SetBundleTag extends SetBundleSupport {
         init();
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for EL-based attribute
@@ -80,21 +77,19 @@ public class SetBundleTag extends SetBundleSupport {
         this.basename_ = basename_;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private (utility) methods
 
     // (re)initializes state (during release() or construction)
     private void init() {
         // null implies "no expression"
-	basename_ = null;
+        basename_ = null;
     }
 
     // Evaluates expressions as necessary
     private void evaluateExpressions() throws JspException {
 
-	// 'basename' attribute (mandatory)
-	basename = (String) ExpressionEvaluatorManager.evaluate(
-	    "basename", basename_, String.class, this, pageContext);
+        // 'basename' attribute (mandatory)
+        basename = (String) ExpressionEvaluatorManager.evaluate("basename", basename_, String.class, this, pageContext);
     }
 }

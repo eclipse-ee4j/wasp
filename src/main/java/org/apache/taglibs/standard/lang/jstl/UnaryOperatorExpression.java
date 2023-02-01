@@ -23,67 +23,74 @@ import java.util.Map;
 
 /**
  *
- * <p>An expression representing one or more unary operators on a
- * value
+ * <p>
+ * An expression representing one or more unary operators on a value
  * 
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
 
-public class UnaryOperatorExpression
-  extends Expression
-{
-  //-------------------------------------
-  // Properties
-  //-------------------------------------
-  // property operator
+public class UnaryOperatorExpression extends Expression {
+    // -------------------------------------
+    // Properties
+    // -------------------------------------
+    // property operator
 
-  UnaryOperator mOperator;
-  public UnaryOperator getOperator ()
-  { return mOperator; }
-  public void setOperator (UnaryOperator pOperator)
-  { mOperator = pOperator; }
+    UnaryOperator mOperator;
 
-  //-------------------------------------
-  // property operators
+    public UnaryOperator getOperator() {
+        return mOperator;
+    }
 
-  List mOperators;
-  public List getOperators ()
-  { return mOperators; }
-  public void setOperators (List pOperators)
-  { mOperators = pOperators; }
+    public void setOperator(UnaryOperator pOperator) {
+        mOperator = pOperator;
+    }
 
-  //-------------------------------------
-  // property expression
+    // -------------------------------------
+    // property operators
 
-  Expression mExpression;
-  public Expression getExpression ()
-  { return mExpression; }
-  public void setExpression (Expression pExpression)
-  { mExpression = pExpression; }
+    List mOperators;
 
-  //-------------------------------------
-  /**
-   *
-   * Constructor
-   **/
-  public UnaryOperatorExpression (UnaryOperator pOperator,
-				  List pOperators,
-				  Expression pExpression)
-  {
-    mOperator = pOperator;
-    mOperators = pOperators;
-    mExpression = pExpression;
-  }
+    public List getOperators() {
+        return mOperators;
+    }
 
-  //-------------------------------------
-  // Expression methods
-  //-------------------------------------
-  /**
-   *
-   * Returns the expression in the expression language syntax
-   **/
+    public void setOperators(List pOperators) {
+        mOperators = pOperators;
+    }
+
+    // -------------------------------------
+    // property expression
+
+    Expression mExpression;
+
+    public Expression getExpression() {
+        return mExpression;
+    }
+
+    public void setExpression(Expression pExpression) {
+        mExpression = pExpression;
+    }
+
+    // -------------------------------------
+    /**
+     *
+     * Constructor
+     **/
+    public UnaryOperatorExpression(UnaryOperator pOperator, List pOperators, Expression pExpression) {
+        mOperator = pOperator;
+        mOperators = pOperators;
+        mExpression = pExpression;
+    }
+
+    // -------------------------------------
+    // Expression methods
+    // -------------------------------------
+    /**
+     *
+     * Returns the expression in the expression language syntax
+     **/
     @Override
     public String getExpressionString() {
 
@@ -104,31 +111,24 @@ public class UnaryOperatorExpression
         return buf.toString();
     }
 
-  //-------------------------------------
-  /**
-   *
-   * Evaluates to the literal value
-   **/
-  public Object evaluate (Object pContext,
-			  VariableResolver pResolver,
-			  Map functions,
-			  String defaultPrefix,
-			  Logger pLogger)
-    throws ELException
-  {
-    Object value = mExpression.evaluate (pContext, pResolver, functions,
-					 defaultPrefix, pLogger);
-    if (mOperator != null) {
-      value = mOperator.apply (value, pContext, pLogger);
+    // -------------------------------------
+    /**
+     *
+     * Evaluates to the literal value
+     **/
+    public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+            throws ELException {
+        Object value = mExpression.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
+        if (mOperator != null) {
+            value = mOperator.apply(value, pContext, pLogger);
+        } else {
+            for (int i = mOperators.size() - 1; i >= 0; i--) {
+                UnaryOperator operator = (UnaryOperator) mOperators.get(i);
+                value = operator.apply(value, pContext, pLogger);
+            }
+        }
+        return value;
     }
-    else {
-      for (int i = mOperators.size () - 1; i >= 0; i--) {
-	UnaryOperator operator = (UnaryOperator) mOperators.get (i);
-	value = operator.apply (value, pContext, pLogger);
-      }
-    }
-    return value;
-  }
 
-  //-------------------------------------
+    // -------------------------------------
 }

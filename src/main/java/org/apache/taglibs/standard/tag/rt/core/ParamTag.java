@@ -22,15 +22,16 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.core.ParamSupport;
 
 /**
- * <p>A handler for &lt;param&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;param&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
 public class ParamTag extends ParamSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute

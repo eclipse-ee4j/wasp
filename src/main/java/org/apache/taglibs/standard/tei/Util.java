@@ -20,7 +20,9 @@ package org.apache.taglibs.standard.tei;
 import jakarta.servlet.jsp.tagext.TagData;
 
 /**
- * <p>Utilities in support of TagExtraInfo classes.</p>
+ * <p>
+ * Utilities in support of TagExtraInfo classes.
+ * </p>
  *
  * @author Shawn Bayern
  */

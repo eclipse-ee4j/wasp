@@ -21,17 +21,16 @@ package org.apache.taglibs.standard.extra.spath;
 import java.util.List;
 
 /**
- * <p>Represents a simple path (SPath) expression.  A path is an ordered
- * list of Steps.
+ * <p>
+ * Represents a simple path (SPath) expression. A path is an ordered list of Steps.
  *
  * @author Shawn Bayern
  */
 public abstract class Path {
 
     /**
-     * Retrieves an ordered list of Step objects representing this
-     * expression.  The result is safely modifiable by the caller and
-     * must support List.add(Object) and List.add(int, Object).
+     * Retrieves an ordered list of Step objects representing this expression. The result is safely modifiable by the caller
+     * and must support List.add(Object) and List.add(int, Object).
      */
     public abstract List<Step> getSteps();
 

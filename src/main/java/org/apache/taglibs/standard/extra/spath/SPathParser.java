@@ -60,17 +60,17 @@ public class SPathParser implements SPathParserConstants {
             jj_consume_token(0);
         } else {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                case QNAME:
-                case NSWILDCARD:
-                case SLASH:
-                case STAR:
-                    expr = relativePath();
-                    jj_consume_token(0);
-                    break;
-                default:
-                    jj_la1[0] = jj_gen;
-                    jj_consume_token(-1);
-                    throw new ParseException();
+            case QNAME:
+            case NSWILDCARD:
+            case SLASH:
+            case STAR:
+                expr = relativePath();
+                jj_consume_token(0);
+                break;
+            default:
+                jj_la1[0] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
             }
         }
         return expr;
@@ -89,22 +89,21 @@ public class SPathParser implements SPathParserConstants {
         Step step;
         step = step();
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-            case SLASH:
-                jj_consume_token(SLASH);
-                relPath = relativePath();
-                break;
-            default:
-                jj_la1[1] = jj_gen;
-                ;
+        case SLASH:
+            jj_consume_token(SLASH);
+            relPath = relativePath();
+            break;
+        default:
+            jj_la1[1] = jj_gen;
+            ;
         }
         return new RelativePath(step, relPath);
     }
 
 // as an example, we use inline code here to handle a list
-/* 
- * (i'm doing something perhaps unusual here, including the <SLASH>
- * as if it were part of the step.  this mechanism for differentiating
- * '/' from '//' seems most natural, even if it is a bit unconventional.)
+    /*
+     * (i'm doing something perhaps unusual here, including the <SLASH> as if it were part of the step. this mechanism for
+     * differentiating '/' from '//' seems most natural, even if it is a bit unconventional.)
      */
     final public Step step() throws ParseException {
         Token slash = null;
@@ -112,23 +111,22 @@ public class SPathParser implements SPathParserConstants {
         Vector<Predicate> pl = null;
         Predicate p;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-            case SLASH:
-                slash = jj_consume_token(SLASH);
-                break;
-            default:
-                jj_la1[2] = jj_gen;
-                ;
+        case SLASH:
+            slash = jj_consume_token(SLASH);
+            break;
+        default:
+            jj_la1[2] = jj_gen;
+            ;
         }
         nt = nameTest();
-        label_1:
-        while (true) {
+        label_1: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                case START_BRACKET:
-        ;
-                    break;
-                default:
-                    jj_la1[3] = jj_gen;
-                    break label_1;
+            case START_BRACKET:
+                ;
+                break;
+            default:
+                jj_la1[3] = jj_gen;
+                break label_1;
             }
             p = predicate();
             if (pl == null) {
@@ -143,19 +141,19 @@ public class SPathParser implements SPathParserConstants {
     final public String nameTest() throws ParseException {
         Token name;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-            case STAR:
-                name = jj_consume_token(STAR);
-                break;
-            case NSWILDCARD:
-                name = jj_consume_token(NSWILDCARD);
-                break;
-            case QNAME:
-                name = jj_consume_token(QNAME);
-                break;
-            default:
-                jj_la1[4] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
+        case STAR:
+            name = jj_consume_token(STAR);
+            break;
+        case NSWILDCARD:
+            name = jj_consume_token(NSWILDCARD);
+            break;
+        case QNAME:
+            name = jj_consume_token(QNAME);
+            break;
+        default:
+            jj_la1[4] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
         }
         return name.toString();
     }
@@ -402,7 +400,7 @@ public class SPathParser implements SPathParserConstants {
     public boolean lookingAhead = false;
     private int jj_gen;
     final private int[] jj_la1 = new int[5];
-    final private int[] jj_la1_0 = {0x6014, 0x2000, 0x2000, 0x10000, 0x4014,};
+    final private int[] jj_la1_0 = { 0x6014, 0x2000, 0x2000, 0x10000, 0x4014, };
     final private JJCalls[] jj_2_rtns = new JJCalls[1];
     private boolean jj_rescan = false;
     private int jj_gc = 0;
@@ -664,9 +662,9 @@ public class SPathParser implements SPathParserConstants {
                     jj_la = p.arg;
                     jj_lastpos = jj_scanpos = p.first;
                     switch (i) {
-                        case 0:
-                            jj_3_1();
-                            break;
+                    case 0:
+                        jj_3_1();
+                        break;
                     }
                 }
                 p = p.next;

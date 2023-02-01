@@ -26,121 +26,119 @@ import java.util.Map;
 
 /**
  *
- * <p>Represents a function call.</p>
+ * <p>
+ * Represents a function call.
+ * </p>
  * 
  * @author Shawn Bayern (in the style of Nathan's other classes)
  **/
 
-public class FunctionInvocation
-  extends Expression
-{
-  //-------------------------------------
-  // Properties
-  //-------------------------------------
-  // property index
+public class FunctionInvocation extends Expression {
+    // -------------------------------------
+    // Properties
+    // -------------------------------------
+    // property index
 
-  private String functionName;
-  private List argumentList;
-  public String getFunctionName() { return functionName; }
-  public void setFunctionName(String f) { functionName = f; }
-  public List getArgumentList() { return argumentList; }
-  public void setArgumentList(List l) { argumentList = l; }
+    private String functionName;
+    private List argumentList;
 
-  //-------------------------------------
-  /**
-   * Constructor
-   **/
-  public FunctionInvocation (String functionName, List argumentList)
-  {
-    this.functionName = functionName;
-    this.argumentList = argumentList;
-  }
-
-  //-------------------------------------
-  // Expression methods
-  //-------------------------------------
-  /**
-   * Returns the expression in the expression language syntax
-   **/
-  @Override
-  public String getExpressionString () {
-    StringBuilder b = new StringBuilder();
-    b.append(functionName);
-    b.append("(");
-    Iterator i = argumentList.iterator();
-    while (i.hasNext()) {
-      b.append(((Expression) i.next()).getExpressionString());
-      if (i.hasNext())
-        b.append(", ");
-    }
-    b.append(")");
-    return b.toString();
-  }
-
-
-  //-------------------------------------
-  /**
-   *
-   * Evaluates by looking up the name in the VariableResolver
-   **/
-  public Object evaluate (Object pContext,
-                          VariableResolver pResolver,
-			  Map functions,
-			  String defaultPrefix,
-                          Logger pLogger)
-    throws ELException
-  {
-
-    // if the Map is null, then the function is invalid
-    if (functions == null)
-      pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
-
-    // normalize function name against default prefix
-    String functionName = this.functionName;
-    if (functionName.indexOf(":") == -1) {
-      if (defaultPrefix == null)
-        pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
-      functionName = defaultPrefix + ":" + functionName;
+    public String getFunctionName() {
+        return functionName;
     }
 
-    // ensure that the function's name is mapped
-    Method target = (Method) functions.get(functionName);
-    if (target == null)
-      pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
-
-    // ensure that the number of arguments matches the number of parameters
-    Class[] params = target.getParameterTypes();
-    if (params.length != argumentList.size())
-        pLogger.logError(Constants.INAPPROPRIATE_FUNCTION_ARG_COUNT,
-                         Integer.valueOf(params.length),
-                         Integer.valueOf(argumentList.size()));
-
-    // now, walk through each parameter, evaluating and casting its argument
-    Object[] arguments = new Object[argumentList.size()];
-    for (int i = 0; i < params.length; i++) {
-      // evaluate
-      arguments[i] = ((Expression) argumentList.get(i)).evaluate(pContext,
-								 pResolver,
-								 functions,
-								 defaultPrefix,
-								 pLogger);
-      // coerce
-      arguments[i] = Coercions.coerce(arguments[i], params[i], pLogger);
+    public void setFunctionName(String f) {
+        functionName = f;
     }
 
-    // finally, invoke the target method, which we know to be static
-    try {
-      return (target.invoke(null, arguments));
-    } catch (InvocationTargetException ex) {
-      pLogger.logError(Constants.FUNCTION_INVOCATION_ERROR,
-			ex.getTargetException(),
-			functionName);
-      return null;
-    } catch (Exception ex) {
-      pLogger.logError(Constants.FUNCTION_INVOCATION_ERROR, ex, functionName);
-      return null;
+    public List getArgumentList() {
+        return argumentList;
     }
-  }
 
-  //-------------------------------------
+    public void setArgumentList(List l) {
+        argumentList = l;
+    }
+
+    // -------------------------------------
+    /**
+     * Constructor
+     **/
+    public FunctionInvocation(String functionName, List argumentList) {
+        this.functionName = functionName;
+        this.argumentList = argumentList;
+    }
+
+    // -------------------------------------
+    // Expression methods
+    // -------------------------------------
+    /**
+     * Returns the expression in the expression language syntax
+     **/
+    @Override
+    public String getExpressionString() {
+        StringBuilder b = new StringBuilder();
+        b.append(functionName);
+        b.append("(");
+        Iterator i = argumentList.iterator();
+        while (i.hasNext()) {
+            b.append(((Expression) i.next()).getExpressionString());
+            if (i.hasNext())
+                b.append(", ");
+        }
+        b.append(")");
+        return b.toString();
+    }
+
+    // -------------------------------------
+    /**
+     *
+     * Evaluates by looking up the name in the VariableResolver
+     **/
+    public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+            throws ELException {
+
+        // if the Map is null, then the function is invalid
+        if (functions == null)
+            pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
+
+        // normalize function name against default prefix
+        String functionName = this.functionName;
+        if (functionName.indexOf(":") == -1) {
+            if (defaultPrefix == null)
+                pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
+            functionName = defaultPrefix + ":" + functionName;
+        }
+
+        // ensure that the function's name is mapped
+        Method target = (Method) functions.get(functionName);
+        if (target == null)
+            pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
+
+        // ensure that the number of arguments matches the number of parameters
+        Class[] params = target.getParameterTypes();
+        if (params.length != argumentList.size())
+            pLogger.logError(Constants.INAPPROPRIATE_FUNCTION_ARG_COUNT, Integer.valueOf(params.length),
+                    Integer.valueOf(argumentList.size()));
+
+        // now, walk through each parameter, evaluating and casting its argument
+        Object[] arguments = new Object[argumentList.size()];
+        for (int i = 0; i < params.length; i++) {
+            // evaluate
+            arguments[i] = ((Expression) argumentList.get(i)).evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
+            // coerce
+            arguments[i] = Coercions.coerce(arguments[i], params[i], pLogger);
+        }
+
+        // finally, invoke the target method, which we know to be static
+        try {
+            return (target.invoke(null, arguments));
+        } catch (InvocationTargetException ex) {
+            pLogger.logError(Constants.FUNCTION_INVOCATION_ERROR, ex.getTargetException(), functionName);
+            return null;
+        } catch (Exception ex) {
+            pLogger.logError(Constants.FUNCTION_INVOCATION_ERROR, ex, functionName);
+            return null;
+        }
+    }
+
+    // -------------------------------------
 }

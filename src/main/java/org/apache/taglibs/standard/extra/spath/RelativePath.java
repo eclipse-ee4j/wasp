@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * <p>Represents a relative SPath expression.</p>
+ * <p>
+ * Represents a relative SPath expression.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -32,28 +34,27 @@ public class RelativePath extends Path {
     private Step step;
 
     /**
-     * Constructs a new RelativePath object, based on a Step and another
-     * (possibly null) RelativePath.  If 'all' is true, then the path
-     * matches all instances of 'next' underneath 'step'; otherwise;
-     * 'next' must be an immediate child of 'step'.
+     * Constructs a new RelativePath object, based on a Step and another (possibly null) RelativePath. If 'all' is true,
+     * then the path matches all instances of 'next' underneath 'step'; otherwise; 'next' must be an immediate child of
+     * 'step'.
      */
     public RelativePath(Step step, RelativePath next) {
-	if (step == null)
-	    throw new IllegalArgumentException("non-null step required");
-	this.step = step;
-	this.next = next;
+        if (step == null)
+            throw new IllegalArgumentException("non-null step required");
+        this.step = step;
+        this.next = next;
     }
 
     // inherit JavaDoc comment
     @Override
     public List<Step> getSteps() {
-	// simply merge our 'step' with our 'next'
-	List<Step> l;
-	if (next != null)
-	    l = next.getSteps();
-	else
-	    l = new Vector<>();
-	l.add(0, step);
-	return l;
+        // simply merge our 'step' with our 'next'
+        List<Step> l;
+        if (next != null)
+            l = next.getSteps();
+        else
+            l = new Vector<>();
+        l.add(0, step);
+        return l;
     }
 }

@@ -27,10 +27,10 @@ import javax.sql.DataSource;
 import org.apache.taglibs.standard.resources.Resources;
 import org.apache.taglibs.standard.tag.common.core.Util;
 
-
 /**
- * <p>Tag handler for &lt;SetDataSource&gt; in JSTL, used to create
- * a simple DataSource for prototyping.</p>
+ * <p>
+ * Tag handler for &lt;SetDataSource&gt; in JSTL, used to create a simple DataSource for prototyping.
+ * </p>
  * 
  * @author Hans Bergsten
  * @author Justyna Horwat
@@ -47,30 +47,27 @@ public class SetDataSourceTagSupport extends TagSupport {
     private int scope;
     private String var;
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public SetDataSourceTagSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	dataSource = null;
-	dataSourceSpecified = false;
-	jdbcURL = driverClassName = userName = password = null;
-	var = null;
-	scope = PageContext.PAGE_SCOPE;
+        dataSource = null;
+        dataSourceSpecified = false;
+        jdbcURL = driverClassName = userName = password = null;
+        var = null;
+        scope = PageContext.PAGE_SCOPE;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     /**
-     * Setter method for the scope of the variable to hold the
-     * result.
+     * Setter method for the scope of the variable to hold the result.
      *
      */
     public void setScope(String scope) {
@@ -78,11 +75,10 @@ public class SetDataSourceTagSupport extends TagSupport {
     }
 
     public void setVar(String var) {
-	this.var = var;
+        this.var = var;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     public int doStartTag() throws JspException {
@@ -91,10 +87,9 @@ public class SetDataSourceTagSupport extends TagSupport {
         if (dataSource != null) {
             ds = DataSourceUtil.getDataSource(dataSource, pageContext);
         } else {
-	    if (dataSourceSpecified) {
-		throw new JspException(
-                    Resources.getMessage("SQL_DATASOURCE_NULL"));
-	    }
+            if (dataSourceSpecified) {
+                throw new JspException(Resources.getMessage("SQL_DATASOURCE_NULL"));
+            }
 
             DataSourceWrapper dsw = new DataSourceWrapper();
             try {
@@ -102,29 +97,26 @@ public class SetDataSourceTagSupport extends TagSupport {
                 if (driverClassName != null) {
                     dsw.setDriverClassName(driverClassName);
                 }
-            }
-            catch (Exception e) {
-                throw new JspTagException(
-                    Resources.getMessage("DRIVER_INVALID_CLASS",
-					 e.toString()), e);
+            } catch (Exception e) {
+                throw new JspTagException(Resources.getMessage("DRIVER_INVALID_CLASS", e.toString()), e);
             }
             dsw.setJdbcURL(jdbcURL);
             dsw.setUserName(userName);
             dsw.setPassword(password);
-	    ds = (DataSource) dsw;
+            ds = (DataSource) dsw;
         }
 
         if (var != null) {
-	    pageContext.setAttribute(var, ds, scope);
+            pageContext.setAttribute(var, ds, scope);
         } else {
             Config.set(pageContext, Config.SQL_DATA_SOURCE, ds, scope);
         }
 
-	return SKIP_BODY;
+        return SKIP_BODY;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 }

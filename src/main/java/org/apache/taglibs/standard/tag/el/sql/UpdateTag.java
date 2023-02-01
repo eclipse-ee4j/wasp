@@ -28,35 +28,30 @@ import org.apache.taglibs.standard.tag.common.sql.UpdateTagSupport;
  * @author Hans Bergsten
  */
 public class UpdateTag extends UpdateTagSupport {
-    
+
     private String dataSourceEL;
     private String sqlEL;
 
     public void setDataSource(String dataSourceEL) {
-	this.dataSourceEL = dataSourceEL;
-	this.dataSourceSpecified = true;
+        this.dataSourceEL = dataSourceEL;
+        this.dataSourceSpecified = true;
     }
 
     /**
-     * Setter method for the SQL statement to use for the
-     * query. The statement may contain parameter markers
-     * (question marks, ?). If so, the parameter values must
-     * be set using nested value elements.
+     * Setter method for the SQL statement to use for the query. The statement may contain parameter markers (question
+     * marks, ?). If so, the parameter values must be set using nested value elements.
      */
     public void setSql(String sqlEL) {
-	this.sqlEL = sqlEL;
+        this.sqlEL = sqlEL;
     }
 
     public int doStartTag() throws JspException {
-	if (dataSourceEL != null) {
-	    rawDataSource = (Object) 
-		ExpressionEvaluatorManager.evaluate("dataSource", 
-		    dataSourceEL, Object.class, this, pageContext);
-	}
-	if (sqlEL != null) {
-	    sql = (String) ExpressionEvaluatorManager.evaluate("sql", sqlEL, 
-	        String.class, this, pageContext);
-	}
-	return super.doStartTag();
+        if (dataSourceEL != null) {
+            rawDataSource = (Object) ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
+        }
+        if (sqlEL != null) {
+            sql = (String) ExpressionEvaluatorManager.evaluate("sql", sqlEL, String.class, this, pageContext);
+        }
+        return super.doStartTag();
     }
 }

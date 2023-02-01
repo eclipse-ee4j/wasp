@@ -24,18 +24,16 @@ import jakarta.servlet.jsp.tagext.IterationTag;
 import org.apache.taglibs.standard.tag.common.core.ForTokensSupport;
 
 /**
- * <p>A handler for &lt;forTokens&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;forTokens&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Shawn Bayern
  */
 
-public class ForTokensTag
-    extends ForTokensSupport
-    implements LoopTag, IterationTag
-{
+public class ForTokensTag extends ForTokensSupport implements LoopTag, IterationTag {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute
@@ -62,17 +60,17 @@ public class ForTokensTag
     // stores the 'items' String we're passed
     public void setItems(Object s) throws JspTagException {
         items = s;
-	// use the empty string to indicate "no iteration"
+        // use the empty string to indicate "no iteration"
         if (s == null)
-	    items = "";
+            items = "";
     }
 
     // stores the 'delims' String we're passed
     public void setDelims(String s) throws JspTagException {
         delims = s;
-	// use the empty string to cause monolithic tokenization
+        // use the empty string to cause monolithic tokenization
         if (s == null)
-	    delims = "";
+            delims = "";
     }
 
 }

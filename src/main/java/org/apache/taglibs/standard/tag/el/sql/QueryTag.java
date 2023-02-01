@@ -35,59 +35,54 @@ public class QueryTag extends QueryTagSupport {
     private String startRowEL;
     private String maxRowsEL;
 
-    //*********************************************************************
+    // *********************************************************************
     // Constructor
 
     /**
-     * Constructs a new QueryTag.  As with TagSupport, subclasses
-     * should not provide other constructors and are expected to call
-     * the superclass constructor
+     * Constructs a new QueryTag. As with TagSupport, subclasses should not provide other constructors and are expected to
+     * call the superclass constructor
      */
     public QueryTag() {
         super();
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     public void setDataSource(String dataSourceEL) {
-	this.dataSourceEL = dataSourceEL;
-	this.dataSourceSpecified = true;
+        this.dataSourceEL = dataSourceEL;
+        this.dataSourceSpecified = true;
     }
 
     /**
-     * The index of the first row returned can be
-     * specified using startRow.
+     * The index of the first row returned can be specified using startRow.
      */
     public void setStartRow(String startRowEL) {
-	this.startRowEL = startRowEL;
+        this.startRowEL = startRowEL;
     }
 
     /**
-     * Query result can be limited by specifying
-     * the maximum number of rows returned.
+     * Query result can be limited by specifying the maximum number of rows returned.
      */
     public void setMaxRows(String maxRowsEL) {
-	this.maxRowsEL = maxRowsEL;
-	this.maxRowsSpecified = true;
+        this.maxRowsEL = maxRowsEL;
+        this.maxRowsSpecified = true;
     }
 
     /**
-     * Setter method for the SQL statement to use for the
-     * query. The statement may contain parameter markers
-     * (question marks, ?). If so, the parameter values must
-     * be set using nested value elements.
+     * Setter method for the SQL statement to use for the query. The statement may contain parameter markers (question
+     * marks, ?). If so, the parameter values must be set using nested value elements.
      */
     public void setSql(String sqlEL) {
-	this.sqlEL = sqlEL;
+        this.sqlEL = sqlEL;
     }
 
     public int doStartTag() throws JspException {
         evaluateExpressions();
-	return super.doStartTag();
+        return super.doStartTag();
     }
 
-    //*********************************************************************
+    // *********************************************************************
     // Private utility methods
 
     // Evaluates expressions as necessary
@@ -95,27 +90,23 @@ public class QueryTag extends QueryTagSupport {
         Integer tempInt = null;
 
         if (dataSourceEL != null) {
-            rawDataSource = (Object) ExpressionEvaluatorManager.evaluate(
-                "dataSource", dataSourceEL, Object.class, this, pageContext);
+            rawDataSource = (Object) ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
         }
 
         if (sqlEL != null) {
-            sql = (String) ExpressionEvaluatorManager.evaluate("sql", sqlEL,
-                String.class, this, pageContext);
+            sql = (String) ExpressionEvaluatorManager.evaluate("sql", sqlEL, String.class, this, pageContext);
         }
 
-	if (startRowEL != null) {
-	    tempInt = (Integer) ExpressionEvaluatorManager.evaluate(
-                "startRow", startRowEL, Integer.class, this, pageContext);
-	    if (tempInt != null)
-		startRow = tempInt.intValue();
-	}
+        if (startRowEL != null) {
+            tempInt = (Integer) ExpressionEvaluatorManager.evaluate("startRow", startRowEL, Integer.class, this, pageContext);
+            if (tempInt != null)
+                startRow = tempInt.intValue();
+        }
 
-	if (maxRowsEL != null) {
-	    tempInt = (Integer) ExpressionEvaluatorManager.evaluate(
-                "maxRows", maxRowsEL, Integer.class, this, pageContext);
-	    if (tempInt != null)
-		maxRows = tempInt.intValue();
-	}
+        if (maxRowsEL != null) {
+            tempInt = (Integer) ExpressionEvaluatorManager.evaluate("maxRows", maxRowsEL, Integer.class, this, pageContext);
+            if (tempInt != null)
+                maxRows = tempInt.intValue();
+        }
     }
 }

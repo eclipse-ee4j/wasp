@@ -17,9 +17,10 @@
 
 package org.apache.taglibs.standard.tag.common.core;
 
-
 /**
- * <p>Tag handler for &lt;otherwise&gt; in JSTL.</p>
+ * <p>
+ * Tag handler for &lt;otherwise&gt; in JSTL.
+ * </p>
  *
  * @author Shawn Bayern
  */
@@ -27,8 +28,7 @@ package org.apache.taglibs.standard.tag.common.core;
 public class OtherwiseTag extends WhenTagSupport {
 
     /*
-     * <otherwise> is just a <when> that always tries to evaluate its body
-     * if it has permission from its parent tag.
+     * <otherwise> is just a <when> that always tries to evaluate its body if it has permission from its parent tag.
      */
 
     // Don't let the condition stop us... :-)

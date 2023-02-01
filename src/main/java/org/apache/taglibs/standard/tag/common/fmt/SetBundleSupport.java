@@ -26,43 +26,39 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
- * Support for tag handlers for &lt;setBundle&gt;, the JSTL 1.0 tag that loads
- * a resource bundle and stores it in a scoped variable.
+ * Support for tag handlers for &lt;setBundle&gt;, the JSTL 1.0 tag that loads a resource bundle and stores it in a
+ * scoped variable.
  *
  * @author Jan Luehe
  */
 
 public abstract class SetBundleSupport extends TagSupport {
 
-    
-    //*********************************************************************
+    // *********************************************************************
     // Protected state
 
-    protected String basename;                  // 'basename' attribute
+    protected String basename; // 'basename' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Private state
 
-    private int scope;                          // 'scope' attribute
-    private String var;                         // 'var' attribute
+    private int scope; // 'scope' attribute
+    private String var; // 'var' attribute
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Constructor and initialization
 
     public SetBundleSupport() {
-	super();
-	init();
+        super();
+        init();
     }
 
     private void init() {
-	basename = null;
-	scope = PageContext.PAGE_SCOPE;
+        basename = null;
+        scope = PageContext.PAGE_SCOPE;
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag attributes known at translation time
 
     public void setVar(String var) {
@@ -70,29 +66,26 @@ public abstract class SetBundleSupport extends TagSupport {
     }
 
     public void setScope(String scope) {
-	this.scope = Util.getScope(scope);
+        this.scope = Util.getScope(scope);
     }
 
-
-    //*********************************************************************
+    // *********************************************************************
     // Tag logic
 
     public int doEndTag() throws JspException {
-	LocalizationContext locCtxt =
-	    BundleSupport.getLocalizationContext(pageContext, basename);
+        LocalizationContext locCtxt = BundleSupport.getLocalizationContext(pageContext, basename);
 
-	if (var != null) {
-	    pageContext.setAttribute(var, locCtxt, scope);
-	} else {
-	    Config.set(pageContext, Config.FMT_LOCALIZATION_CONTEXT, locCtxt,
-		       scope);
-	}
+        if (var != null) {
+            pageContext.setAttribute(var, locCtxt, scope);
+        } else {
+            Config.set(pageContext, Config.FMT_LOCALIZATION_CONTEXT, locCtxt, scope);
+        }
 
-	return EVAL_PAGE;
+        return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
     public void release() {
-	init();
+        init();
     }
 }

@@ -19,47 +19,42 @@ package org.apache.taglibs.standard.lang.jstl;
 
 /**
  *
- * <p>An expression representing a floating point literal value.  The
- * value is stored internally as a double.
+ * <p>
+ * An expression representing a floating point literal value. The value is stored internally as a double.
  * 
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
 
-public class FloatingPointLiteral
-  extends Literal
-{
-  //-------------------------------------
-  /**
-   *
-   * Constructor
-   **/
-  public FloatingPointLiteral (String pToken)
-  {
-    super (getValueFromToken (pToken));
-  }
+public class FloatingPointLiteral extends Literal {
+    // -------------------------------------
+    /**
+     *
+     * Constructor
+     **/
+    public FloatingPointLiteral(String pToken) {
+        super(getValueFromToken(pToken));
+    }
 
-  //-------------------------------------
-  /**
-   *
-   * Parses the given token into the literal value
-   **/
-  static Object getValueFromToken (String pToken)
-  {
-    return new Double (pToken);
-  }
+    // -------------------------------------
+    /**
+     *
+     * Parses the given token into the literal value
+     **/
+    static Object getValueFromToken(String pToken) {
+        return new Double(pToken);
+    }
 
-  //-------------------------------------
-  // Expression methods
-  //-------------------------------------
-  /**
-   *
-   * Returns the expression in the expression language syntax
-   **/
-  public String getExpressionString ()
-  {
-    return getValue ().toString ();
-  }
+    // -------------------------------------
+    // Expression methods
+    // -------------------------------------
+    /**
+     *
+     * Returns the expression in the expression language syntax
+     **/
+    public String getExpressionString() {
+        return getValue().toString();
+    }
 
-  //-------------------------------------
+    // -------------------------------------
 }

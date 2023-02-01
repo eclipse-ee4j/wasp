@@ -28,30 +28,28 @@ import org.apache.taglibs.standard.tag.common.sql.TransactionTagSupport;
  */
 public class TransactionTag extends TransactionTagSupport {
     private String isolationRT;
-    
-    //*********************************************************************
+
+    // *********************************************************************
     // Accessor methods
 
-
     /**
-     * Setter method for the SQL DataSource. DataSource can be
-     * a String or a DataSource object.
+     * Setter method for the SQL DataSource. DataSource can be a String or a DataSource object.
      */
     public void setDataSource(Object dataSource) {
-	this.rawDataSource = dataSource;
-	this.dataSourceSpecified = true;
+        this.rawDataSource = dataSource;
+        this.dataSourceSpecified = true;
     }
 
     /**
      * Setter method for the Transaction Isolation level.
      */
     public void setIsolation(String isolation) {
-	this.isolationRT = isolation;
+        this.isolationRT = isolation;
     }
 
     public int doStartTag() throws JspException {
-	if (isolationRT != null)
-          super.setIsolation(isolationRT);
+        if (isolationRT != null)
+            super.setIsolation(isolationRT);
         return super.doStartTag();
     }
 }

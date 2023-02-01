@@ -30,10 +30,9 @@ import javax.sql.DataSource;
 
 import org.apache.taglibs.standard.resources.Resources;
 
-
 /**
- * <p>A simple <code>DataSource</code> wrapper for the standard
- * <code>DriverManager</code> class.
+ * <p>
+ * A simple <code>DataSource</code> wrapper for the standard <code>DriverManager</code> class.
  * 
  * @author Hans Bergsten
  */
@@ -43,32 +42,28 @@ public class DataSourceWrapper implements DataSource {
     private String userName;
     private String password;
 
-    public void setDriverClassName(String driverClassName) 
-	throws ClassNotFoundException, InstantiationException, 
-	       IllegalAccessException {
+    public void setDriverClassName(String driverClassName) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        Object instance = Class.forName(driverClassName, true, 
-            Thread.currentThread().getContextClassLoader()).newInstance();
+        Object instance = Class.forName(driverClassName, true, Thread.currentThread().getContextClassLoader()).newInstance();
         if (instance instanceof Driver) {
             driver = (Driver) instance;
         }
     }
 
     public void setJdbcURL(String jdbcURL) {
-	this.jdbcURL = jdbcURL;
+        this.jdbcURL = jdbcURL;
     }
 
     public void setUserName(String userName) {
-	this.userName = userName;
+        this.userName = userName;
     }
 
     public void setPassword(String password) {
-	this.password = password;
+        this.password = password;
     }
 
     /**
-     * Returns a Connection using the DriverManager and all
-     * set properties.
+     * Returns a Connection using the DriverManager and all set properties.
      */
     public Connection getConnection() throws SQLException {
         Connection conn = null;
@@ -93,35 +88,33 @@ public class DataSourceWrapper implements DataSource {
     }
 
     /**
-     * Always throws a SQLException. Username and password are set
-     * in the constructor and can not be changed.
+     * Always throws a SQLException. Username and password are set in the constructor and can not be changed.
      */
-    public Connection getConnection(String username, String password) 
-            throws SQLException {
+    public Connection getConnection(String username, String password) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
-    
+
     /**
      * Always throws a SQLException. Not supported.
      */
     public int getLoginTimeout() throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
-    
+
     /**
      * Always throws a SQLException. Not supported.
      */
     public PrintWriter getLogWriter() throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
-    
+
     /**
      * Always throws a SQLException. Not supported.
      */
     public void setLoginTimeout(int seconds) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
-    
+
     /**
      * Always throws a SQLException. Not supported.
      */
@@ -142,14 +135,14 @@ public class DataSourceWrapper implements DataSource {
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
-    
+
     /**
      * Always throws a SQLFeatureNotSupportedException. Not supported.
+     * 
      * @since jdk1.7
      */
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        throw new SQLFeatureNotSupportedException(
-                Resources.getMessage("NOT_SUPPORTED"));
+        throw new SQLFeatureNotSupportedException(Resources.getMessage("NOT_SUPPORTED"));
     }
 
 }

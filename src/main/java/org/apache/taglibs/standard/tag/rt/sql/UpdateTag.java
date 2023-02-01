@@ -26,26 +26,22 @@ import org.apache.taglibs.standard.tag.common.sql.UpdateTagSupport;
  */
 public class UpdateTag extends UpdateTagSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
-    
     /**
-     * Setter method for the SQL DataSource. DataSource can be
-     * a String or a DataSource object.
+     * Setter method for the SQL DataSource. DataSource can be a String or a DataSource object.
      */
     public void setDataSource(Object dataSource) {
-	this.rawDataSource = dataSource;
-	this.dataSourceSpecified = true;
+        this.rawDataSource = dataSource;
+        this.dataSourceSpecified = true;
     }
 
     /**
-     * Setter method for the SQL statement to use for the
-     * query. The statement may contain parameter markers
-     * (question marks, ?). If so, the parameter values must
-     * be set using nested value elements.
+     * Setter method for the SQL statement to use for the query. The statement may contain parameter markers (question
+     * marks, ?). If so, the parameter values must be set using nested value elements.
      */
     public void setSql(String sql) {
-	this.sql = sql;
+        this.sql = sql;
     }
 }

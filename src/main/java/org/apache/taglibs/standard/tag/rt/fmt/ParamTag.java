@@ -22,20 +22,21 @@ import jakarta.servlet.jsp.JspTagException;
 import org.apache.taglibs.standard.tag.common.fmt.ParamSupport;
 
 /**
- * <p>A handler for &lt;param&gt; that supports rtexprvalue-based
- * message arguments.</p>
+ * <p>
+ * A handler for &lt;param&gt; that supports rtexprvalue-based message arguments.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class ParamTag extends ParamSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // for tag attribute
     public void setValue(Object value) throws JspTagException {
         this.value = value;
-	this.valueSpecified = true;
+        this.valueSpecified = true;
     }
 }

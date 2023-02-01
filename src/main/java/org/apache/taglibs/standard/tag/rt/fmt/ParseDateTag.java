@@ -25,21 +25,22 @@ import org.apache.taglibs.standard.tag.common.fmt.ParseDateSupport;
 import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 
 /**
- * <p>A handler for &lt;parseDate&gt; that supports rtexprvalue-based
- * attributes.</p>
+ * <p>
+ * A handler for &lt;parseDate&gt; that supports rtexprvalue-based attributes.
+ * </p>
  *
  * @author Jan Luehe
  */
 
 public class ParseDateTag extends ParseDateSupport {
 
-    //*********************************************************************
+    // *********************************************************************
     // Accessor methods
 
     // 'value' attribute
     public void setValue(String value) throws JspTagException {
         this.value = value;
-	this.valueSpecified = true;
+        this.valueSpecified = true;
     }
 
     // 'type' attribute
@@ -69,15 +70,14 @@ public class ParseDateTag extends ParseDateSupport {
 
     // 'parseLocale' attribute
     public void setParseLocale(Object loc) throws JspTagException {
-	if (loc != null) {
-	    if (loc instanceof Locale) {
-		this.parseLocale = (Locale) loc;
-	    } else {
-		if (!"".equals((String) loc)) {
-		    this.parseLocale = SetLocaleSupport.parseLocale((String)
-								    loc);
-		}
-	    }
-	}
+        if (loc != null) {
+            if (loc instanceof Locale) {
+                this.parseLocale = (Locale) loc;
+            } else {
+                if (!"".equals((String) loc)) {
+                    this.parseLocale = SetLocaleSupport.parseLocale((String) loc);
+                }
+            }
+        }
     }
 }

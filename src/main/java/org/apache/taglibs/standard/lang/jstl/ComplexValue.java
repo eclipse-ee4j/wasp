@@ -26,7 +26,7 @@ import java.util.Map;
  * <p>
  * Represents a dynamic value, which consists of a prefix and an optional set of ValueSuffix elements. A prefix is
  * something like an identifier, and a suffix is something like a "property of" or "indexed element of" operator.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -96,6 +96,7 @@ public class ComplexValue extends Expression {
      *
      * Evaluates by evaluating the prefix, then applying the suffixes
      **/
+    @Override
     public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         Object ret = mPrefix.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);

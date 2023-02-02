@@ -22,7 +22,7 @@ package org.apache.taglibs.standard.lang.jstl;
  * <p>
  * This converts primitive values to their Object counterparts. For bytes and chars, values from 0 to 255 are cached.
  * For shorts, ints, and longs, values -1000 to 1000 are cached.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jluehe $
  **/
@@ -73,7 +73,7 @@ class PrimitiveObjects {
     // -------------------------------------
     public static Character getCharacter(char pValue) {
         if (pValue >= CHARACTER_LOWER_BOUND && pValue <= CHARACTER_UPPER_BOUND) {
-            return mCharacters[((int) pValue) - CHARACTER_LOWER_BOUND];
+            return mCharacters[(pValue) - CHARACTER_LOWER_BOUND];
         } else {
             return Character.valueOf(pValue);
         }
@@ -82,7 +82,7 @@ class PrimitiveObjects {
     // -------------------------------------
     public static Short getShort(short pValue) {
         if (pValue >= SHORT_LOWER_BOUND && pValue <= SHORT_UPPER_BOUND) {
-            return mShorts[((int) pValue) - SHORT_LOWER_BOUND];
+            return mShorts[(pValue) - SHORT_LOWER_BOUND];
         } else {
             return Short.valueOf(pValue);
         }
@@ -91,7 +91,7 @@ class PrimitiveObjects {
     // -------------------------------------
     public static Integer getInteger(int pValue) {
         if (pValue >= INTEGER_LOWER_BOUND && pValue <= INTEGER_UPPER_BOUND) {
-            return mIntegers[((int) pValue) - INTEGER_LOWER_BOUND];
+            return mIntegers[(pValue) - INTEGER_LOWER_BOUND];
         } else {
             return Integer.valueOf(pValue);
         }
@@ -185,7 +185,7 @@ class PrimitiveObjects {
     static Integer[] createIntegers() {
         int len = INTEGER_UPPER_BOUND - INTEGER_LOWER_BOUND + 1;
         Integer[] ret = new Integer[len];
-        int val = (int) INTEGER_LOWER_BOUND;
+        int val = INTEGER_LOWER_BOUND;
         for (int i = 0; i < len; i++, val++) {
             ret[i] = Integer.valueOf(val);
         }
@@ -196,7 +196,7 @@ class PrimitiveObjects {
     static Long[] createLongs() {
         int len = LONG_UPPER_BOUND - LONG_LOWER_BOUND + 1;
         Long[] ret = new Long[len];
-        long val = (long) LONG_LOWER_BOUND;
+        long val = LONG_LOWER_BOUND;
         for (int i = 0; i < len; i++, val++) {
             ret[i] = Long.valueOf(val);
         }

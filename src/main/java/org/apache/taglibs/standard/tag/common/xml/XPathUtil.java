@@ -21,18 +21,20 @@ package org.apache.taglibs.standard.tag.common.xml;
 
 import java.util.List;
 
-import jakarta.servlet.jsp.JspTagException;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.tagext.Tag;
-import jakarta.servlet.jsp.tagext.TagSupport;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathVariableResolver;
+
 import org.apache.taglibs.standard.resources.Resources;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.tagext.TagSupport;
 
 /**
  * Support for tag handlers that evaluate XPath expressions.

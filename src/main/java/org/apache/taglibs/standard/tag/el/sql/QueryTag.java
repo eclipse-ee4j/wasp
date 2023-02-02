@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.sql;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.sql.QueryTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Subclass for the JSTL library with EL support.
@@ -77,6 +77,7 @@ public class QueryTag extends QueryTagSupport {
         this.sqlEL = sqlEL;
     }
 
+    @Override
     public int doStartTag() throws JspException {
         evaluateExpressions();
         return super.doStartTag();
@@ -90,7 +91,7 @@ public class QueryTag extends QueryTagSupport {
         Integer tempInt = null;
 
         if (dataSourceEL != null) {
-            rawDataSource = (Object) ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
+            rawDataSource = ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
         }
 
         if (sqlEL != null) {
@@ -99,14 +100,16 @@ public class QueryTag extends QueryTagSupport {
 
         if (startRowEL != null) {
             tempInt = (Integer) ExpressionEvaluatorManager.evaluate("startRow", startRowEL, Integer.class, this, pageContext);
-            if (tempInt != null)
+            if (tempInt != null) {
                 startRow = tempInt.intValue();
+            }
         }
 
         if (maxRowsEL != null) {
             tempInt = (Integer) ExpressionEvaluatorManager.evaluate("maxRows", maxRowsEL, Integer.class, this, pageContext);
-            if (tempInt != null)
+            if (tempInt != null) {
                 maxRows = tempInt.intValue();
+            }
         }
     }
 }

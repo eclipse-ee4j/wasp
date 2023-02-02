@@ -88,20 +88,21 @@ public class ParseException extends Exception {
      * has been created due to a parse error, and you do not catch it (it gets thrown from the parser), then this method is
      * called during the printing of the final stack trace, and hence the correct error message gets displayed.
      */
+    @Override
     public String getMessage() {
         if (!specialConstructor) {
             return super.getMessage();
         }
         String expected = "";
         int maxSize = 0;
-        for (int i = 0; i < expectedTokenSequences.length; i++) {
-            if (maxSize < expectedTokenSequences[i].length) {
-                maxSize = expectedTokenSequences[i].length;
+        for (int[] element : expectedTokenSequences) {
+            if (maxSize < element.length) {
+                maxSize = element.length;
             }
-            for (int j = 0; j < expectedTokenSequences[i].length; j++) {
-                expected += tokenImage[expectedTokenSequences[i][j]] + " ";
+            for (int element2 : element) {
+                expected += tokenImage[element2] + " ";
             }
-            if (expectedTokenSequences[i][expectedTokenSequences[i].length - 1] != 0) {
+            if (element[element.length - 1] != 0) {
                 expected += "...";
             }
             expected += eol + "    ";
@@ -109,8 +110,9 @@ public class ParseException extends Exception {
         String retval = "Encountered \"";
         Token tok = currentToken.next;
         for (int i = 0; i < maxSize; i++) {
-            if (i != 0)
+            if (i != 0) {
                 retval += " ";
+            }
             if (tok.kind == 0) {
                 retval += tokenImage[0];
                 break;

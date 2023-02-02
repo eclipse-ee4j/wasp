@@ -29,7 +29,7 @@ import java.util.Map;
  * <p>
  * Represents a function call.
  * </p>
- * 
+ *
  * @author Shawn Bayern (in the style of Nathan's other classes)
  **/
 
@@ -81,8 +81,9 @@ public class FunctionInvocation extends Expression {
         Iterator i = argumentList.iterator();
         while (i.hasNext()) {
             b.append(((Expression) i.next()).getExpressionString());
-            if (i.hasNext())
+            if (i.hasNext()) {
                 b.append(", ");
+            }
         }
         b.append(")");
         return b.toString();
@@ -93,31 +94,36 @@ public class FunctionInvocation extends Expression {
      *
      * Evaluates by looking up the name in the VariableResolver
      **/
+    @Override
     public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
 
         // if the Map is null, then the function is invalid
-        if (functions == null)
+        if (functions == null) {
             pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
+        }
 
         // normalize function name against default prefix
         String functionName = this.functionName;
         if (functionName.indexOf(":") == -1) {
-            if (defaultPrefix == null)
+            if (defaultPrefix == null) {
                 pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
+            }
             functionName = defaultPrefix + ":" + functionName;
         }
 
         // ensure that the function's name is mapped
         Method target = (Method) functions.get(functionName);
-        if (target == null)
+        if (target == null) {
             pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
+        }
 
         // ensure that the number of arguments matches the number of parameters
         Class[] params = target.getParameterTypes();
-        if (params.length != argumentList.size())
+        if (params.length != argumentList.size()) {
             pLogger.logError(Constants.INAPPROPRIATE_FUNCTION_ARG_COUNT, Integer.valueOf(params.length),
                     Integer.valueOf(argumentList.size()));
+        }
 
         // now, walk through each parameter, evaluating and casting its argument
         Object[] arguments = new Object[argumentList.size()];

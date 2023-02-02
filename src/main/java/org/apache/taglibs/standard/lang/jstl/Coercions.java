@@ -30,7 +30,7 @@ import java.beans.PropertyEditorManager;
  * The following is the list of rules applied for various type conversions.
  *
  * <ul>
- * 
+ *
  * <pre>
  * Applying arithmetic operator
  *   Binary operator - A {+,-,*} B
@@ -43,7 +43,7 @@ import java.beans.PropertyEditorManager;
  *       coerce both A and B to Long
  *       apply operator
  *     if operator results in exception (such as divide by 0), error
- * 
+ *
  *   Binary operator - A {/,div} B
  *     if A and B are null
  *       return 0
@@ -51,7 +51,7 @@ import java.beans.PropertyEditorManager;
  *       coerce both A and B to Double
  *       apply operator
  *     if operator results in exception (such as divide by 0), error
- * 
+ *
  *   Binary operator - A {%,mod} B
  *     if A and B are null
  *       return 0
@@ -62,7 +62,7 @@ import java.beans.PropertyEditorManager;
  *       coerce both A and B to Long
  *       apply operator
  *     if operator results in exception (such as divide by 0), error
- * 
+ *
  *   Unary minus operator - -A
  *     if A is null
  *       return 0
@@ -90,7 +90,7 @@ import java.beans.PropertyEditorManager;
  *     return true
  *   otherwise
  *     return false
- * 
+ *
  * Applying logical operators
  *   Binary operator - A {and,or} B
  *     coerce both A and B to Boolean, apply operator
@@ -98,7 +98,7 @@ import java.beans.PropertyEditorManager;
  *     A and B and C and D - if B is false, then only A and B is evaluated
  *   Unary not operator - not A
  *     coerce A to Boolean, apply operator
- * 
+ *
  * Applying relational operator
  *   A {{@literal <},{@literal >},{@literal <}=,{@literal >}=,lt,gt,lte,gte} B
  *     if A==B
@@ -128,7 +128,7 @@ import java.beans.PropertyEditorManager;
  *         use result of B.compareTo(A)
  *     otherwise
  *       error
- * 
+ *
  * Applying equality operator
  *   A {==,!=} B
  *     if A==B
@@ -150,9 +150,9 @@ import java.beans.PropertyEditorManager;
  *       if an error occurs while calling A.equals(B)
  *         error
  *       apply operator to result of A.equals(B)
- * 
+ *
  * coercions
- * 
+ *
  *   coerce A to String
  *     A is String
  *       return A
@@ -162,7 +162,7 @@ import java.beans.PropertyEditorManager;
  *       error
  *     otherwise
  *       return A.toString
- * 
+ *
  *   coerce A to primitive Number type N
  *     A is null or ""
  *       return 0
@@ -182,7 +182,7 @@ import java.beans.PropertyEditorManager;
  *       return N.valueOf(A)
  *     otherwise
  *       error
- * 
+ *
  *   coerce A to Character should be
  *     A is null or ""
  *       return (char) 0
@@ -198,7 +198,7 @@ import java.beans.PropertyEditorManager;
  *       return A.charAt (0)
  *     otherwise
  *       error
- * 
+ *
  *   coerce A to Boolean
  *     A is null or ""
  *       return false
@@ -210,7 +210,7 @@ import java.beans.PropertyEditorManager;
  *       return Boolean.valueOf(A)
  *     otherwise
  *       error
- * 
+ *
  *   coerce A to any other type T
  *     A is null
  *       return null
@@ -312,7 +312,7 @@ public class Coercions {
                 return coerceToPrimitiveNumber((String) pValue, pClass);
             } catch (Exception exc) {
                 if (pLogger.isLoggingError()) {
-                    pLogger.logError(Constants.STRING_TO_NUMBER_EXCEPTION, (String) pValue, pClass.getName());
+                    pLogger.logError(Constants.STRING_TO_NUMBER_EXCEPTION, pValue, pClass.getName());
                 }
                 return coerceToPrimitiveNumber(0, pClass);
             }
@@ -333,7 +333,7 @@ public class Coercions {
         if (pValue == null) {
             return null;
         } else if (pValue instanceof Character) {
-            return PrimitiveObjects.getInteger((int) (((Character) pValue).charValue()));
+            return PrimitiveObjects.getInteger((((Character) pValue).charValue()));
         } else if (pValue instanceof Boolean) {
             if (pLogger.isLoggingWarning()) {
                 pLogger.logWarning(Constants.BOOLEAN_TO_NUMBER, pValue, Integer.class.getName());
@@ -348,7 +348,7 @@ public class Coercions {
                 return Integer.valueOf((String) pValue);
             } catch (Exception exc) {
                 if (pLogger.isLoggingWarning()) {
-                    pLogger.logWarning(Constants.STRING_TO_NUMBER_EXCEPTION, (String) pValue, Integer.class.getName());
+                    pLogger.logWarning(Constants.STRING_TO_NUMBER_EXCEPTION, pValue, Integer.class.getName());
                 }
                 return null;
             }
@@ -373,11 +373,11 @@ public class Coercions {
         } else if (pClass == Integer.class || pClass == Integer.TYPE) {
             return PrimitiveObjects.getInteger((int) pValue);
         } else if (pClass == Long.class || pClass == Long.TYPE) {
-            return PrimitiveObjects.getLong((long) pValue);
+            return PrimitiveObjects.getLong(pValue);
         } else if (pClass == Float.class || pClass == Float.TYPE) {
-            return PrimitiveObjects.getFloat((float) pValue);
+            return PrimitiveObjects.getFloat(pValue);
         } else if (pClass == Double.class || pClass == Double.TYPE) {
-            return PrimitiveObjects.getDouble((double) pValue);
+            return PrimitiveObjects.getDouble(pValue);
         } else {
             return PrimitiveObjects.getInteger(0);
         }
@@ -400,7 +400,7 @@ public class Coercions {
         } else if (pClass == Float.class || pClass == Float.TYPE) {
             return PrimitiveObjects.getFloat((float) pValue);
         } else if (pClass == Double.class || pClass == Double.TYPE) {
-            return PrimitiveObjects.getDouble((double) pValue);
+            return PrimitiveObjects.getDouble(pValue);
         } else {
             return PrimitiveObjects.getInteger(0);
         }
@@ -496,7 +496,7 @@ public class Coercions {
                 return Boolean.valueOf(str);
             } catch (Exception exc) {
                 if (pLogger.isLoggingError()) {
-                    pLogger.logError(Constants.STRING_TO_BOOLEAN, exc, (String) pValue);
+                    pLogger.logError(Constants.STRING_TO_BOOLEAN, exc, pValue);
                 }
                 return Boolean.FALSE;
             }

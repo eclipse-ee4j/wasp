@@ -26,6 +26,8 @@ package org.apache.taglibs.standard.extra.spath;
  */
 public class ParseException extends Exception {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * This constructor is used by the method "generateParseException" in the generated parser. Calling this constructor
      * generates a new object of this type with the fields "currentToken", "expectedTokenSequences", and "tokenImage" set.
@@ -99,8 +101,8 @@ public class ParseException extends Exception {
             if (maxSize < expectedTokenSequence.length) {
                 maxSize = expectedTokenSequence.length;
             }
-            for (int j = 0; j < expectedTokenSequence.length; j++) {
-                expected += tokenImage[expectedTokenSequence[j]] + " ";
+            for (int element : expectedTokenSequence) {
+                expected += tokenImage[element] + " ";
             }
             if (expectedTokenSequence[expectedTokenSequence.length - 1] != 0) {
                 expected += "...";
@@ -110,8 +112,9 @@ public class ParseException extends Exception {
         String retval = "Encountered \"";
         Token tok = currentToken.next;
         for (int i = 0; i < maxSize; i++) {
-            if (i != 0)
+            if (i != 0) {
                 retval += " ";
+            }
             if (tok.kind == 0) {
                 retval += tokenImage[0];
                 break;

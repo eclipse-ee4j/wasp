@@ -17,13 +17,13 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.jstl.core.LoopTag;
-import jakarta.servlet.jsp.tagext.IterationTag;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.core.ForTokensSupport;
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
+
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.jstl.core.LoopTag;
+import jakarta.servlet.jsp.tagext.IterationTag;
 
 /**
  * <p>
@@ -54,6 +54,7 @@ public class ForTokensTag extends ForTokensSupport implements LoopTag, Iteration
     // Tag logic
 
     /* Begins iterating by processing the first item. */
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -64,6 +65,7 @@ public class ForTokensTag extends ForTokensSupport implements LoopTag, Iteration
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -123,40 +125,45 @@ public class ForTokensTag extends ForTokensSupport implements LoopTag, Iteration
 
         if (begin_ != null) {
             Object r = ExpressionEvaluatorManager.evaluate("begin", begin_, Integer.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("forTokens", "begin");
+            }
             begin = ((Integer) r).intValue();
             validateBegin();
         }
 
         if (end_ != null) {
             Object r = ExpressionEvaluatorManager.evaluate("end", end_, Integer.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("forTokens", "end");
+            }
             end = ((Integer) r).intValue();
             validateEnd();
         }
 
         if (step_ != null) {
             Object r = ExpressionEvaluatorManager.evaluate("step", step_, Integer.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("forTokens", "step");
+            }
             step = ((Integer) r).intValue();
             validateStep();
         }
 
         if (items_ != null) {
-            items = (String) ExpressionEvaluatorManager.evaluate("items", items_, String.class, this, pageContext);
+            items = ExpressionEvaluatorManager.evaluate("items", items_, String.class, this, pageContext);
             // use the empty string to indicate "no iteration"
-            if (items == null)
+            if (items == null) {
                 items = "";
+            }
         }
 
         if (delims_ != null) {
             delims = (String) ExpressionEvaluatorManager.evaluate("delims", delims_, String.class, this, pageContext);
             // use the empty string to cause monolithic tokenization
-            if (delims == null)
+            if (delims == null) {
                 delims = "";
+            }
         }
     }
 }

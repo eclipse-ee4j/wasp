@@ -26,14 +26,14 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.Tag;
-
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;message&gt;, the message formatting tag in JSTL 1.0.
@@ -107,11 +107,13 @@ public abstract class MessageSupport extends BodyTagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doStartTag() throws JspException {
         params.clear();
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
 
         String key = null;
@@ -123,8 +125,9 @@ public abstract class MessageSupport extends BodyTagSupport {
             key = keyAttrValue;
         } else {
             // ... retrieving and trimming our body
-            if (bodyContent != null && bodyContent.getString() != null)
+            if (bodyContent != null && bodyContent.getString() != null) {
                 key = bodyContent.getString().trim();
+            }
         }
 
         if ((key == null) || key.equals("")) {
@@ -161,8 +164,9 @@ public abstract class MessageSupport extends BodyTagSupport {
             if (bundle != null) {
                 try {
                     // prepend 'prefix' attribute from parent bundle
-                    if (prefix != null)
+                    if (prefix != null) {
                         key = prefix + key;
+                    }
                     message = bundle.getString(key);
                     // Perform parametric replacement if required
                     if (!params.isEmpty()) {
@@ -204,6 +208,7 @@ public abstract class MessageSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

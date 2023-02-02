@@ -26,7 +26,7 @@ import javax.xml.xpath.XPathException;
 public class UnresolvableException extends XPathException {
     /**
      * Create an UnresolvableException object that holds an error message.
-     * 
+     *
      * @param message The error message.
      */
     public UnresolvableException(String message) {
@@ -35,7 +35,7 @@ public class UnresolvableException extends XPathException {
 
     /**
      * Create an UnresolvableException object that holds an error message, and another exception that caused this exception.
-     * 
+     *
      * @param cause The exception that caused this exception.
      */
     public UnresolvableException(Throwable cause) {

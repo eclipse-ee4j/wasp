@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.fmt;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.fmt.SetBundleSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -54,6 +54,7 @@ public class SetBundleTag extends SetBundleSupport {
     // Tag logic
 
     // evaluates expression and chains to parent
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -64,6 +65,7 @@ public class SetBundleTag extends SetBundleSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();

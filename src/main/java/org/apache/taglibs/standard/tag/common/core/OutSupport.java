@@ -69,6 +69,7 @@ public class OutSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -78,6 +79,7 @@ public class OutSupport extends BodyTagSupport {
     // Tag logic
 
     // evaluates 'value' and determines if the body should be evaluted
+    @Override
     public int doStartTag() throws JspException {
 
         needBody = false; // reset state related to 'default'
@@ -108,14 +110,18 @@ public class OutSupport extends BodyTagSupport {
     }
 
     // prints the body if necessary; reports errors
+    @Override
     public int doEndTag() throws JspException {
         try {
             if (!needBody)
+             {
                 return EVAL_PAGE; // nothing more to do
+            }
 
             // trim and print out the body
-            if (bodyContent != null && bodyContent.getString() != null)
+            if (bodyContent != null && bodyContent.getString() != null) {
                 out(pageContext, escapeXml, bodyContent.getString().trim());
+            }
             return EVAL_PAGE;
         } catch (IOException ex) {
             throw new JspException(ex.toString(), ex);

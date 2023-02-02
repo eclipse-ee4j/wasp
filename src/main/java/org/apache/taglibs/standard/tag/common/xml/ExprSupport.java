@@ -59,6 +59,7 @@ public abstract class ExprSupport extends TagSupport {
     // Tag logic
 
     // applies XPath expression from 'select' and prints the result
+    @Override
     public int doStartTag() throws JspException {
         try {
             XPathUtil xu = new XPathUtil(pageContext);
@@ -71,6 +72,7 @@ public abstract class ExprSupport extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();

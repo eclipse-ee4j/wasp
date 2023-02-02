@@ -18,6 +18,8 @@
 
 package org.apache.taglibs.standard.extra.spath;
 
+import org.xml.sax.Attributes;
+
 /**
  * <p>
  * Represents a predicate expression concerning a single attribute.
@@ -33,15 +35,17 @@ public class AttributePredicate extends Predicate {
      * Constructs a new AttributePredicate, given an attribute name and a target literal (with which to test equality).
      */
     public AttributePredicate(String attribute, String target) {
-        if (attribute == null)
+        if (attribute == null) {
             throw new IllegalArgumentException("non-null attribute needed");
+        }
         if (attribute.contains(":")) {
             throw new IllegalArgumentException("namespace-qualified attribute names are not currently supported");
         }
         this.attribute = attribute;
 
-        if (target == null)
+        if (target == null) {
             throw new IllegalArgumentException("non-null target needed");
+        }
         // strip quotation marks from target
         this.target = target.substring(1, target.length() - 1);
     }
@@ -50,8 +54,8 @@ public class AttributePredicate extends Predicate {
      * Returns true if the given SAX AttributeList is suitable, given our attribute name and target; returns false
      * otherwise.
      */
-    public boolean isMatchingAttribute(org.xml.sax.Attributes a) {
-        String attValue = a.getValue("", attribute);
-        return (attValue != null && attValue.equals(target));
+    public boolean isMatchingAttribute(Attributes attributes) {
+        String attValue = attributes.getValue("", attribute);
+        return attValue != null && attValue.equals(target);
     }
 }

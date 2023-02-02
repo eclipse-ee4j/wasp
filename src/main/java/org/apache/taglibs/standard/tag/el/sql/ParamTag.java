@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.sql;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.sql.ParamTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Subclass for the JSTL library with EL support.
@@ -35,9 +35,10 @@ public class ParamTag extends ParamTagSupport {
         this.valueEL = valueEL;
     }
 
+    @Override
     public int doStartTag() throws JspException {
         if (valueEL != null) {
-            value = (Object) ExpressionEvaluatorManager.evaluate("value", valueEL, Object.class, this, pageContext);
+            value = ExpressionEvaluatorManager.evaluate("value", valueEL, Object.class, this, pageContext);
         }
         return super.doStartTag();
     }

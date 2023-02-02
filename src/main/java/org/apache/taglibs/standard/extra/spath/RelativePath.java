@@ -39,22 +39,24 @@ public class RelativePath extends Path {
      * 'step'.
      */
     public RelativePath(Step step, RelativePath next) {
-        if (step == null)
+        if (step == null) {
             throw new IllegalArgumentException("non-null step required");
+        }
         this.step = step;
         this.next = next;
     }
 
-    // inherit JavaDoc comment
     @Override
     public List<Step> getSteps() {
         // simply merge our 'step' with our 'next'
-        List<Step> l;
-        if (next != null)
-            l = next.getSteps();
-        else
-            l = new Vector<>();
-        l.add(0, step);
-        return l;
+        List<Step> steps;
+        if (next != null) {
+            steps = next.getSteps();
+        } else {
+            steps = new Vector<>();
+        }
+        
+        steps.add(0, step);
+        return steps;
     }
 }

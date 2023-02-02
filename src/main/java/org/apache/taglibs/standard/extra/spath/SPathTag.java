@@ -29,7 +29,6 @@ import jakarta.servlet.jsp.tagext.TagSupport;
  *
  * @author Shawn Bayern
  */
-
 public class SPathTag extends TagSupport {
 
     // *********************************************************************

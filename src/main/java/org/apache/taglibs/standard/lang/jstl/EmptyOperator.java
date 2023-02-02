@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * <p>
  * The implementation of the empty operator
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -52,6 +52,7 @@ public class EmptyOperator extends UnaryOperator {
      *
      * Returns the symbol representing the operator
      **/
+    @Override
     public String getOperatorSymbol() {
         return "empty";
     }
@@ -61,6 +62,7 @@ public class EmptyOperator extends UnaryOperator {
      *
      * Applies the operator to the given value
      **/
+    @Override
     public Object apply(Object pValue, Object pContext, Logger pLogger) throws ELException {
         // See if the value is null
         if (pValue == null) {

@@ -25,6 +25,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.apache.taglibs.standard.resources.Resources;
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
@@ -33,15 +38,11 @@ import jakarta.servlet.jsp.jstl.sql.Result;
 import jakarta.servlet.jsp.jstl.sql.SQLExecutionTag;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.TryCatchFinally;
-import javax.sql.DataSource;
-
-import org.apache.taglibs.standard.resources.Resources;
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * <p>
  * Tag handler for &lt;Query&gt; in JSTL.
- * 
+ *
  * @author Hans Bergsten
  * @author Justyna Horwat
  */
@@ -127,6 +128,7 @@ public abstract class QueryTagSupport extends BodyTagSupport implements TryCatch
     /**
      * Prepares for execution by setting the initial state, such as getting the <code>Connection</code>
      */
+    @Override
     public int doStartTag() throws JspException {
 
         if (!maxRowsSpecified) {
@@ -138,7 +140,7 @@ public abstract class QueryTagSupport extends BodyTagSupport implements TryCatch
                     try {
                         maxRows = Integer.parseInt((String) obj);
                     } catch (NumberFormatException nfe) {
-                        throw new JspException(Resources.getMessage("SQL_MAXROWS_PARSE_ERROR", (String) obj), nfe);
+                        throw new JspException(Resources.getMessage("SQL_MAXROWS_PARSE_ERROR", obj), nfe);
                     }
                 } else {
                     throw new JspException(Resources.getMessage("SQL_MAXROWS_INVALID"));
@@ -166,6 +168,7 @@ public abstract class QueryTagSupport extends BodyTagSupport implements TryCatch
      * <code>dataSource</code> attribute, provided by a parent action element, or is retrieved from a JSP scope attribute
      * named <code>jakarta.servlet.jstl.sql.dataSource</code>.
      */
+    @Override
     public int doEndTag() throws JspException {
         /*
          * Use the SQL statement specified by the sql attribute, if any, otherwise use the body as the statement.
@@ -208,6 +211,7 @@ public abstract class QueryTagSupport extends BodyTagSupport implements TryCatch
     /**
      * Just rethrows the Throwable.
      */
+    @Override
     public void doCatch(Throwable t) throws Throwable {
         throw t;
     }
@@ -215,6 +219,7 @@ public abstract class QueryTagSupport extends BodyTagSupport implements TryCatch
     /**
      * Close the <code>Connection</code>, unless this action is used as part of a transaction.
      */
+    @Override
     public void doFinally() {
         if (conn != null && !isPartOfTransaction) {
             try {

@@ -17,13 +17,13 @@
 
 package org.apache.taglibs.standard.tag.common.fmt;
 
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.jstl.core.Config;
 import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 import jakarta.servlet.jsp.tagext.TagSupport;
-
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;setBundle&gt;, the JSTL 1.0 tag that loads a resource bundle and stores it in a
@@ -72,6 +72,7 @@ public abstract class SetBundleSupport extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
         LocalizationContext locCtxt = BundleSupport.getLocalizationContext(pageContext, basename);
 
@@ -85,6 +86,7 @@ public abstract class SetBundleSupport extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

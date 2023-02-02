@@ -17,21 +17,22 @@
 
 package org.apache.taglibs.standard.tag.common.sql;
 
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.JspTagException;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.jstl.core.Config;
-import jakarta.servlet.jsp.tagext.TagSupport;
 import javax.sql.DataSource;
 
 import org.apache.taglibs.standard.resources.Resources;
 import org.apache.taglibs.standard.tag.common.core.Util;
 
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.jstl.core.Config;
+import jakarta.servlet.jsp.tagext.TagSupport;
+
 /**
  * <p>
  * Tag handler for &lt;SetDataSource&gt; in JSTL, used to create a simple DataSource for prototyping.
  * </p>
- * 
+ *
  * @author Hans Bergsten
  * @author Justyna Horwat
  */
@@ -81,6 +82,7 @@ public class SetDataSourceTagSupport extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doStartTag() throws JspException {
         DataSource ds;
 
@@ -103,7 +105,7 @@ public class SetDataSourceTagSupport extends TagSupport {
             dsw.setJdbcURL(jdbcURL);
             dsw.setUserName(userName);
             dsw.setPassword(password);
-            ds = (DataSource) dsw;
+            ds = dsw;
         }
 
         if (var != null) {
@@ -116,6 +118,7 @@ public class SetDataSourceTagSupport extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

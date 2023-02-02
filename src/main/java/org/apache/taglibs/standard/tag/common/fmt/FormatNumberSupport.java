@@ -25,13 +25,13 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import org.apache.taglibs.standard.resources.Resources;
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
-
-import org.apache.taglibs.standard.resources.Resources;
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;formatNumber&gt;, the number formatting tag in JSTL 1.0.
@@ -116,6 +116,7 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
         String formatted = null;
         Object input = null;
@@ -126,8 +127,9 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
             input = value;
         } else {
             // ... retrieving and trimming our body
-            if (bodyContent != null && bodyContent.getString() != null)
+            if (bodyContent != null && bodyContent.getString() != null) {
                 input = bodyContent.getString().trim();
+            }
         }
 
         if ((input == null) || input.equals("")) {
@@ -195,6 +197,7 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }
@@ -223,16 +226,21 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
      * attributes to the given formatter.
      */
     private void configureFormatter(NumberFormat formatter) {
-        if (groupingUsedSpecified)
+        if (groupingUsedSpecified) {
             formatter.setGroupingUsed(isGroupingUsed);
-        if (maxIntegerDigitsSpecified)
+        }
+        if (maxIntegerDigitsSpecified) {
             formatter.setMaximumIntegerDigits(maxIntegerDigits);
-        if (minIntegerDigitsSpecified)
+        }
+        if (minIntegerDigitsSpecified) {
             formatter.setMinimumIntegerDigits(minIntegerDigits);
-        if (maxFractionDigitsSpecified)
+        }
+        if (maxFractionDigitsSpecified) {
             formatter.setMaximumFractionDigits(maxFractionDigits);
-        if (minFractionDigitsSpecified)
+        }
+        if (minFractionDigitsSpecified) {
             formatter.setMinimumFractionDigits(minFractionDigits);
+        }
     }
 
     /*
@@ -253,7 +261,7 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
      * <1.4 EUR --- EUR >=1.4 EUR --- Locale's currency symbol for Euro
      *
      * all --- \u20AC \u20AC
-     * 
+     *
      * <1.4 EUR \u20AC \u20AC >=1.4 EUR \u20AC Locale's currency symbol for Euro
      */
     private void setCurrency(NumberFormat formatter) throws Exception {
@@ -265,17 +273,19 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
         }
 
         if ((currencyCode != null) && (currencySymbol != null)) {
-            if (currencyClass != null)
+            if (currencyClass != null) {
                 code = currencyCode;
-            else
+            } else {
                 symbol = currencySymbol;
+            }
         } else if (currencyCode == null) {
             symbol = currencySymbol;
         } else {
-            if (currencyClass != null)
+            if (currencyClass != null) {
                 code = currencyCode;
-            else
+            } else {
                 symbol = currencyCode;
+            }
         }
 
         if (code != null) {

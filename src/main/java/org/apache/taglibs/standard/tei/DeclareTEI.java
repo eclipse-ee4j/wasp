@@ -33,6 +33,7 @@ import jakarta.servlet.jsp.tagext.VariableInfo;
 public class DeclareTEI extends TagExtraInfo {
 
     // purposely inherit JavaDoc and semantics from TagExtraInfo
+    @Override
     public VariableInfo[] getVariableInfo(TagData data) {
         // construct the relevant VariableInfo object
         VariableInfo id = new VariableInfo(data.getAttributeString("id"),

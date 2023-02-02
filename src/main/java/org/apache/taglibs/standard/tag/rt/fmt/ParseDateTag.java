@@ -19,10 +19,10 @@ package org.apache.taglibs.standard.tag.rt.fmt;
 
 import java.util.Locale;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.tag.common.fmt.ParseDateSupport;
 import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>
@@ -74,7 +74,7 @@ public class ParseDateTag extends ParseDateSupport {
             if (loc instanceof Locale) {
                 this.parseLocale = (Locale) loc;
             } else {
-                if (!"".equals((String) loc)) {
+                if (!"".equals(loc)) {
                     this.parseLocale = SetLocaleSupport.parseLocale((String) loc);
                 }
             }

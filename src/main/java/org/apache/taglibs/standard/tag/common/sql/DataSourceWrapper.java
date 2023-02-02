@@ -33,7 +33,7 @@ import org.apache.taglibs.standard.resources.Resources;
 /**
  * <p>
  * A simple <code>DataSource</code> wrapper for the standard <code>DriverManager</code> class.
- * 
+ *
  * @author Hans Bergsten
  */
 public class DataSourceWrapper implements DataSource {
@@ -65,6 +65,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Returns a Connection using the DriverManager and all set properties.
      */
+    @Override
     public Connection getConnection() throws SQLException {
         Connection conn = null;
         if (driver != null) {
@@ -90,6 +91,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always throws a SQLException. Username and password are set in the constructor and can not be changed.
      */
+    @Override
     public Connection getConnection(String username, String password) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
@@ -97,6 +99,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always throws a SQLException. Not supported.
      */
+    @Override
     public int getLoginTimeout() throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
@@ -104,6 +107,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always throws a SQLException. Not supported.
      */
+    @Override
     public PrintWriter getLogWriter() throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
@@ -111,6 +115,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always throws a SQLException. Not supported.
      */
+    @Override
     public void setLoginTimeout(int seconds) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
@@ -118,6 +123,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always throws a SQLException. Not supported.
      */
+    @Override
     public synchronized void setLogWriter(PrintWriter out) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
@@ -125,6 +131,7 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always return false.
      */
+    @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return false;
     }
@@ -132,15 +139,17 @@ public class DataSourceWrapper implements DataSource {
     /**
      * Always throws a SQLException. Not supported.
      */
+    @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new SQLException(Resources.getMessage("NOT_SUPPORTED"));
     }
 
     /**
      * Always throws a SQLFeatureNotSupportedException. Not supported.
-     * 
+     *
      * @since jdk1.7
      */
+    @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException(Resources.getMessage("NOT_SUPPORTED"));
     }

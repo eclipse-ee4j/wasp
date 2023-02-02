@@ -17,12 +17,12 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
+import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
+import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.core.ConditionalTagSupport;
-
-import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
-import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 
 /**
  * <p>
@@ -46,6 +46,7 @@ public class IfTag extends ConditionalTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -54,13 +55,15 @@ public class IfTag extends ConditionalTagSupport {
     // *********************************************************************
     // Supplied conditional logic
 
+    @Override
     protected boolean condition() throws JspTagException {
         try {
             Object r = ExpressionEvaluatorManager.evaluate("test", test, Boolean.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("if", "test");
-            else
+            } else {
                 return (((Boolean) r).booleanValue());
+            }
         } catch (JspException ex) {
             throw new JspTagException(ex.toString(), ex);
         }

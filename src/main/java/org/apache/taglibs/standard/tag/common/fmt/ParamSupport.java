@@ -17,12 +17,12 @@
 
 package org.apache.taglibs.standard.tag.common.fmt;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.Tag;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * Support for tag handlers for &lt;param&gt;, the message argument subtag in JSTL 1.0 which supplies an argument for
@@ -57,6 +57,7 @@ public abstract class ParamSupport extends BodyTagSupport {
     // Tag logic
 
     // Supply our value to our parent <fmt:message> tag
+    @Override
     public int doEndTag() throws JspException {
         Tag t = findAncestorWithClass(this, MessageSupport.class);
         if (t == null) {
@@ -84,6 +85,7 @@ public abstract class ParamSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

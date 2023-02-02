@@ -17,9 +17,9 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.tag.common.core.UrlSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -53,6 +53,7 @@ public class UrlTag extends UrlSupport {
     // Tag logic
 
     // evaluates expression and chains to parent
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -63,6 +64,7 @@ public class UrlTag extends UrlSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();

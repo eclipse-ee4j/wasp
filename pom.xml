@@ -102,7 +102,7 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
@@ -191,6 +191,21 @@
                         <Implementation-Vendor>Eclipse Foundation</Implementation-Vendor>
                         
                         <_include>-osgi.bundle</_include>
+                        <Import-Package>
+                            !org.apache.bcel,
+                            !org.apache.regexp,
+                            !org.apache.xml,
+                            !org.apache.xml.dtm,
+                            !org.apache.xml.utils,
+                            !org.apache.xpath,
+                            !org.apache.xpath.jaxp,
+                            !org.apache.xpath.objects,
+                            !org.apache.xpath.res,
+                            !java_cup.runtime,
+                            !trax,
+                            org.xml.sax.ext,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
                 <executions>
@@ -243,8 +258,21 @@
                         </goals>
                         <configuration>
                             <source>11</source>
-                            <additionalJOption>-Xdoclint:none</additionalJOption>
-							<excludePackageNames>org.glassfish.wasp.util</excludePackageNames>
+                            
+                            <additionalparam>-Xdoclint:none</additionalparam>
+							<additionalOptions>
+								<additionalOption>-Xdoclint:none</additionalOption>
+							</additionalOptions>
+							<additionalJOption>-Xdoclint:none</additionalJOption>
+							<additionalJOptions>
+                            	<additionalJOption>-Xdoclint:none</additionalJOption>
+                        	</additionalJOptions>
+							<doclint>none</doclint>
+							<failOnError>false</failOnError>
+							
+							<detectOfflineLinks>false</detectOfflineLinks>
+							
+							<excludePackageNames>org.glassfish.wasp.util,org.apache.*,java_cup.*,trax</excludePackageNames>
 							<quiet>true</quiet>
                             <groups>
                                 <group>
@@ -262,6 +290,7 @@ Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">l
                     </execution>
                 </executions>
             </plugin>
+           
         </plugins>
     </build>
 </project>

@@ -34,8 +34,12 @@ public class Version {
      * @return String denoting our current version
      */
     public static String getVersion() {
-        return getProduct() + " " + getMajorVersionNum() + "." + getReleaseVersionNum() + "." + getMaintenanceVersionNum()
-                + ((getDevelopmentVersionNum() > 0) ? ("_D" + getDevelopmentVersionNum()) : "");
+        return 
+            getProduct() + " " + 
+            getMajorVersionNum() + "." + 
+            getReleaseVersionNum() + "." + 
+            getMaintenanceVersionNum() + 
+            ((getDevelopmentVersionNum() > 0) ? ("_D" + getDevelopmentVersionNum()) : "");
     }
 
     /**

@@ -40,6 +40,7 @@ public class IfTag extends ConditionalTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -48,6 +49,7 @@ public class IfTag extends ConditionalTagSupport {
     // *********************************************************************
     // Supplied conditional logic
 
+    @Override
     protected boolean condition() throws JspTagException {
         XPathUtil xu = new XPathUtil(pageContext);
         return (xu.booleanValueOf(XPathUtil.getContext(this), select));

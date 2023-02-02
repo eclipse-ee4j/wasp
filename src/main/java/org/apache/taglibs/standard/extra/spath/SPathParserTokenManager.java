@@ -19,32 +19,10 @@ package org.apache.taglibs.standard.extra.spath;
 
 public class SPathParserTokenManager implements SPathParserConstants {
 
-    private int jjStopStringLiteralDfa_0(int pos, long active0) {
-        switch (pos) {
-        default:
-            return -1;
-        }
-    }
-
-    private int jjStartNfa_0(int pos, long active0) {
-        return jjMoveNfa_0(jjStopStringLiteralDfa_0(pos, active0), pos + 1);
-    }
-
     private int jjStopAtPos(int pos, int kind) {
         jjmatchedKind = kind;
         jjmatchedPos = pos;
         return pos + 1;
-    }
-
-    private int jjStartNfaWithStates_0(int pos, int kind, int state) {
-        jjmatchedKind = kind;
-        jjmatchedPos = pos;
-        try {
-            curChar = input_stream.readChar();
-        } catch (java.io.IOException e) {
-            return pos + 1;
-        }
-        return jjMoveNfa_0(state, pos + 1);
     }
 
     private int jjMoveStringLiteralDfa0_0() {
@@ -90,11 +68,6 @@ public class SPathParserTokenManager implements SPathParserConstants {
         do {
             jjCheckNAdd(jjnextStates[start]);
         } while (start++ != end);
-    }
-
-    private void jjCheckNAddStates(int start) {
-        jjCheckNAdd(jjnextStates[start]);
-        jjCheckNAdd(jjnextStates[start + 1]);
     }
 
     static final long[] jjbitVec0 = { 0xfffffffffffffffeL, 0xffffffffffffffffL, 0xffffffffffffffffL, 0xffffffffffffffffL };

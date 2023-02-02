@@ -19,11 +19,11 @@ package org.apache.taglibs.standard.tag.rt.core;
 
 import java.util.ArrayList;
 
+import org.apache.taglibs.standard.tag.common.core.ForEachSupport;
+
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.core.LoopTag;
 import jakarta.servlet.jsp.tagext.IterationTag;
-
-import org.apache.taglibs.standard.tag.common.core.ForEachSupport;
 
 /**
  * <p>
@@ -61,9 +61,10 @@ public class ForEachTag extends ForEachSupport implements LoopTag, IterationTag 
 
     public void setItems(Object o) throws JspTagException {
         // for null items, simulate an empty list
-        if (o == null)
+        if (o == null) {
             rawItems = new ArrayList();
-        else
+        } else {
             rawItems = o;
+        }
     }
 }

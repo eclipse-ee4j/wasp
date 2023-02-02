@@ -27,7 +27,7 @@ import jakarta.servlet.jsp.tagext.TagSupport;
  * <p>
  * Tag handler for &lt;Driver&gt; in JSTL, used to create a simple DataSource for prototyping.
  * </p>
- * 
+ *
  * @author Hans Bergsten
  */
 public class DriverTag extends TagSupport {
@@ -80,6 +80,7 @@ public class DriverTag extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doStartTag() throws JspException {
         DataSourceWrapper ds = new DataSourceWrapper();
         try {

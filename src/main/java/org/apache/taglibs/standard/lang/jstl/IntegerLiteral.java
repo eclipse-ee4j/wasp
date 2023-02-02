@@ -21,7 +21,7 @@ package org.apache.taglibs.standard.lang.jstl;
  *
  * <p>
  * An expression representing an integer literal value. The value is stored internally as a long.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jluehe $
  **/
@@ -52,6 +52,7 @@ public class IntegerLiteral extends Literal {
      *
      * Returns the expression in the expression language syntax
      **/
+    @Override
     public String getExpressionString() {
         return getValue().toString();
     }

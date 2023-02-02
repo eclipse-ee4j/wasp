@@ -17,16 +17,16 @@
 
 package org.apache.taglibs.standard.tag.el.sql;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.sql.SetDataSourceTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
  * Tag handler for &lt;SetDataSource&gt; in JSTL, used to create a simple DataSource for prototyping.
  * </p>
- * 
+ *
  */
 public class SetDataSourceTag extends SetDataSourceTagSupport {
 
@@ -63,6 +63,7 @@ public class SetDataSourceTag extends SetDataSourceTagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doStartTag() throws JspException {
         evaluateExpressions();
 

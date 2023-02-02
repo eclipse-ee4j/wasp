@@ -25,16 +25,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.resources.Resources;
 import org.apache.taglibs.standard.tag.common.core.Util;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>
  * JSTL Functions
  * </p>
- * 
+ *
  * @author Pierre Delisle
  */
 
@@ -61,10 +61,12 @@ public class Functions {
     // Substring processing
 
     public static int indexOf(String input, String substring) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (substring == null)
+        }
+        if (substring == null) {
             substring = "";
+        }
         return input.indexOf(substring);
     }
 
@@ -73,54 +75,69 @@ public class Functions {
     }
 
     public static boolean containsIgnoreCase(String input, String substring) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (substring == null)
+        }
+        if (substring == null) {
             substring = "";
+        }
         String inputUC = input.toUpperCase();
         String substringUC = substring.toUpperCase();
         return indexOf(inputUC, substringUC) != -1;
     }
 
     public static boolean startsWith(String input, String substring) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (substring == null)
+        }
+        if (substring == null) {
             substring = "";
+        }
         return input.startsWith(substring);
     }
 
     public static boolean endsWith(String input, String substring) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (substring == null)
+        }
+        if (substring == null) {
             substring = "";
+        }
         return input.endsWith(substring);
     }
 
     public static String substring(String input, int beginIndex, int endIndex) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (beginIndex >= input.length())
+        }
+        if (beginIndex >= input.length()) {
             return "";
-        if (beginIndex < 0)
+        }
+        if (beginIndex < 0) {
             beginIndex = 0;
-        if (endIndex < 0 || endIndex > input.length())
+        }
+        if (endIndex < 0 || endIndex > input.length()) {
             endIndex = input.length();
-        if (endIndex < beginIndex)
+        }
+        if (endIndex < beginIndex) {
             return "";
+        }
         return input.substring(beginIndex, endIndex);
     }
 
     public static String substringAfter(String input, String substring) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (input.length() == 0)
+        }
+        if (input.length() == 0) {
             return "";
-        if (substring == null)
+        }
+        if (substring == null) {
             substring = "";
-        if (substring.length() == 0)
+        }
+        if (substring.length() == 0) {
             return input;
+        }
 
         int index = input.indexOf(substring);
         if (index == -1) {
@@ -131,14 +148,18 @@ public class Functions {
     }
 
     public static String substringBefore(String input, String substring) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (input.length() == 0)
+        }
+        if (input.length() == 0) {
             return "";
-        if (substring == null)
+        }
+        if (substring == null) {
             substring = "";
-        if (substring.length() == 0)
+        }
+        if (substring.length() == 0) {
             return "";
+        }
 
         int index = input.indexOf(substring);
         if (index == -1) {
@@ -152,26 +173,32 @@ public class Functions {
     // Character replacement
 
     public static String escapeXml(String input) {
-        if (input == null)
+        if (input == null) {
             return "";
+        }
         return Util.escapeXml(input);
     }
 
     public static String trim(String input) {
-        if (input == null)
+        if (input == null) {
             return "";
+        }
         return input.trim();
     }
 
     public static String replace(String input, String substringBefore, String substringAfter) {
-        if (input == null)
+        if (input == null) {
             input = "";
-        if (input.length() == 0)
+        }
+        if (input.length() == 0) {
             return "";
-        if (substringBefore == null)
+        }
+        if (substringBefore == null) {
             substringBefore = "";
-        if (substringBefore.length() == 0)
+        }
+        if (substringBefore.length() == 0) {
             return input;
+        }
 
         StringBuilder buf = new StringBuilder(input.length());
         int startIndex = 0;
@@ -185,16 +212,18 @@ public class Functions {
 
     public static String[] split(String input, String delimiters) {
         String[] array;
-        if (input == null)
+        if (input == null) {
             input = "";
+        }
         if (input.length() == 0) {
             array = new String[1];
             array[0] = "";
             return array;
         }
 
-        if (delimiters == null)
+        if (delimiters == null) {
             delimiters = "";
+        }
 
         StringTokenizer tok = new StringTokenizer(input, delimiters);
         int count = tok.countTokens();
@@ -210,15 +239,19 @@ public class Functions {
     // Collections processing
 
     public static int length(Object obj) throws JspTagException {
-        if (obj == null)
+        if (obj == null) {
             return 0;
+        }
 
-        if (obj instanceof String)
+        if (obj instanceof String) {
             return ((String) obj).length();
-        if (obj instanceof Collection)
+        }
+        if (obj instanceof Collection) {
             return ((Collection) obj).size();
-        if (obj instanceof Map)
+        }
+        if (obj instanceof Map) {
             return ((Map) obj).size();
+        }
 
         int count = 0;
         if (obj instanceof Iterator) {
@@ -248,16 +281,19 @@ public class Functions {
     }
 
     public static String join(String[] array, String separator) {
-        if (array == null)
+        if (array == null) {
             return "";
-        if (separator == null)
+        }
+        if (separator == null) {
             separator = "";
+        }
 
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
             buf.append(array[i]);
-            if (i < array.length - 1)
+            if (i < array.length - 1) {
                 buf.append(separator);
+            }
         }
 
         return buf.toString();

@@ -20,17 +20,17 @@ package org.apache.taglibs.standard.tlv;
 import java.util.Set;
 import java.util.Stack;
 
-import jakarta.servlet.jsp.tagext.PageData;
-import jakarta.servlet.jsp.tagext.ValidationMessage;
-
 import org.apache.taglibs.standard.resources.Resources;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+import jakarta.servlet.jsp.tagext.PageData;
+import jakarta.servlet.jsp.tagext.ValidationMessage;
+
 /**
  * <p>
  * A SAX-based TagLibraryValidator for the JSTL SQL tag library.
- * 
+ *
  * @author Shawn Bayern
  */
 public class JstlSqlTLV extends JstlBaseTLV {
@@ -54,6 +54,7 @@ public class JstlSqlTLV extends JstlBaseTLV {
 
     // *********************************************************************
     // set its type and delegate validation to super-class
+    @Override
     public ValidationMessage[] validate(String prefix, String uri, PageData page) {
         return super.validate(TYPE_SQL, prefix, uri, page);
     }
@@ -61,6 +62,7 @@ public class JstlSqlTLV extends JstlBaseTLV {
     // *********************************************************************
     // Contract fulfillment
 
+    @Override
     protected DefaultHandler getHandler() {
         return new Handler();
     }
@@ -81,41 +83,49 @@ public class JstlSqlTLV extends JstlBaseTLV {
         private boolean bodyIllegal = false;
 
         // process under the existing context (state), then modify it
+        @Override
         public void startElement(String ns, String ln, String qn, Attributes a) {
 
             // substitute our own parsed 'ln' if it's not provided
-            if (ln == null)
+            if (ln == null) {
                 ln = getLocalPart(qn);
+            }
 
             // for simplicity, we can ignore <jsp:text> for our purposes
             // (don't bother distinguishing between it and its characters)
-            if (qn.equals(JSP_TEXT))
+            if (qn.equals(JSP_TEXT)) {
                 return;
+            }
 
             // check body-related constraint
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
 
             // validate expression syntax if we need to
             Set expAtts;
-            if (qn.startsWith(prefix + ":") && (expAtts = (Set) config.get(ln)) != null) {
+            if (qn.startsWith(prefix + ":") && (expAtts = config.get(ln)) != null) {
                 for (int i = 0; i < a.getLength(); i++) {
                     String attName = a.getLocalName(i);
                     if (expAtts.contains(attName)) {
                         String vMsg = validateExpression(ln, attName, a.getValue(i));
-                        if (vMsg != null)
+                        if (vMsg != null) {
                             fail(vMsg);
+                        }
                     }
                 }
             }
 
             // validate attributes
-            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a))
+            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a)) {
                 fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
-            if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
+            }
+            if (qn.startsWith(prefix + ":") && hasEmptyVar(a)) {
                 fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
-            if (qn.startsWith(prefix + ":") && hasDanglingScope(a) && !qn.startsWith(prefix + ":" + SETDATASOURCE))
+            }
+            if (qn.startsWith(prefix + ":") && hasDanglingScope(a) && !qn.startsWith(prefix + ":" + SETDATASOURCE)) {
                 fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+            }
 
             // now, modify state
 
@@ -168,29 +178,35 @@ public class JstlSqlTLV extends JstlBaseTLV {
             depth++;
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) {
 
             bodyNecessary = false; // body is no longer necessary!
 
             // ignore strings that are just whitespace
             String s = new String(ch, start, length).trim();
-            if (s.equals(""))
+            if (s.equals("")) {
                 return;
+            }
 
             // check and update body-related constraints
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
         }
 
+        @Override
         public void endElement(String ns, String ln, String qn) {
 
             // consistently, we ignore JSP_TEXT
-            if (qn.equals(JSP_TEXT))
+            if (qn.equals(JSP_TEXT)) {
                 return;
+            }
 
             // handle body-related invariant
-            if (bodyNecessary)
+            if (bodyNecessary) {
                 fail(Resources.getMessage("TLV_MISSING_BODY", lastElementName));
+            }
             bodyIllegal = false; // reset: we've left the tag
 
             // update <query>-related state

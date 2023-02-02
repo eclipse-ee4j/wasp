@@ -21,7 +21,7 @@ package org.apache.taglibs.standard.lang.jstl;
  *
  * <p>
  * The implementation of the unary minus operator
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -48,6 +48,7 @@ public class UnaryMinusOperator extends UnaryOperator {
      *
      * Returns the symbol representing the operator
      **/
+    @Override
     public String getOperatorSymbol() {
         return "-";
     }
@@ -57,6 +58,7 @@ public class UnaryMinusOperator extends UnaryOperator {
      *
      * Applies the operator to the given value
      **/
+    @Override
     public Object apply(Object pValue, Object pContext, Logger pLogger) throws ELException {
         if (pValue == null) {
             /*
@@ -67,10 +69,10 @@ public class UnaryMinusOperator extends UnaryOperator {
 
         else if (pValue instanceof String) {
             if (Coercions.isFloatingPointString(pValue)) {
-                double dval = ((Number) (Coercions.coerceToPrimitiveNumber(pValue, Double.class, pLogger))).doubleValue();
+                double dval = (Coercions.coerceToPrimitiveNumber(pValue, Double.class, pLogger)).doubleValue();
                 return PrimitiveObjects.getDouble(-dval);
             } else {
-                long lval = ((Number) (Coercions.coerceToPrimitiveNumber(pValue, Long.class, pLogger))).longValue();
+                long lval = (Coercions.coerceToPrimitiveNumber(pValue, Long.class, pLogger)).longValue();
                 return PrimitiveObjects.getLong(-lval);
             }
         }
@@ -80,13 +82,13 @@ public class UnaryMinusOperator extends UnaryOperator {
         } else if (pValue instanceof Short) {
             return PrimitiveObjects.getShort((short) -(((Short) pValue).shortValue()));
         } else if (pValue instanceof Integer) {
-            return PrimitiveObjects.getInteger((int) -(((Integer) pValue).intValue()));
+            return PrimitiveObjects.getInteger(-(((Integer) pValue).intValue()));
         } else if (pValue instanceof Long) {
-            return PrimitiveObjects.getLong((long) -(((Long) pValue).longValue()));
+            return PrimitiveObjects.getLong(-(((Long) pValue).longValue()));
         } else if (pValue instanceof Float) {
-            return PrimitiveObjects.getFloat((float) -(((Float) pValue).floatValue()));
+            return PrimitiveObjects.getFloat(-(((Float) pValue).floatValue()));
         } else if (pValue instanceof Double) {
-            return PrimitiveObjects.getDouble((double) -(((Double) pValue).doubleValue()));
+            return PrimitiveObjects.getDouble(-(((Double) pValue).doubleValue()));
         }
 
         else {

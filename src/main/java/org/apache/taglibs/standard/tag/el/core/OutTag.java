@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 import org.apache.taglibs.standard.tag.common.core.OutSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -50,6 +50,7 @@ public class OutTag extends OutSupport {
     // Tag logic
 
     // evaluates expression and chains to parent
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -60,6 +61,7 @@ public class OutTag extends OutSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -105,7 +107,8 @@ public class OutTag extends OutSupport {
         }
         escapeXml = true;
         Boolean escape = ((Boolean) ExpressionUtil.evalNotNull("out", "escapeXml", escapeXml_, Boolean.class, this, pageContext));
-        if (escape != null)
+        if (escape != null) {
             escapeXml = escape.booleanValue();
+        }
     }
 }

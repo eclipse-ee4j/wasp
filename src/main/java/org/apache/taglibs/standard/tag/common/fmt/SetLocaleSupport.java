@@ -24,6 +24,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.apache.taglibs.standard.resources.Resources;
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
@@ -32,9 +35,6 @@ import jakarta.servlet.jsp.jstl.core.Config;
 import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 import jakarta.servlet.jsp.tagext.Tag;
 import jakarta.servlet.jsp.tagext.TagSupport;
-
-import org.apache.taglibs.standard.resources.Resources;
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;setLocale&gt;, the locale setting tag in JSTL 1.0.
@@ -72,10 +72,10 @@ public abstract class SetLocaleSupport extends TagSupport {
      */
     static {
         Vector<Locale> vec = new Vector<>(dateLocales.length);
-        for (int i = 0; i < dateLocales.length; i++) {
-            for (int j = 0; j < numberLocales.length; j++) {
-                if (dateLocales[i].equals(numberLocales[j])) {
-                    vec.add(dateLocales[i]);
+        for (Locale dateLocale : dateLocales) {
+            for (Locale numberLocale : numberLocales) {
+                if (dateLocale.equals(numberLocale)) {
+                    vec.add(dateLocale);
                     break;
                 }
             }
@@ -104,6 +104,7 @@ public abstract class SetLocaleSupport extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
         Locale locale = null;
 
@@ -126,6 +127,7 @@ public abstract class SetLocaleSupport extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }
@@ -172,15 +174,17 @@ public abstract class SetLocaleSupport extends TagSupport {
         }
 
         if (country == null) {
-            if (variant != null)
+            if (variant != null) {
                 ret = new Locale(language, "", variant);
-            else
+            } else {
                 ret = new Locale(language, "");
+            }
         } else if (country.length() > 0) {
-            if (variant != null)
+            if (variant != null) {
                 ret = new Locale(language, country, variant);
-            else
+            } else {
                 ret = new Locale(language, country);
+            }
         } else {
             throw new IllegalArgumentException(Resources.getMessage("LOCALE_EMPTY_COUNTRY"));
         }
@@ -199,7 +203,7 @@ public abstract class SetLocaleSupport extends TagSupport {
      * typically encode form field values using the response's charset).
      *
      * @param pageContext the page context whose response object is assigned the given locale
-     * 
+     *
      * @param locale the response locale
      */
     static void setResponseLocale(PageContext pc, Locale locale) {
@@ -220,12 +224,12 @@ public abstract class SetLocaleSupport extends TagSupport {
      * Returns the formatting locale to use with the given formatting action in the given page.
      *
      * @param pc The page context containing the formatting action
-     * 
+     *
      * @param fromTag The formatting action
-     * 
+     *
      * @param isDate true if the locale is needed for date formatting, false otherwise (i.e., the locale is needed for
      * number formatting)
-     * 
+     *
      * @param format <tt>true</tt> if the formatting action is of type <formatXXX> (as opposed to <parseXXX>), and
      * <tt>false</tt> otherwise (if set to <tt>true</tt>, the formatting locale that is returned by this method is used to
      * set the response locale).
@@ -298,7 +302,7 @@ public abstract class SetLocaleSupport extends TagSupport {
      * Returns the formatting locale to use when <fmt:message> is used with a locale-less localization context.
      *
      * @param pc The page context containing the formatting action
-     * 
+     *
      * @return the formatting locale to use
      */
     static Locale getFormattingLocale(PageContext pc) {
@@ -337,7 +341,7 @@ public abstract class SetLocaleSupport extends TagSupport {
      * configuration parameter.
      *
      * @param pageContext the page in which to search for the named scoped attribute or context configuration parameter
-     * 
+     *
      * @param name the name of the scoped attribute or context configuration parameter
      *
      * @return the locale specified by the named scoped attribute or context configuration parameter, or <tt>null</tt> if no
@@ -366,7 +370,7 @@ public abstract class SetLocaleSupport extends TagSupport {
      * against the available locales in order to determine the best matching locale.
      *
      * @param pageContext Page containing the formatting action
-     * 
+     *
      * @param avail Available formatting locales
      *
      * @return Best matching locale, or <tt>null</tt> if no match was found
@@ -393,7 +397,7 @@ public abstract class SetLocaleSupport extends TagSupport {
      * - available locale's variant and country are empty, and exact match for language.
      *
      * @param pref the preferred locale
-     * 
+     *
      * @param avail the available formatting locales
      *
      * @return Available locale that best matches the given preferred locale, or <tt>null</tt> if no match exists
@@ -401,20 +405,20 @@ public abstract class SetLocaleSupport extends TagSupport {
     private static Locale findFormattingMatch(Locale pref, Locale[] avail) {
         Locale match = null;
         boolean langAndCountryMatch = false;
-        for (int i = 0; i < avail.length; i++) {
-            if (pref.equals(avail[i])) {
+        for (Locale element : avail) {
+            if (pref.equals(element)) {
                 // Exact match
-                match = avail[i];
+                match = element;
                 break;
-            } else if (!"".equals(pref.getVariant()) && "".equals(avail[i].getVariant())
-                    && pref.getLanguage().equals(avail[i].getLanguage()) && pref.getCountry().equals(avail[i].getCountry())) {
+            } else if (!"".equals(pref.getVariant()) && "".equals(element.getVariant())
+                    && pref.getLanguage().equals(element.getLanguage()) && pref.getCountry().equals(element.getCountry())) {
                 // Language and country match; different variant
-                match = avail[i];
+                match = element;
                 langAndCountryMatch = true;
-            } else if (!langAndCountryMatch && pref.getLanguage().equals(avail[i].getLanguage()) && ("".equals(avail[i].getCountry()))) {
+            } else if (!langAndCountryMatch && pref.getLanguage().equals(element.getLanguage()) && ("".equals(element.getCountry()))) {
                 // Language match
                 if (match == null) {
-                    match = avail[i];
+                    match = element;
                 }
             }
         }

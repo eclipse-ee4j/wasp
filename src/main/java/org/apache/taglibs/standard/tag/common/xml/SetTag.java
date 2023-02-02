@@ -19,11 +19,11 @@ package org.apache.taglibs.standard.tag.common.xml;
 
 import java.util.List;
 
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.TagSupport;
-
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * <p>
@@ -64,6 +64,7 @@ public class SetTag extends TagSupport {
     // Tag logic
 
     // applies XPath expression from 'select' and stores the result in 'var'
+    @Override
     public int doStartTag() throws JspException {
         // process the query
         XPathUtil xu = new XPathUtil(pageContext);
@@ -73,8 +74,9 @@ public class SetTag extends TagSupport {
         // unwrap primitive types if that's what we received
         if (result.size() == 1) {
             Object o = result.get(0);
-            if (o instanceof String || o instanceof Boolean || o instanceof Number)
+            if (o instanceof String || o instanceof Boolean || o instanceof Number) {
                 ret = o;
+            }
         }
 
         // expose the final result
@@ -83,6 +85,7 @@ public class SetTag extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();

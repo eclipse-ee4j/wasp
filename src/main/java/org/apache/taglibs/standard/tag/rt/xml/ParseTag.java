@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.rt.xml;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.tag.common.xml.ParseSupport;
 import org.xml.sax.XMLFilter;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>

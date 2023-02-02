@@ -61,16 +61,16 @@ public class SPathFilter extends XMLFilterImpl {
     /*
      * public static void main(String args[]) throws ParseException, IOException, SAXException { // temporary...
      * System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
-     * 
+     *
      * // retrieve and parse the expression String expr = args[0]; SPathParser s = new SPathParser(expr); Path p =
      * s.expression();
-     * 
+     *
      * // construct the appropriate SAX chain // (reader -> us -> serializer) XMLReader r =
      * XMLReaderFactory.createXMLReader(); XMLFilter f1 = new SPathFilter(p); XMLFilter f2 = new XMLFilterImpl();
      * f1.setParent(r); f2.setParent(f1); Serializer sz = SerializerFactory.getSerializer
      * (OutputProperties.getDefaultMethodProperties("xml")); sz.setOutputStream(System.out);
      * f2.setContentHandler(sz.asContentHandler());
-     * 
+     *
      * // go! f2.parse(new InputSource(System.in)); System.out.println(); }
      */
 
@@ -99,59 +99,64 @@ public class SPathFilter extends XMLFilterImpl {
     /** Filter for startElement(). */
     @Override
     public void startElement(String uri, String localName, String qName, Attributes a) throws SAXException {
-        // always update the depth
+        // Always update the depth
         depth++;
 
-        // if we're in an accepted section, simply pass through
+        // If we're in an accepted section, simply pass through
         if (isAccepted()) {
             getContentHandler().startElement(uri, localName, qName, a);
             return;
         }
 
-        // likewise, if we're excluded, then simply block and return
-        if (isExcluded())
+        // Likewise, if we're excluded, then simply block and return
+        if (isExcluded()) {
             return;
+        }
 
-        // now, not accepted or excluded, let's see if we've got a match.
+        // Now, not accepted or excluded, let's see if we've got a match.
         // we need to get the appropriate step based on the number of
         // steps we've previously accepted
         Step currentStep = steps.get(acceptedDepths.size());
 
         if (nodeMatchesStep(currentStep, uri, localName, qName, a)) {
-            if (DEBUG)
+            if (DEBUG) {
                 System.err.println("*** Progressive match (" + acceptedDepths.size() + "): " + localName);
-            // new match (progressive)
+            }
+            
+            // New match (progressive)
             acceptedDepths.push(depth - 1);
 
-            // is it enough? give acceptance another chance...
-            if (isAccepted())
+            // Is it enough? give acceptance another chance...
+            if (isAccepted()) {
                 getContentHandler().startElement(uri, localName, qName, a);
+            }
         } else if (!currentStep.isDepthUnlimited()) {
-            // if the step was preceded by '/' instead of '//', then
+            // If the step was preceded by '/' instead of '//', then
             // we can't have a match at this node or beneath it
             excludedDepth = depth - 1;
         }
 
-        // nothing left to check; no reason to include node
+        // Nothing left to check; no reason to include node
         return;
     }
 
     /** Filter for endElement(). */
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        // reduce the depth
+        // Reduce the depth
         depth--;
 
         if (isExcluded()) {
-            // determine if exclusion ends with us
-            if (excludedDepth == depth)
+            // Determine if exclusion ends with us
+            if (excludedDepth == depth) {
                 excludedDepth = -1;
+            }
 
-            // either way, we have been excluded, so pass nothing through
+            // Either way, we have been excluded, so pass nothing through
             return;
         }
 
-        // if we're excepted (for now), include ourselves...
+        // If we're excepted (for now), include ourselves...
         if (isAccepted()) {
             getContentHandler().endElement(uri, localName, qName);
 
@@ -162,7 +167,8 @@ public class SPathFilter extends XMLFilterImpl {
                 System.err.println("***   depth: " + depth);
             }
         }
-        // now, back off if we correspond to a "successful" start tag
+        
+        // Now, back off if we correspond to a "successful" start tag
         if (acceptedDepths.size() > 0 && acceptedDepths.peek() == depth) {
             acceptedDepths.pop();
         }
@@ -173,50 +179,50 @@ public class SPathFilter extends XMLFilterImpl {
     // the current state dictate that we ignore them. They need no other
     // information and cannot have any effect on the current state.
 
-    /** Filter for ignoreableWhitespace(). */
     @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-        if (isAccepted())
+        if (isAccepted()) {
             getContentHandler().ignorableWhitespace(ch, start, length);
+        }
     }
 
-    /** Filter for characters(). */
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        if (isAccepted())
+        if (isAccepted()) {
             getContentHandler().characters(ch, start, length);
+        }
     }
 
-    /** Filter for startPrefixMapping(). */
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        if (isAccepted())
+        if (isAccepted()) {
             getContentHandler().startPrefixMapping(prefix, uri);
+        }
     }
 
-    /** Filter for endPrefixMapping(). */
     @Override
     public void endPrefixMapping(String prefix) throws SAXException {
-        if (isAccepted())
+        if (isAccepted()) {
             getContentHandler().endPrefixMapping(prefix);
+        }
     }
 
-    /** Filter for processingInstruction(). */
     @Override
     public void processingInstruction(String target, String data) throws SAXException {
-        if (isAccepted())
+        if (isAccepted()) {
             getContentHandler().processingInstruction(target, data);
+        }
     }
 
-    /** Filter for skippedEntity(). */
     @Override
     public void skippedEntity(String name) throws SAXException {
-        if (isAccepted())
+        if (isAccepted()) {
             getContentHandler().skippedEntity(name);
+        }
     }
 
     // We reset state in startDocument(), in case we're reused
-    /** Resets state. */
+    
     @Override
     public void startDocument() {
         init();
@@ -227,17 +233,21 @@ public class SPathFilter extends XMLFilterImpl {
 
     public static boolean nodeMatchesStep(Step s, String uri, String localName, String qName, Attributes a) {
         // if the name doesn't match, then we've got a loser
-        if (!s.isMatchingName(uri, localName))
+        if (!s.isMatchingName(uri, localName)) {
             return false;
+        }
 
         // it's still in the game; check the predicates
         List<Predicate> l = s.getPredicates();
         for (int i = 0; l != null && i < l.size(); i++) {
             Predicate p = l.get(i);
-            if (!(p instanceof AttributePredicate))
+            if (!(p instanceof AttributePredicate)) {
                 throw new UnsupportedOperationException("only attribute predicates are supported by filter");
+            }
             if (!((AttributePredicate) p).isMatchingAttribute(a))
+             {
                 return false; // all predicates must match
+            }
         }
 
         // it's survived

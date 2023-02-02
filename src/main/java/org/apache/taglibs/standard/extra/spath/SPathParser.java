@@ -17,7 +17,6 @@
  */
 package org.apache.taglibs.standard.extra.spath;
 
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
@@ -28,18 +27,18 @@ public class SPathParser implements SPathParserConstants {
      */
     public static void main(String args[]) throws ParseException {
         SPathParser parser = new SPathParser(System.in);
-        Path p = parser.expression();
-        List<Step> stepList = p.getSteps();
+        Path path = parser.expression();
+        List<Step> steps = path.getSteps();
 
         // output for simple testing
         System.out.println();
-        if (p instanceof AbsolutePath) {
+        if (path instanceof AbsolutePath) {
             System.out.println("Root: /");
         }
-        for (int i = 0; i < stepList.size(); i++) {
-            Step s = stepList.get(i);
-            System.out.print("Step: " + s.getName());
-            if (s.isDepthUnlimited()) {
+        
+        for (Step step : steps) {
+            System.out.print("Step: " + step.getName());
+            if (step.isDepthUnlimited()) {
                 System.out.print("(*)");
             }
             System.out.println();
@@ -83,7 +82,8 @@ public class SPathParser implements SPathParserConstants {
         return new AbsolutePath(relPath);
     }
 
-// as an example, we use recursion here to handle a list
+    // as an example, we use recursion here to handle a list
+    
     final public RelativePath relativePath() throws ParseException {
         RelativePath relPath = null;
         Step step;
@@ -100,9 +100,9 @@ public class SPathParser implements SPathParserConstants {
         return new RelativePath(step, relPath);
     }
 
-// as an example, we use inline code here to handle a list
+    // as an example, we use inline code here to handle a list
     /*
-     * (i'm doing something perhaps unusual here, including the <SLASH> as if it were part of the step. this mechanism for
+     * (I'm doing something perhaps unusual here, including the <SLASH> as if it were part of the step. this mechanism for
      * differentiating '/' from '//' seems most natural, even if it is a bit unconventional.)
      */
     final public Step step() throws ParseException {
@@ -587,8 +587,7 @@ public class SPathParser implements SPathParserConstants {
             jj_expentry = new int[jj_endpos];
             System.arraycopy(jj_lasttokens, 0, jj_expentry, 0, jj_endpos);
             boolean exists = false;
-            for (Enumeration<int[]> enum_ = jj_expentries.elements(); enum_.hasMoreElements();) {
-                int[] oldentry = enum_.nextElement();
+            for (int[] oldentry : jj_expentries) {
                 if (oldentry.length == jj_expentry.length) {
                     exists = true;
                     for (int i = 0; i < jj_expentry.length; i++) {

@@ -18,12 +18,6 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.JspTagException;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.tagext.BodyTagSupport;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -56,6 +50,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.BodyTagSupport;
 
 /**
  * <p>
@@ -104,6 +104,7 @@ public abstract class TransformSupport extends BodyTagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doStartTag() throws JspException {
         /*
          * We can set up our Transformer here, so we do so, and we let it receive parameters directly from subtags (instead of
@@ -131,8 +132,9 @@ public abstract class TransformSupport extends BodyTagSupport {
 
             Source s;
             if (xslt != null) {
-                if (!(xslt instanceof String) && !(xslt instanceof Reader) && !(xslt instanceof javax.xml.transform.Source))
+                if (!(xslt instanceof String) && !(xslt instanceof Reader) && !(xslt instanceof javax.xml.transform.Source)) {
                     throw new JspTagException(Resources.getMessage("TRANSFORM_XSLT_UNRECOGNIZED"));
+                }
                 s = getSource(xslt, xsltSystemId);
             } else {
                 throw new JspTagException(Resources.getMessage("TRANSFORM_NO_TRANSFORMER"));
@@ -155,6 +157,7 @@ public abstract class TransformSupport extends BodyTagSupport {
 
     // parse 'xml' or body, transform via our Transformer,
     // and store as 'var' or through 'result'
+    @Override
     public int doEndTag() throws JspException {
         try {
 
@@ -163,11 +166,12 @@ public abstract class TransformSupport extends BodyTagSupport {
 
             // if we haven't gotten a source, use the body (which may be empty)
             Object xml = this.xml;
-            if (xml == null) // still equal
-                if (bodyContent != null && bodyContent.getString() != null)
-                    xml = bodyContent.getString().trim();
-                else
-                    xml = "";
+            if (xml == null) { // still equal
+            	if (bodyContent != null && bodyContent.getString() != null)
+            	xml = bodyContent.getString().trim();
+            	else
+            	xml = "";
+            }
 
             // let the Source be with you
             Source source = getSource(xml, xmlSystemId);
@@ -176,10 +180,10 @@ public abstract class TransformSupport extends BodyTagSupport {
             // Conduct the transformation
 
             // we can assume at most one of 'var' or 'result' is specified
-            if (result != null)
+            if (result != null) {
                 // we can write directly to the Result
                 t.transform(source, result);
-            else if (var != null) {
+            } else if (var != null) {
                 // we need a Document
                 Document d = db.newDocument();
                 Result doc = new DOMResult(d);
@@ -203,6 +207,7 @@ public abstract class TransformSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }
@@ -223,12 +228,13 @@ public abstract class TransformSupport extends BodyTagSupport {
      * it against the current directory in the filesystem.
      */
     private static String wrapSystemId(String systemId) {
-        if (systemId == null)
+        if (systemId == null) {
             return "jstl:";
-        else if (ImportSupport.isAbsoluteUrl(systemId))
+        } else if (ImportSupport.isAbsoluteUrl(systemId)) {
             return systemId;
-        else
+        } else {
             return ("jstl:" + systemId);
+        }
     }
 
     /**
@@ -237,9 +243,9 @@ public abstract class TransformSupport extends BodyTagSupport {
      * always results in a null output.
      */
     private Source getSource(Object o, String systemId) throws SAXException, ParserConfigurationException, IOException {
-        if (o == null)
+        if (o == null) {
             return null;
-        else if (o instanceof Source) {
+        } else if (o instanceof Source) {
             return (Source) o;
         } else if (o instanceof String) {
             // if we've got a string, chain to Reader below
@@ -294,12 +300,15 @@ public abstract class TransformSupport extends BodyTagSupport {
             this.w = w;
         }
 
+        @Override
         public void close() {
         }
 
+        @Override
         public void flush() {
         }
 
+        @Override
         public void write(char[] cbuf, int off, int len) throws IOException {
             w.write(cbuf, off, len);
         }
@@ -316,11 +325,13 @@ public abstract class TransformSupport extends BodyTagSupport {
             this.ctx = ctx;
         }
 
+        @Override
         public Source resolve(String href, String base) throws TransformerException {
 
             // pass if we don't have a systemId
-            if (href == null)
+            if (href == null) {
                 return null;
+            }
 
             // remove "jstl" marker from 'base'
             // NOTE: how 'base' is determined varies among different Xalan
@@ -331,14 +342,16 @@ public abstract class TransformSupport extends BodyTagSupport {
             }
 
             // we're only concerned with relative URLs
-            if (ImportSupport.isAbsoluteUrl(href) || (base != null && ImportSupport.isAbsoluteUrl(base)))
+            if (ImportSupport.isAbsoluteUrl(href) || (base != null && ImportSupport.isAbsoluteUrl(base))) {
                 return null;
+            }
 
             // base is relative; remove everything after trailing '/'
-            if (base == null || base.lastIndexOf("/") == -1)
+            if (base == null || base.lastIndexOf("/") == -1) {
                 base = "";
-            else
+            } else {
                 base = base.substring(0, base.lastIndexOf("/") + 1);
+            }
 
             // concatenate to produce the real URL we're interested in
             String target = base + href;
@@ -349,14 +362,16 @@ public abstract class TransformSupport extends BodyTagSupport {
             InputStream s;
             if (target.startsWith("/")) {
                 s = ctx.getServletContext().getResourceAsStream(target);
-                if (s == null)
+                if (s == null) {
                     throw new TransformerException(Resources.getMessage("UNABLE_TO_RESOLVE_ENTITY", href));
+                }
             } else {
                 String pagePath = ((HttpServletRequest) ctx.getRequest()).getServletPath();
                 String basePath = pagePath.substring(0, pagePath.lastIndexOf("/"));
                 s = ctx.getServletContext().getResourceAsStream(basePath + "/" + target);
-                if (s == null)
+                if (s == null) {
                     throw new TransformerException(Resources.getMessage("UNABLE_TO_RESOLVE_ENTITY", href));
+                }
             }
             return new StreamSource(s);
         }

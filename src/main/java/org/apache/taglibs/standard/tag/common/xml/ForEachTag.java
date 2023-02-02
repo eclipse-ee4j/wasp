@@ -19,10 +19,10 @@ package org.apache.taglibs.standard.tag.common.xml;
 
 import java.util.List;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.core.LoopTagSupport;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -47,20 +47,24 @@ public class ForEachTag extends LoopTagSupport {
 
     // (We inherit semantics and Javadoc from LoopTagSupport.)
 
+    @Override
     protected void prepare() throws JspTagException {
         nodesIndex = 0;
         XPathUtil xu = new XPathUtil(pageContext);
         nodes = xu.selectNodes(XPathUtil.getContext(this), select);
     }
 
+    @Override
     protected boolean hasNext() throws JspTagException {
         return (nodesIndex < nodes.size());
     }
 
+    @Override
     protected Object next() throws JspTagException {
         Object o = nodes.get(nodesIndex++);
-        if (!(o instanceof org.w3c.dom.Node))
+        if (!(o instanceof org.w3c.dom.Node)) {
             throw new JspTagException(Resources.getMessage("FOREACH_NOT_NODESET"));
+        }
         current = (org.w3c.dom.Node) o;
         return current;
     }
@@ -69,6 +73,7 @@ public class ForEachTag extends LoopTagSupport {
     // Tag logic and lifecycle management
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
         super.release();

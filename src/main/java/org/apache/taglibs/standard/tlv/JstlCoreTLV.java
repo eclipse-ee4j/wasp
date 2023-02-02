@@ -21,18 +21,18 @@ package org.apache.taglibs.standard.tlv;
 import java.util.Set;
 import java.util.Stack;
 
-import jakarta.servlet.jsp.tagext.PageData;
-import jakarta.servlet.jsp.tagext.ValidationMessage;
-
 import org.apache.taglibs.standard.resources.Resources;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import jakarta.servlet.jsp.tagext.PageData;
+import jakarta.servlet.jsp.tagext.ValidationMessage;
 
 /**
  * <p>
  * A SAX-based TagLibraryValidator for the core JSTL tag library. Currently implements the following checks:
  * </p>
- * 
+ *
  * <ul>
  * <li>Expression syntax validation.
  * <li>Choose / when / otherwise constraints</li>
@@ -41,7 +41,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * non-whitespace content inside the tag.</li>
  * <li>Other minor constraints.</li>
  * </ul>
- * 
+ *
  * @author Shawn Bayern
  */
 public class JstlCoreTLV extends JstlBaseTLV {
@@ -85,6 +85,7 @@ public class JstlCoreTLV extends JstlBaseTLV {
 
     // *********************************************************************
     // set its type and delegate validation to super-class
+    @Override
     public ValidationMessage[] validate(String prefix, String uri, PageData page) {
         return super.validate(TYPE_CORE, prefix, uri, page);
     }
@@ -92,6 +93,7 @@ public class JstlCoreTLV extends JstlBaseTLV {
     // *********************************************************************
     // Contract fulfillment
 
+    @Override
     protected DefaultHandler getHandler() {
         return new Handler();
     }
@@ -117,38 +119,45 @@ public class JstlCoreTLV extends JstlBaseTLV {
         public void startElement(String ns, String ln, String qn, Attributes a) {
 
             // substitute our own parsed 'ln' if it's not provided
-            if (ln == null)
+            if (ln == null) {
                 ln = getLocalPart(qn);
+            }
 
             // for simplicity, we can ignore <jsp:text> for our purposes
             // (don't bother distinguishing between it and its characters)
-            if (isJspTag(ns, ln, TEXT))
+            if (isJspTag(ns, ln, TEXT)) {
                 return;
+            }
 
             // check body-related constraint
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
 
             // validate expression syntax if we need to
             Set expAtts;
-            if (qn.startsWith(prefix + ":") && (expAtts = (Set) config.get(ln)) != null) {
+            if (qn.startsWith(prefix + ":") && (expAtts = config.get(ln)) != null) {
                 for (int i = 0; i < a.getLength(); i++) {
                     String attName = a.getLocalName(i);
                     if (expAtts.contains(attName)) {
                         String vMsg = validateExpression(ln, attName, a.getValue(i));
-                        if (vMsg != null)
+                        if (vMsg != null) {
                             fail(vMsg);
+                        }
                     }
                 }
             }
 
             // validate attributes
-            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a))
+            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a)) {
                 fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
-            if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
+            }
+            if (qn.startsWith(prefix + ":") && hasEmptyVar(a)) {
                 fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
-            if (qn.startsWith(prefix + ":") && hasDanglingScope(a))
+            }
+            if (qn.startsWith(prefix + ":") && hasDanglingScope(a)) {
                 fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+            }
 
             // check invariants for <choose>
             if (chooseChild()) {
@@ -177,16 +186,19 @@ public class JstlCoreTLV extends JstlBaseTLV {
             // check constraints for <param> vis-a-vis URL-related tags
             if (isCoreTag(ns, ln, PARAM)) {
                 // no <param> outside URL tags.
-                if (urlTags.empty() || urlTags.peek().equals(PARAM))
+                if (urlTags.empty() || urlTags.peek().equals(PARAM)) {
                     fail(Resources.getMessage("TLV_ILLEGAL_ORPHAN", PARAM));
+                }
 
                 // no <param> where the most recent <import> has a reader
-                if (!urlTags.empty() && urlTags.peek().equals(IMPORT_WITH_READER))
+                if (!urlTags.empty() && urlTags.peek().equals(IMPORT_WITH_READER)) {
                     fail(Resources.getMessage("TLV_ILLEGAL_PARAM", prefix, PARAM, IMPORT, VAR_READER));
+                }
             } else {
                 // tag ISN'T <param>, so it's illegal under non-reader <import>
-                if (!urlTags.empty() && urlTags.peek().equals(IMPORT_WITHOUT_READER))
+                if (!urlTags.empty() && urlTags.peek().equals(IMPORT_WITHOUT_READER)) {
                     fail(Resources.getMessage("TLV_ILLEGAL_CHILD_TAG", prefix, IMPORT, qn));
+                }
             }
 
             // now, modify state
@@ -200,28 +212,33 @@ public class JstlCoreTLV extends JstlBaseTLV {
 
             // if we're introducing a URL-related tag, record it
             if (isCoreTag(ns, ln, IMPORT)) {
-                if (hasAttribute(a, VAR_READER))
+                if (hasAttribute(a, VAR_READER)) {
                     urlTags.push(IMPORT_WITH_READER);
-                else
+                } else {
                     urlTags.push(IMPORT_WITHOUT_READER);
-            } else if (isCoreTag(ns, ln, PARAM))
+                }
+            } else if (isCoreTag(ns, ln, PARAM)) {
                 urlTags.push(PARAM);
-            else if (isCoreTag(ns, ln, REDIRECT))
+            } else if (isCoreTag(ns, ln, REDIRECT)) {
                 urlTags.push(REDIRECT);
-            else if (isCoreTag(ns, ln, URL))
+            } else if (isCoreTag(ns, ln, URL)) {
                 urlTags.push(URL);
+            }
 
             // set up a check against illegal attribute/body combinations
             bodyIllegal = false;
             bodyNecessary = false;
             if (isCoreTag(ns, ln, EXPR)) {
-                if (hasAttribute(a, DEFAULT))
+                if (hasAttribute(a, DEFAULT)) {
                     bodyIllegal = true;
+                }
             } else if (isCoreTag(ns, ln, SET)) {
                 if (hasAttribute(a, VALUE))
+                 {
                     bodyIllegal = true;
                 // else
                 // bodyNecessary = true;
+                }
             }
 
             // record the most recent tag (for error reporting)
@@ -232,18 +249,21 @@ public class JstlCoreTLV extends JstlBaseTLV {
             depth++;
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) {
 
             bodyNecessary = false; // body is no longer necessary!
 
             // ignore strings that are just whitespace
             String s = new String(ch, start, length).trim();
-            if (s.equals(""))
+            if (s.equals("")) {
                 return;
+            }
 
             // check and update body-related constraints
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
             if (!urlTags.empty() && urlTags.peek().equals(IMPORT_WITHOUT_READER)) {
                 // we're in an <import> without a Reader; nothing but
                 // <param> is allowed
@@ -257,29 +277,34 @@ public class JstlCoreTLV extends JstlBaseTLV {
             }
         }
 
+        @Override
         public void endElement(String ns, String ln, String qn) {
 
             // consistently, we ignore JSP_TEXT
-            if (isJspTag(ns, ln, TEXT))
+            if (isJspTag(ns, ln, TEXT)) {
                 return;
+            }
 
             // handle body-related invariant
-            if (bodyNecessary)
+            if (bodyNecessary) {
                 fail(Resources.getMessage("TLV_MISSING_BODY", lastElementName));
+            }
             bodyIllegal = false; // reset: we've left the tag
 
             // update <choose>-related state
             if (isCoreTag(ns, ln, CHOOSE)) {
                 Boolean b = chooseHasWhen.pop();
-                if (!b)
+                if (!b) {
                     fail(Resources.getMessage("TLV_PARENT_WITHOUT_SUBTAG", CHOOSE, WHEN));
+                }
                 chooseDepths.pop();
                 chooseHasOtherwise.pop();
             }
 
             // update state related to URL tags
-            if (isCoreTag(ns, ln, IMPORT) || isCoreTag(ns, ln, PARAM) || isCoreTag(ns, ln, REDIRECT) || isCoreTag(ns, ln, URL))
+            if (isCoreTag(ns, ln, IMPORT) || isCoreTag(ns, ln, PARAM) || isCoreTag(ns, ln, REDIRECT) || isCoreTag(ns, ln, URL)) {
                 urlTags.pop();
+            }
 
             // update our depth
             depth--;

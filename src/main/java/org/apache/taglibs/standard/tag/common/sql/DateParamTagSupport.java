@@ -17,18 +17,18 @@
 
 package org.apache.taglibs.standard.tag.common.sql;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.sql.SQLExecutionTag;
 import jakarta.servlet.jsp.tagext.TagSupport;
 
-import org.apache.taglibs.standard.resources.Resources;
-
 /**
  * <p>
  * Tag handler for &lt;Param&gt; in JSTL, used to set parameter values for a SQL statement.
  * </p>
- * 
+ *
  * @author Justyna Horwat
  */
 
@@ -63,6 +63,7 @@ public abstract class DateParamTagSupport extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
         SQLExecutionTag parent = (SQLExecutionTag) findAncestorWithClass(this, SQLExecutionTag.class);
         if (parent == null) {

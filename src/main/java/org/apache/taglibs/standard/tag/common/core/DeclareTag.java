@@ -25,7 +25,7 @@ import jakarta.servlet.jsp.tagext.TagSupport;
  * concerned; the only important functionality of the tag is to expose a scripting variable for an existing scoped
  * attribute.
  * </p>
- * 
+ *
  * @author Shawn Bayern
  */
 

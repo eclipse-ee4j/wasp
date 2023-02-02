@@ -68,6 +68,7 @@ public abstract class RequestEncodingSupport extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
         charEncoding = value;
         if ((charEncoding == null) && (pageContext.getRequest().getCharacterEncoding() == null)) {
@@ -94,6 +95,7 @@ public abstract class RequestEncodingSupport extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

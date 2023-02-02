@@ -17,11 +17,11 @@
 
 package org.apache.taglibs.standard.tag.rt.core;
 
+import org.apache.taglibs.standard.tag.common.core.ForTokensSupport;
+
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.core.LoopTag;
 import jakarta.servlet.jsp.tagext.IterationTag;
-
-import org.apache.taglibs.standard.tag.common.core.ForTokensSupport;
 
 /**
  * <p>
@@ -61,16 +61,18 @@ public class ForTokensTag extends ForTokensSupport implements LoopTag, Iteration
     public void setItems(Object s) throws JspTagException {
         items = s;
         // use the empty string to indicate "no iteration"
-        if (s == null)
+        if (s == null) {
             items = "";
+        }
     }
 
     // stores the 'delims' String we're passed
     public void setDelims(String s) throws JspTagException {
         delims = s;
         // use the empty string to cause monolithic tokenization
-        if (s == null)
+        if (s == null) {
             delims = "";
+        }
     }
 
 }

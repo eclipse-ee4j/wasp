@@ -25,7 +25,7 @@ import jakarta.servlet.jsp.tagext.TryCatchFinally;
  * <p>
  * Tag handler for &lt;catch&gt; in JSTL 1.0.
  * </p>
- * 
+ *
  * <p>
  * &lt;catch&gt; simply catches any Throwables that occur in its body and optionally exposes them.
  *
@@ -48,6 +48,7 @@ public class CatchTag extends TagSupport implements TryCatchFinally {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -66,20 +67,25 @@ public class CatchTag extends TagSupport implements TryCatchFinally {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doStartTag() {
         caught = false;
         return EVAL_BODY_INCLUDE;
     }
 
+    @Override
     public void doCatch(Throwable t) {
-        if (var != null)
+        if (var != null) {
             pageContext.setAttribute(var, t, PageContext.PAGE_SCOPE);
+        }
         caught = true;
     }
 
+    @Override
     public void doFinally() {
-        if (var != null && !caught)
+        if (var != null && !caught) {
             pageContext.removeAttribute(var, PageContext.PAGE_SCOPE);
+        }
     }
 
     // *********************************************************************

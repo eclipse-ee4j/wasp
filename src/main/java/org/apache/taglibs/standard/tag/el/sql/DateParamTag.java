@@ -19,10 +19,10 @@ package org.apache.taglibs.standard.tag.el.sql;
 
 import java.util.Date;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.sql.DateParamTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Subclass for the JSTL library with EL support.
@@ -42,6 +42,7 @@ public class DateParamTag extends DateParamTagSupport {
         this.typeEL = typeEL;
     }
 
+    @Override
     public int doStartTag() throws JspException {
         evaluateExpressions();
         return super.doStartTag();

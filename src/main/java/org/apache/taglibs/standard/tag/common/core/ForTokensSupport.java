@@ -18,10 +18,12 @@
 package org.apache.taglibs.standard.tag.common.core;
 
 import java.util.StringTokenizer;
+
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.el.ValueExpression;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.core.LoopTagSupport;
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -59,6 +61,7 @@ public abstract class ForTokensSupport extends LoopTagSupport {
      * These just create and use a StringTokenizer. We inherit semantics and Javadoc from LoopTagSupport.
      */
 
+    @Override
     protected void prepare() throws JspTagException {
         if (items instanceof ValueExpression) {
             deferredExpression = (ValueExpression) items;
@@ -70,14 +73,17 @@ public abstract class ForTokensSupport extends LoopTagSupport {
         st = new StringTokenizer((String) items, delims);
     }
 
+    @Override
     protected boolean hasNext() throws JspTagException {
         return st.hasMoreElements();
     }
 
+    @Override
     protected Object next() throws JspTagException {
         return st.nextElement();
     }
 
+    @Override
     protected String getDelims() {
         return delims;
     }
@@ -86,6 +92,7 @@ public abstract class ForTokensSupport extends LoopTagSupport {
     // Tag logic and lifecycle management
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         items = delims = null;

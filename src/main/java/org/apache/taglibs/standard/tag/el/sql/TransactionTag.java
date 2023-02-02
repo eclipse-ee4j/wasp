@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.sql;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.sql.TransactionTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Subclass for the JSTL library with EL support.
@@ -38,13 +38,15 @@ public class TransactionTag extends TransactionTagSupport {
         this.dataSourceSpecified = true;
     }
 
+    @Override
     public void setIsolation(String isolationEL) {
         this.isolationEL = isolationEL;
     }
 
+    @Override
     public int doStartTag() throws JspException {
         if (dataSourceEL != null) {
-            rawDataSource = (Object) ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
+            rawDataSource = ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
         }
 
         if (isolationEL != null) {

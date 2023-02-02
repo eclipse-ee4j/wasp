@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.tag.common.core.ImportSupport;
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -55,6 +55,7 @@ public class ImportTag extends ImportSupport {
     // Tag logic
 
     // evaluates expression and chains to parent
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -65,6 +66,7 @@ public class ImportTag extends ImportSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -104,8 +106,9 @@ public class ImportTag extends ImportSupport {
          */
 
         url = (String) ExpressionUtil.evalNotNull("import", "url", url_, String.class, this, pageContext);
-        if (url == null || url.equals(""))
+        if (url == null || url.equals("")) {
             throw new NullAttributeException("import", "url");
+        }
 
         context = (String) ExpressionUtil.evalNotNull("import", "context", context_, String.class, this, pageContext);
         charEncoding = (String) ExpressionUtil.evalNotNull("import", "charEncoding", charEncoding_, String.class, this, pageContext);

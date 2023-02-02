@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.rt.fmt;
 
+import org.apache.taglibs.standard.tag.common.fmt.MessageSupport;
+
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
-
-import org.apache.taglibs.standard.tag.common.fmt.MessageSupport;
 
 /**
  * <p>

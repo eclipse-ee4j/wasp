@@ -17,9 +17,9 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.tag.common.core.RedirectSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -52,6 +52,7 @@ public class RedirectTag extends RedirectSupport {
     // Tag logic
 
     // evaluates expression and chains to parent
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -62,6 +63,7 @@ public class RedirectTag extends RedirectSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();

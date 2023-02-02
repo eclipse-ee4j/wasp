@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
  * given to the introspector is not a public class. In this case, a publicly accessible version of the method must be
  * found by searching for a public superclass/interface that declares the method (this searching is done by the
  * BeanInfoManager).
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181181 $$DateTime: 2001/06/26 09:55:09 $$Author: kchung $
  **/

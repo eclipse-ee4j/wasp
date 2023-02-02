@@ -21,12 +21,12 @@ package org.apache.taglibs.standard.tag.common.core;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.Tag;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -69,23 +69,27 @@ public abstract class ParamSupport extends BodyTagSupport {
     // Tag logic
 
     // simply send our name and value to our appropriate ancestor
+    @Override
     public int doEndTag() throws JspException {
         Tag t = findAncestorWithClass(this, ParamParent.class);
-        if (t == null)
+        if (t == null) {
             throw new JspTagException(Resources.getMessage("PARAM_OUTSIDE_PARENT"));
+        }
 
         // take no action for null or empty names
-        if (name == null || name.equals(""))
+        if (name == null || name.equals("")) {
             return EVAL_PAGE;
+        }
 
         // send the parameter to the appropriate ancestor
         ParamParent parent = (ParamParent) t;
         String value = this.value;
         if (value == null) {
-            if (bodyContent == null || bodyContent.getString() == null)
+            if (bodyContent == null || bodyContent.getString() == null) {
                 value = "";
-            else
+            } else {
                 value = bodyContent.getString().trim();
+            }
         }
         if (encode) {
             // FIXME: revert to java.net.URLEncoder.encode(s, enc) once
@@ -99,6 +103,7 @@ public abstract class ParamSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }
@@ -125,8 +130,9 @@ public abstract class ParamSupport extends BodyTagSupport {
 
         /** Adds a new parameter to the list. */
         public void addParameter(String name, String value) {
-            if (done)
+            if (done) {
                 throw new IllegalStateException();
+            }
             if (name != null) {
                 names.add(name);
                 if (value != null) {
@@ -144,8 +150,9 @@ public abstract class ParamSupport extends BodyTagSupport {
             /*
              * Since for efficiency we're destructive to the param lists, we don't want to run multiple times.
              */
-            if (done)
+            if (done) {
                 throw new IllegalStateException();
+            }
             done = true;
 
             //// reverse the order of our two lists
@@ -156,8 +163,9 @@ public abstract class ParamSupport extends BodyTagSupport {
             StringBuffer newParams = new StringBuffer();
             for (int i = 0; i < names.size(); i++) {
                 newParams.append(names.get(i)).append("=").append(values.get(i));
-                if (i < (names.size() - 1))
+                if (i < (names.size() - 1)) {
                     newParams.append("&");
+                }
             }
 
             // insert these parameters into the URL as appropriate

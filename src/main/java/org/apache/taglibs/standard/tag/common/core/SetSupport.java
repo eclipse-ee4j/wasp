@@ -24,19 +24,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.el.ExpressionFactory;
 import jakarta.el.ValueExpression;
 import jakarta.el.VariableMapper;
-import jakarta.el.ELException;
-
 import jakarta.servlet.jsp.JspApplicationContext;
-import jakarta.servlet.jsp.JspFactory;
 import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspFactory;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -78,6 +76,7 @@ public class SetSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -86,6 +85,7 @@ public class SetSupport extends BodyTagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
 
         Object result; // what we'll store in scope:var
@@ -99,10 +99,11 @@ public class SetSupport extends BodyTagSupport {
             result = null;
         } else {
             // ... retrieving and trimming our body
-            if (bodyContent == null || bodyContent.getString() == null)
+            if (bodyContent == null || bodyContent.getString() == null) {
                 result = "";
-            else
+            } else {
                 result = bodyContent.getString().trim();
+            }
         }
 
         // decide what to do with the result
@@ -133,10 +134,11 @@ public class SetSupport extends BodyTagSupport {
                     pageContext.setAttribute(var, result, scope);
                 }
             } else {
-                if (scopeSpecified)
+                if (scopeSpecified) {
                     pageContext.removeAttribute(var, scope);
-                else
+                } else {
                     pageContext.removeAttribute(var);
+                }
 
                 if (scope == PageContext.PAGE_SCOPE) {
                     VariableMapper vm = pageContext.getELContext().getVariableMapper();
@@ -151,18 +153,19 @@ public class SetSupport extends BodyTagSupport {
             // save the result to target.property
             if (target instanceof Map) {
                 // ... treating it as a Map entry
-                if (result == null)
+                if (result == null) {
                     ((Map) target).remove(property);
-                else
+                } else {
                     ((Map) target).put(property, result);
+                }
             } else {
                 // ... treating it as a bean property
                 try {
                     PropertyDescriptor pd[] = Introspector.getBeanInfo(target.getClass()).getPropertyDescriptors();
                     boolean succeeded = false;
-                    for (int i = 0; i < pd.length; i++) {
-                        if (pd[i].getName().equals(property)) {
-                            Method m = pd[i].getWriteMethod();
+                    for (PropertyDescriptor element : pd) {
+                        if (element.getName().equals(property)) {
+                            Method m = element.getWriteMethod();
                             if (m == null) {
                                 throw new JspException(Resources.getMessage("SET_NO_SETTER_METHOD", property));
                             }

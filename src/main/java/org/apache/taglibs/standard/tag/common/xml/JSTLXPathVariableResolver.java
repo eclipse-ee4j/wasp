@@ -17,8 +17,8 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
-import javax.xml.xpath.XPathVariableResolver;
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathVariableResolver;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -60,6 +60,7 @@ public class JSTLXPathVariableResolver implements XPathVariableResolver {
      *
      * @throws NullPointerException if variable name is null
      */
+    @Override
     public Object resolveVariable(QName qname) throws NullPointerException {
 
         Object varObject = null;
@@ -111,9 +112,11 @@ public class JSTLXPathVariableResolver implements XPathVariableResolver {
         } else if (namespace.equals(COOKIE_NS_URL)) {
             HttpServletRequest hsr = (HttpServletRequest) pageContext.getRequest();
             Cookie[] c = hsr.getCookies();
-            for (int i = 0; i < c.length; i++)
-                if (c[i].getName().equals(localName))
-                    return c[i].getValue();
+            for (Cookie element : c) {
+                if (element.getName().equals(localName)) {
+                    return element.getValue();
+                }
+            }
             throw new UnresolvableException("$" + namespace + ":" + localName);
         } else {
             throw new UnresolvableException("$" + namespace + ":" + localName);

@@ -21,7 +21,7 @@ package org.apache.taglibs.standard.lang.jstl;
  *
  * <p>
  * The implementation of the less than operator
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -48,6 +48,7 @@ public class LessThanOperator extends RelationalOperator {
      *
      * Returns the symbol representing the operator
      **/
+    @Override
     public String getOperatorSymbol() {
         return "<";
     }
@@ -57,6 +58,7 @@ public class LessThanOperator extends RelationalOperator {
      *
      * Applies the operator to the given value
      **/
+    @Override
     public Object apply(Object pLeft, Object pRight, Object pContext, Logger pLogger) throws ELException {
         if (pLeft == pRight) {
             return Boolean.FALSE;
@@ -72,6 +74,7 @@ public class LessThanOperator extends RelationalOperator {
      *
      * Applies the operator to the given double values
      **/
+    @Override
     public boolean apply(double pLeft, double pRight, Logger pLogger) {
         return pLeft < pRight;
     }
@@ -81,6 +84,7 @@ public class LessThanOperator extends RelationalOperator {
      *
      * Applies the operator to the given long values
      **/
+    @Override
     public boolean apply(long pLeft, long pRight, Logger pLogger) {
         return pLeft < pRight;
     }
@@ -90,6 +94,7 @@ public class LessThanOperator extends RelationalOperator {
      *
      * Applies the operator to the given String values
      **/
+    @Override
     public boolean apply(String pLeft, String pRight, Logger pLogger) {
         return pLeft.compareTo(pRight) < 0;
     }

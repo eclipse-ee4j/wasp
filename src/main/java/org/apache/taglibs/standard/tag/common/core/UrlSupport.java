@@ -17,14 +17,14 @@
 
 package org.apache.taglibs.standard.tag.common.core;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -79,6 +79,7 @@ public abstract class UrlSupport extends BodyTagSupport implements ParamParent {
     // Collaboration with subtags
 
     // inherit Javadoc
+    @Override
     public void addParameter(String name, String value) {
         params.addParameter(name, value);
     }
@@ -87,12 +88,14 @@ public abstract class UrlSupport extends BodyTagSupport implements ParamParent {
     // Tag logic
 
     // resets any parameters that might be sent
+    @Override
     public int doStartTag() throws JspException {
         params = new ParamSupport.ParamManager();
         return EVAL_BODY_BUFFERED;
     }
 
     // gets the right value, encodes it, and prints or stores it
+    @Override
     public int doEndTag() throws JspException {
         String result; // the eventual result
 
@@ -107,9 +110,9 @@ public abstract class UrlSupport extends BodyTagSupport implements ParamParent {
         }
 
         // store or print the output
-        if (var != null)
+        if (var != null) {
             pageContext.setAttribute(var, result, scope);
-        else {
+        } else {
             try {
                 pageContext.getOut().print(result);
             } catch (java.io.IOException ex) {
@@ -121,6 +124,7 @@ public abstract class UrlSupport extends BodyTagSupport implements ParamParent {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }
@@ -130,16 +134,18 @@ public abstract class UrlSupport extends BodyTagSupport implements ParamParent {
 
     public static String resolveUrl(String url, String context, PageContext pageContext) throws JspException {
         // don't touch absolute URLs
-        if (ImportSupport.isAbsoluteUrl(url))
+        if (ImportSupport.isAbsoluteUrl(url)) {
             return url;
+        }
 
         // normalize relative URLs against a context root
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         if (context == null) {
-            if (url.startsWith("/"))
+            if (url.startsWith("/")) {
                 return (request.getContextPath() + url);
-            else
+            } else {
                 return url;
+            }
         } else {
             if (!context.startsWith("/") || !url.startsWith("/")) {
                 throw new JspTagException(Resources.getMessage("IMPORT_BAD_RELATIVE"));

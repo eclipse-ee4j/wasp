@@ -17,11 +17,11 @@
 
 package org.apache.taglibs.standard.tag.el.fmt;
 
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.fmt.MessageSupport;
+
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 
 /**
  * <p>
@@ -55,6 +55,7 @@ public class MessageTag extends MessageSupport {
     // Tag logic
 
     // evaluates expression and chains to parent
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -65,6 +66,7 @@ public class MessageTag extends MessageSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();

@@ -23,7 +23,7 @@ import org.apache.taglibs.standard.tag.common.sql.SetDataSourceTagSupport;
  * <p>
  * Tag handler for &lt;Driver&gt; in JSTL, used to create a simple DataSource for prototyping.
  * </p>
- * 
+ *
  */
 public class SetDataSourceTag extends SetDataSourceTagSupport {
 

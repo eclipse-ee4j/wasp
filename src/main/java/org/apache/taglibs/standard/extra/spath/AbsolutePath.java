@@ -29,7 +29,6 @@ import java.util.List;
  */
 public class AbsolutePath extends Path {
 
-    private boolean all;
     private RelativePath base;
 
     /**
@@ -38,14 +37,16 @@ public class AbsolutePath extends Path {
      * getSteps()).
      */
     public AbsolutePath(RelativePath base) {
-        if (base == null)
+        if (base == null) {
             throw new IllegalArgumentException("non-null base required");
+        }
+        
         this.base = base;
     }
 
     @Override
     public List<Step> getSteps() {
-        // simply return our base's Step objects
+        // Simply return our base's Step objects
         return base.getSteps();
     }
 }

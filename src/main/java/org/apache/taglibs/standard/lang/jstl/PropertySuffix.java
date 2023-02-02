@@ -24,7 +24,7 @@ import java.util.Map;
  * <p>
  * Represents an operator that obtains the value of another value's property. This is a specialization of ArraySuffix -
  * a.b is equivalent to a["b"]
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -61,6 +61,7 @@ public class PropertySuffix extends ArraySuffix {
      *
      * Gets the value of the index
      **/
+    @Override
     Object evaluateIndex(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         return mName;
@@ -71,6 +72,7 @@ public class PropertySuffix extends ArraySuffix {
      *
      * Returns the operator symbol
      **/
+    @Override
     String getOperatorSymbol() {
         return ".";
     }
@@ -82,6 +84,7 @@ public class PropertySuffix extends ArraySuffix {
      *
      * Returns the expression in the expression language syntax
      **/
+    @Override
     public String getExpressionString() {
         return "." + StringLiteral.toIdentifierToken(mName);
     }

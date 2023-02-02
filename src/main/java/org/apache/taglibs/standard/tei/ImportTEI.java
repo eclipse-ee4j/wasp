@@ -32,10 +32,12 @@ public class ImportTEI extends TagExtraInfo {
     final private static String VAR = "var";
     final private static String VAR_READER = "varReader";
 
+    @Override
     public boolean isValid(TagData us) {
         // don't allow both VAR and VAR_READER, together
-        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_READER))
+        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_READER)) {
             return false;
+        }
 
         return true;
     }

@@ -20,6 +20,8 @@
 
 package org.apache.taglibs.standard.extra.spath;
 
+import java.io.Reader;
+
 /**
  * An implementation of interface CharStream, where the stream is assumed to contain only ASCII characters (without
  * unicode processing).
@@ -40,7 +42,7 @@ public final class ASCII_CharStream {
     private boolean prevCharIsCR = false;
     private boolean prevCharIsLF = false;
 
-    private java.io.Reader inputStream;
+    private Reader inputStream;
 
     private char[] buffer;
     private int maxNextCharInd = 0;
@@ -143,8 +145,9 @@ public final class ASCII_CharStream {
             prevCharIsCR = false;
             if (c == '\n') {
                 prevCharIsLF = true;
-            } else
+            } else {
                 line += (column = 1);
+            }
         }
 
         switch (c) {
@@ -172,8 +175,9 @@ public final class ASCII_CharStream {
             return (char) ((char) 0xff & buffer[(bufpos == bufsize - 1) ? (bufpos = 0) : ++bufpos]);
         }
 
-        if (++bufpos >= maxNextCharInd)
+        if (++bufpos >= maxNextCharInd) {
             FillBuff();
+        }
 
         char c = (char) ((char) 0xff & buffer[bufpos]);
 
@@ -186,6 +190,7 @@ public final class ASCII_CharStream {
      * @see #getEndColumn
      */
 
+    @Deprecated
     public final int getColumn() {
         return bufcolumn[bufpos];
     }
@@ -195,6 +200,7 @@ public final class ASCII_CharStream {
      * @see #getEndLine
      */
 
+    @Deprecated
     public final int getLine() {
         return bufline[bufpos];
     }
@@ -218,8 +224,9 @@ public final class ASCII_CharStream {
     public final void backup(int amount) {
 
         inBuf += amount;
-        if ((bufpos -= amount) < 0)
+        if ((bufpos -= amount) < 0) {
             bufpos += bufsize;
+        }
     }
 
     public ASCII_CharStream(java.io.Reader dstream, int startline, int startcolumn, int buffersize) {
@@ -274,18 +281,19 @@ public final class ASCII_CharStream {
     }
 
     public final String GetImage() {
-        if (bufpos >= tokenBegin)
+        if (bufpos >= tokenBegin) {
             return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
-        else
+        } else {
             return new String(buffer, tokenBegin, bufsize - tokenBegin) + new String(buffer, 0, bufpos + 1);
+        }
     }
 
     public final char[] GetSuffix(int len) {
         char[] ret = new char[len];
 
-        if ((bufpos + 1) >= len)
+        if ((bufpos + 1) >= len) {
             System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
-        else {
+        } else {
             System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);
             System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
         }
@@ -329,10 +337,11 @@ public final class ASCII_CharStream {
             bufcolumn[j] = newCol + columnDiff;
 
             while (i++ < len) {
-                if (bufline[j = start % bufsize] != bufline[++start % bufsize])
+                if (bufline[j = start % bufsize] != bufline[++start % bufsize]) {
                     bufline[j] = newLine++;
-                else
+                } else {
                     bufline[j] = newLine;
+                }
             }
         }
 

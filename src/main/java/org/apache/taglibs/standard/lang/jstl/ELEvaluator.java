@@ -63,7 +63,7 @@ import org.apache.taglibs.standard.lang.jstl.parser.TokenMgrError;
  * <p>
  * Once an evaluator instance has been constructed, it may be used multiple times, and may be used by multiple
  * simultaneous Threads. In other words, an evaluator instance is well-suited for use as a singleton.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -277,18 +277,19 @@ public class ELEvaluator {
         int maxSize = 0;
         boolean printedOne = false;
 
-        if (pExc.expectedTokenSequences == null)
+        if (pExc.expectedTokenSequences == null) {
             return pExc.toString();
+        }
 
-        for (int i = 0; i < pExc.expectedTokenSequences.length; i++) {
-            if (maxSize < pExc.expectedTokenSequences[i].length) {
-                maxSize = pExc.expectedTokenSequences[i].length;
+        for (int[] element : pExc.expectedTokenSequences) {
+            if (maxSize < element.length) {
+                maxSize = element.length;
             }
-            for (int j = 0; j < pExc.expectedTokenSequences[i].length; j++) {
+            for (int element2 : element) {
                 if (printedOne) {
                     expectedBuf.append(", ");
                 }
-                expectedBuf.append(pExc.tokenImage[pExc.expectedTokenSequences[i][j]]);
+                expectedBuf.append(pExc.tokenImage[element2]);
                 printedOne = true;
             }
         }
@@ -298,8 +299,9 @@ public class ELEvaluator {
         StringBuilder encounteredBuf = new StringBuilder();
         Token tok = pExc.currentToken.next;
         for (int i = 0; i < maxSize; i++) {
-            if (i != 0)
+            if (i != 0) {
                 encounteredBuf.append(" ");
+            }
             if (tok.kind == 0) {
                 encounteredBuf.append(pExc.tokenImage[0]);
                 break;

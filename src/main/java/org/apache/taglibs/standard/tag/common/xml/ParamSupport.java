@@ -17,12 +17,12 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.Tag;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -58,24 +58,28 @@ public abstract class ParamSupport extends BodyTagSupport {
     // Tag logic
 
     // simply send our name and value to our parent <transform> tag
+    @Override
     public int doEndTag() throws JspException {
         Tag t = findAncestorWithClass(this, TransformSupport.class);
-        if (t == null)
+        if (t == null) {
             throw new JspTagException(Resources.getMessage("PARAM_OUTSIDE_TRANSFORM"));
+        }
         TransformSupport parent = (TransformSupport) t;
 
         Object value = this.value;
         if (value == null) {
-            if (bodyContent == null || bodyContent.getString() == null)
+            if (bodyContent == null || bodyContent.getString() == null) {
                 value = "";
-            else
+            } else {
                 value = bodyContent.getString().trim();
+            }
         }
         parent.addParameter(name, value);
         return EVAL_PAGE;
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

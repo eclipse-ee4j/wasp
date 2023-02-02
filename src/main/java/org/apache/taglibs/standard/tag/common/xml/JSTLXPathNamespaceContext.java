@@ -18,13 +18,13 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 
 /**
  * Implemenation of XML Namespace context processing given a URI or prefix
@@ -59,6 +59,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
      *
      * @throws IllegalArgumentException if prefix is null
      */
+    @Override
     public String getNamespaceURI(String prefix) throws IllegalArgumentException {
         // p("[getNamespaceURI] prefix: " + prefix);
         if (prefix == null) {
@@ -90,6 +91,7 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
      *
      * @throws IllegalArgumentException if Namespace URI is null
      */
+    @Override
     public String getPrefix(String namespaceURI) {
         // p("[getPrefix] namespaceURI: " + namespaceURI);
         if (namespaceURI == null) {

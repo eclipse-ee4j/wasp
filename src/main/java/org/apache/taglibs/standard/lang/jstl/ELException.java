@@ -20,7 +20,7 @@ package org.apache.taglibs.standard.lang.jstl;
 /**
  *
  * Represents any of the exception conditions that arise during the operation evaluation of the evaluator.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -83,6 +83,7 @@ public class ELException extends Exception {
      *
      * String representation
      **/
+    @Override
     public String toString() {
         if (getMessage() == null) {
             return mRootCause.toString();

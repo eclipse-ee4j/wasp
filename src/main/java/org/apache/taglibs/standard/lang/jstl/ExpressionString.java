@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * <p>
  * Represents an expression String consisting of a mixture of Strings and Expressions.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $

@@ -17,16 +17,16 @@
 
 package org.apache.taglibs.standard.tag.common.core;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.TagSupport;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
  * Tag handler for &lt;choose&gt; in JSTL.
  * </p>
- * 
+ *
  * <p>
  * &lt;choose&gt; is a very simple tag that acts primarily as a container; it always includes its body and allows
  * exactly one of its child &lt;when&gt; tags to run. Since this tag handler doesn't have any attributes, it is
@@ -47,6 +47,7 @@ public class ChooseTag extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -74,8 +75,9 @@ public class ChooseTag extends TagSupport {
      * Called by a subtag to indicate that it plans to evaluate its body.
      */
     public synchronized void subtagSucceeded() {
-        if (subtagGateClosed)
+        if (subtagGateClosed) {
             throw new IllegalStateException(Resources.getMessage("CHOOSE_EXCLUSIVITY"));
+        }
         subtagGateClosed = true;
     }
 
@@ -83,6 +85,7 @@ public class ChooseTag extends TagSupport {
     // Tag logic
 
     // always include body
+    @Override
     public int doStartTag() throws JspException {
         subtagGateClosed = false; // when we start, no children have run
         return EVAL_BODY_INCLUDE;

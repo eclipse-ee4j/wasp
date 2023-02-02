@@ -19,12 +19,12 @@ package org.apache.taglibs.standard.tag.common.fmt;
 
 import java.util.TimeZone;
 
+import org.apache.taglibs.standard.tag.common.core.Util;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.jstl.core.Config;
 import jakarta.servlet.jsp.tagext.TagSupport;
-
-import org.apache.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;setTimeZone&gt;, the time zone setting tag in JSTL 1.0.
@@ -73,6 +73,7 @@ public abstract class SetTimeZoneSupport extends TagSupport {
     // *********************************************************************
     // Tag logic
 
+    @Override
     public int doEndTag() throws JspException {
         TimeZone timeZone = null;
 
@@ -98,6 +99,7 @@ public abstract class SetTimeZoneSupport extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

@@ -19,44 +19,33 @@
 package org.apache.taglibs.standard.lang.jstl;
 
 import java.util.ArrayList;
-
-import java.util.Collections;
-
-import java.util.Date;
-
 import java.util.Enumeration;
-
 import java.util.HashMap;
-
 import java.util.List;
-
 import java.util.Map;
 
 import jakarta.servlet.ServletContext;
-
 import jakarta.servlet.http.Cookie;
-
 import jakarta.servlet.http.HttpServletRequest;
-
 import jakarta.servlet.jsp.PageContext;
 
 /**
  *
- * 
- * 
+ *
+ *
  * <p>
  * This class is used to generate the implicit Map and List objects
- * 
+ *
  * that wrap various elements of the PageContext. It also returns the
- * 
+ *
  * correct implicit object for a given implicit object name.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Nathan Abramson - Art Technology Group
- * 
+ *
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
- * 
+ *
  **/
 
 public class ImplicitObjects
@@ -105,10 +94,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Constructor
-     * 
+     *
      **/
 
     public ImplicitObjects(PageContext pContext)
@@ -123,12 +112,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Finds the ImplicitObjects associated with the PageContext,
-     * 
+     *
      * creating it if it doesn't yet exist.
-     * 
+     *
      **/
 
     public static ImplicitObjects getImplicitObjects(PageContext pContext)
@@ -163,10 +152,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that "wraps" page-scoped attributes
-     * 
+     *
      **/
 
     public Map getPageScopeMap()
@@ -187,10 +176,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that "wraps" request-scoped attributes
-     * 
+     *
      **/
 
     public Map getRequestScopeMap()
@@ -211,10 +200,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that "wraps" session-scoped attributes
-     * 
+     *
      **/
 
     public Map getSessionScopeMap()
@@ -235,10 +224,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that "wraps" application-scoped attributes
-     * 
+     *
      **/
 
     public Map getApplicationScopeMap()
@@ -259,12 +248,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that maps parameter name to a single parameter
-     * 
+     *
      * values.
-     * 
+     *
      **/
 
     public Map getParamMap()
@@ -285,12 +274,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that maps parameter name to an array of parameter
-     * 
+     *
      * values.
-     * 
+     *
      **/
 
     public Map getParamsMap()
@@ -311,12 +300,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that maps header name to a single header
-     * 
+     *
      * values.
-     * 
+     *
      **/
 
     public Map getHeaderMap()
@@ -337,12 +326,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that maps header name to an array of header
-     * 
+     *
      * values.
-     * 
+     *
      **/
 
     public Map getHeadersMap()
@@ -363,12 +352,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that maps init parameter name to a single init
-     * 
+     *
      * parameter values.
-     * 
+     *
      **/
 
     public Map getInitParamMap()
@@ -389,12 +378,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Returns the Map that maps cookie name to the first matching
-     * 
+     *
      * Cookie in request.getCookies().
-     * 
+     *
      **/
 
     public Map getCookieMap()
@@ -419,10 +408,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that "wraps" page-scoped attributes
-     * 
+     *
      **/
 
     public static Map createPageScopeMap(PageContext pContext)
@@ -435,6 +424,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -445,6 +435,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -467,6 +458,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -483,10 +475,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that "wraps" request-scoped attributes
-     * 
+     *
      **/
 
     public static Map createRequestScopeMap(PageContext pContext)
@@ -499,6 +491,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -509,6 +502,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -531,6 +525,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -547,10 +542,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that "wraps" session-scoped attributes
-     * 
+     *
      **/
 
     public static Map createSessionScopeMap(PageContext pContext)
@@ -563,6 +558,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -573,6 +569,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -595,6 +592,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -611,10 +609,10 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that "wraps" application-scoped attributes
-     * 
+     *
      **/
 
     public static Map createApplicationScopeMap(PageContext pContext)
@@ -627,6 +625,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -637,6 +636,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -659,6 +659,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -675,12 +676,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that maps parameter name to single parameter
-     * 
+     *
      * value.
-     * 
+     *
      **/
 
     public static Map createParamMap(PageContext pContext)
@@ -695,6 +696,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -703,6 +705,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -721,6 +724,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -737,12 +741,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that maps parameter name to an array of parameter
-     * 
+     *
      * values.
-     * 
+     *
      **/
 
     public static Map createParamsMap(PageContext pContext)
@@ -757,6 +761,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -765,6 +770,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -783,6 +789,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -799,12 +806,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that maps header name to single header
-     * 
+     *
      * value.
-     * 
+     *
      **/
 
     public static Map createHeaderMap(PageContext pContext)
@@ -819,6 +826,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -827,6 +835,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -845,6 +854,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -861,12 +871,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that maps header name to an array of header
-     * 
+     *
      * values.
-     * 
+     *
      **/
 
     public static Map createHeadersMap(PageContext pContext)
@@ -881,6 +891,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -889,6 +900,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -925,6 +937,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -941,12 +954,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that maps init parameter name to single init
-     * 
+     *
      * parameter value.
-     * 
+     *
      **/
 
     public static Map createInitParamMap(PageContext pContext)
@@ -959,6 +972,7 @@ public class ImplicitObjects
 
         {
 
+            @Override
             public Enumeration enumerateKeys()
 
             {
@@ -967,6 +981,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public Object getValue(Object pKey)
 
             {
@@ -985,6 +1000,7 @@ public class ImplicitObjects
 
             }
 
+            @Override
             public boolean isMutable()
 
             {
@@ -1001,12 +1017,12 @@ public class ImplicitObjects
 
     /**
      *
-     * 
-     * 
+     *
+     *
      * Creates the Map that maps cookie name to the first matching
-     * 
+     *
      * Cookie in request.getCookies().
-     * 
+     *
      **/
     public static Map<String, Cookie> createCookieMap(PageContext pContext) {
 

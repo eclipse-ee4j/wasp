@@ -27,11 +27,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.tagext.PageData;
-import jakarta.servlet.jsp.tagext.TagData;
-import jakarta.servlet.jsp.tagext.TagLibraryValidator;
-import jakarta.servlet.jsp.tagext.ValidationMessage;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -43,11 +38,17 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.PageData;
+import jakarta.servlet.jsp.tagext.TagData;
+import jakarta.servlet.jsp.tagext.TagLibraryValidator;
+import jakarta.servlet.jsp.tagext.ValidationMessage;
+
 /**
  * <p>
  * A base class to support SAX-based validation in JSTL.
  * </p>
- * 
+ *
  * @author Shawn Bayern
  */
 public abstract class JstlBaseTLV extends TagLibraryValidator {
@@ -115,6 +116,7 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         config = null;
     }
 
+    @Override
     public void release() {
         super.release();
         init();
@@ -136,8 +138,9 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
 
             // parse parameters if necessary
             try {
-                if (config == null)
+                if (config == null) {
                     configure((String) getInitParameters().get(EXP_ATT_PARAM));
+                }
             } catch (NoSuchElementException ex) {
                 // parsing error
                 return vmFromString(Resources.getMessage("TLV_PARAMETER_ERROR", EXP_ATT_PARAM));
@@ -153,10 +156,11 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
             SAXParser p = f.newSAXParser();
             p.parse(page.getInputStream(), h);
 
-            if (messageVector.size() == 0)
+            if (messageVector.size() == 0) {
                 return null;
-            else
+            } else {
                 return vmFromVector(messageVector);
+            }
 
         } catch (SAXException ex) {
             return vmFromString(ex.toString());
@@ -183,16 +187,18 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         }
 
         String response = current.validate(att, expr);
-        if (response == null)
+        if (response == null) {
             return response;
-        else
+        } else {
             return "tag = '" + elem + "' / attribute = '" + att + "': " + response;
+        }
     }
 
     // utility methods to help us match elements in our tagset
     protected boolean isTag(String tagUri, String tagLn, String matchUri, String matchLn) {
-        if (tagUri == null || tagUri.length() == 0 || tagLn == null || matchUri == null || matchLn == null)
+        if (tagUri == null || tagUri.length() == 0 || tagLn == null || matchUri == null || matchLn == null) {
             return false;
+        }
         // match beginning of URI since some suffix *_rt tags can
         // be nested in EL enabled tags as defined by the spec
         if (tagUri.length() > matchUri.length()) {
@@ -249,16 +255,18 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         String scope = a.getValue(SCOPE);
 
         if ((scope != null) && !scope.equals(PAGE_SCOPE) && !scope.equals(REQUEST_SCOPE) && !scope.equals(SESSION_SCOPE)
-                && !scope.equals(APPLICATION_SCOPE))
+                && !scope.equals(APPLICATION_SCOPE)) {
             return false;
+        }
 
         return true;
     }
 
     // returns true if the 'var' attribute is empty
     protected boolean hasEmptyVar(Attributes a) {
-        if ("".equals(a.getValue(VAR)))
+        if ("".equals(a.getValue(VAR))) {
             return true;
+        }
         return false;
     }
 
@@ -270,10 +278,11 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
     // retrieves the local part of a QName
     protected String getLocalPart(String qname) {
         int colon = qname.indexOf(":");
-        if (colon == -1)
+        if (colon == -1) {
             return qname;
-        else
+        } else {
             return qname.substring(colon + 1);
+        }
     }
 
     // *********************************************************************
@@ -285,8 +294,9 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         config = new HashMap<>();
 
         // leave the map empty if we have nothing to configure
-        if (info == null)
+        if (info == null) {
             return;
+        }
 
         // separate parameter into space-separated tokens and store them
         StringTokenizer st = new StringTokenizer(info);

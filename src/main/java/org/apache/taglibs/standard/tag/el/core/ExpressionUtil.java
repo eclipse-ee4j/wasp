@@ -17,12 +17,12 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
+import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
+import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
+
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.Tag;
-
-import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
-import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 
 /**
  * <p>
@@ -42,10 +42,12 @@ public class ExpressionUtil {
             PageContext pageContext) throws JspException {
         if (expression != null) {
             Object r = ExpressionEvaluatorManager.evaluate(attributeName, expression, expectedType, tag, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException(tagName, attributeName);
+            }
             return r;
-        } else
+        } else {
             return null;
+        }
     }
 }

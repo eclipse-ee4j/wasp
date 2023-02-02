@@ -42,7 +42,17 @@ public interface SPathParserConstants {
 
     int DEFAULT = 0;
 
-    String[] tokenImage = { "<EOF>", "<LITERAL>", "<QNAME>", "<NCNAME>", "<NSWILDCARD>", "<NCNAMECHAR>", "<LETTER>", "<DIGIT>",
-            "<COMBINING_CHAR>", "<EXTENDER>", "\"_\"", "\".\"", "\"-\"", "\"/\"", "\"*\"", "\":\"", "\"[\"", "\"]\"", "\"@\"", "\"=\"", };
+    String[] tokenImage = {
+        "<EOF>",
+        "<LITERAL>",
+        "<QNAME>",
+        "<NCNAME>",
+        "<NSWILDCARD>",
+        "<NCNAMECHAR>",
+        "<LETTER>",
+        "<DIGIT>",
+        "<COMBINING_CHAR>",
+        "<EXTENDER>",
+        "\"_\"", "\".\"", "\"-\"", "\"/\"", "\"*\"", "\":\"", "\"[\"", "\"]\"", "\"@\"", "\"=\"", };
 
 }

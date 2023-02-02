@@ -21,7 +21,7 @@ package org.apache.taglibs.standard.lang.jstl;
  *
  * <p>
  * The implementation of the or operator
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -48,6 +48,7 @@ public class OrOperator extends BinaryOperator {
      *
      * Returns the symbol representing the operator
      **/
+    @Override
     public String getOperatorSymbol() {
         return "or";
     }
@@ -57,6 +58,7 @@ public class OrOperator extends BinaryOperator {
      *
      * Applies the operator to the given value
      **/
+    @Override
     public Object apply(Object pLeft, Object pRight, Object pContext, Logger pLogger) throws ELException {
         // Coerce the values to booleans
         boolean left = Coercions.coerceToBoolean(pLeft, pLogger).booleanValue();
@@ -70,8 +72,9 @@ public class OrOperator extends BinaryOperator {
      *
      * Returns true if evaluation is necessary given the specified Left value. The And/OrOperators make use of this
      **/
+    @Override
     public boolean shouldEvaluate(Object pLeft) {
-        return (pLeft instanceof Boolean) && ((Boolean) pLeft).booleanValue() == false;
+        return (pLeft instanceof Boolean) && !((Boolean) pLeft).booleanValue();
     }
 
     // -------------------------------------
@@ -79,6 +82,7 @@ public class OrOperator extends BinaryOperator {
      *
      * Returns true if the operator expects its arguments to be coerced to Booleans. The And/Or operators set this to true.
      **/
+    @Override
     public boolean shouldCoerceToBoolean() {
         return true;
     }

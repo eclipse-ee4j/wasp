@@ -21,7 +21,7 @@ package org.apache.taglibs.standard.lang.jstl;
  *
  * <p>
  * The implementation of the not equals operator
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -48,6 +48,7 @@ public class NotEqualsOperator extends EqualityOperator {
      *
      * Returns the symbol representing the operator
      **/
+    @Override
     public String getOperatorSymbol() {
         return "!=";
     }
@@ -57,6 +58,7 @@ public class NotEqualsOperator extends EqualityOperator {
      *
      * Applies the operator given the fact that the two elements are equal.
      **/
+    @Override
     public boolean apply(boolean pAreEqual, Logger pLogger) {
         return !pAreEqual;
     }

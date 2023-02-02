@@ -17,9 +17,9 @@
 
 package org.apache.taglibs.standard.tag.rt.fmt;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.tag.common.fmt.FormatNumberSupport;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>

@@ -21,25 +21,25 @@ package org.apache.taglibs.standard.tlv;
 import java.util.Set;
 import java.util.Stack;
 
-import jakarta.servlet.jsp.tagext.PageData;
-import jakarta.servlet.jsp.tagext.ValidationMessage;
-
 import org.apache.taglibs.standard.resources.Resources;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import jakarta.servlet.jsp.tagext.PageData;
+import jakarta.servlet.jsp.tagext.ValidationMessage;
 
 /**
  * <p>
  * A SAX-based TagLibraryValidator for the JSTL XML library. Currently implements the following checks:
  * </p>
- * 
+ *
  * <ul>
  * <li>Expression syntax validation.
  * <li>Choose / when / otherwise constraints</li>
  * <li>Tag bodies that must either be empty or non-empty given particular attributes.</li>
  * <li>Other minor constraints.</li>
  * </ul>
- * 
+ *
  * @author Shawn Bayern
  */
 public class JstlXmlTLV extends JstlBaseTLV {
@@ -78,6 +78,7 @@ public class JstlXmlTLV extends JstlBaseTLV {
 
     // *********************************************************************
     // set its type and delegate validation to super-class
+    @Override
     public ValidationMessage[] validate(String prefix, String uri, PageData page) {
         return super.validate(TYPE_XML, prefix, uri, page);
     }
@@ -85,6 +86,7 @@ public class JstlXmlTLV extends JstlBaseTLV {
     // *********************************************************************
     // Contract fulfillment
 
+    @Override
     protected DefaultHandler getHandler() {
         return new Handler();
     }
@@ -106,20 +108,24 @@ public class JstlXmlTLV extends JstlBaseTLV {
         private Stack<Integer> transformWithSource = new Stack<>();
 
         // process under the existing context (state), then modify it
+        @Override
         public void startElement(String ns, String ln, String qn, Attributes a) {
 
             // substitute our own parsed 'ln' if it's not provided
-            if (ln == null)
+            if (ln == null) {
                 ln = getLocalPart(qn);
+            }
 
             // for simplicity, we can ignore <jsp:text> for our purposes
             // (don't bother distinguishing between it and its characters)
-            if (qn.equals(JSP_TEXT))
+            if (qn.equals(JSP_TEXT)) {
                 return;
+            }
 
             // check body-related constraint
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
 
             // validate expression syntax if we need to
             Set<String> expAtts;
@@ -128,19 +134,23 @@ public class JstlXmlTLV extends JstlBaseTLV {
                     String attName = a.getLocalName(i);
                     if (expAtts.contains(attName)) {
                         String vMsg = validateExpression(ln, attName, a.getValue(i));
-                        if (vMsg != null)
+                        if (vMsg != null) {
                             fail(vMsg);
+                        }
                     }
                 }
             }
 
             // validate attributes
-            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a))
+            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a)) {
                 fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
-            if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
+            }
+            if (qn.startsWith(prefix + ":") && hasEmptyVar(a)) {
                 fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
-            if (qn.startsWith(prefix + ":") && hasDanglingScope(a))
+            }
+            if (qn.startsWith(prefix + ":") && hasDanglingScope(a)) {
                 fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+            }
 
             // check invariants for <choose>
             if (chooseChild()) {
@@ -169,8 +179,9 @@ public class JstlXmlTLV extends JstlBaseTLV {
             // Specific check, directly inside <transform source="...">
             if (!transformWithSource.empty() && topDepth(transformWithSource) == (depth - 1)) {
                 // only allow <param>
-                if (!isXmlTag(ns, ln, PARAM))
+                if (!isXmlTag(ns, ln, PARAM)) {
                     fail(Resources.getMessage("TLV_ILLEGAL_BODY", prefix + ":" + TRANSFORM));
+                }
 
                 // thus, if we get the opportunity to hit depth++,
                 // we know we've got a <param> subtag
@@ -189,16 +200,19 @@ public class JstlXmlTLV extends JstlBaseTLV {
             bodyIllegal = false;
             bodyNecessary = false;
             if (isXmlTag(ns, ln, PARSE)) {
-                if (hasAttribute(a, SOURCE))
+                if (hasAttribute(a, SOURCE)) {
                     bodyIllegal = true;
+                }
             } else if (isXmlTag(ns, ln, PARAM)) {
-                if (hasAttribute(a, VALUE))
+                if (hasAttribute(a, VALUE)) {
                     bodyIllegal = true;
-                else
+                } else {
                     bodyNecessary = true;
+                }
             } else if (isXmlTag(ns, ln, TRANSFORM)) {
-                if (hasAttribute(a, SOURCE))
+                if (hasAttribute(a, SOURCE)) {
                     transformWithSource.push(Integer.valueOf(depth));
+                }
             }
 
             // record the most recent tag (for error reporting)
@@ -209,18 +223,21 @@ public class JstlXmlTLV extends JstlBaseTLV {
             depth++;
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) {
 
             bodyNecessary = false; // body is no longer necessary!
 
             // ignore strings that are just whitespace
             String s = new String(ch, start, length).trim();
-            if (s.equals(""))
+            if (s.equals("")) {
                 return;
+            }
 
             // check and update body-related constraints
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
 
             // make sure <choose> has no non-whitespace text
             if (chooseChild()) {
@@ -234,29 +251,34 @@ public class JstlXmlTLV extends JstlBaseTLV {
             }
         }
 
+        @Override
         public void endElement(String ns, String ln, String qn) {
 
             // consistently, we ignore JSP_TEXT
-            if (qn.equals(JSP_TEXT))
+            if (qn.equals(JSP_TEXT)) {
                 return;
+            }
 
             // handle body-related invariant
-            if (bodyNecessary)
+            if (bodyNecessary) {
                 fail(Resources.getMessage("TLV_MISSING_BODY", lastElementName));
+            }
             bodyIllegal = false; // reset: we've left the tag
 
             // update <choose>-related state
             if (isXmlTag(ns, ln, CHOOSE)) {
                 Boolean b = chooseHasWhen.pop();
-                if (!b)
+                if (!b) {
                     fail(Resources.getMessage("TLV_PARENT_WITHOUT_SUBTAG", CHOOSE, WHEN));
+                }
                 chooseDepths.pop();
                 chooseHasOtherwise.pop();
             }
 
             // update <transform source="...">-related state
-            if (!transformWithSource.empty() && topDepth(transformWithSource) == (depth - 1))
+            if (!transformWithSource.empty() && topDepth(transformWithSource) == (depth - 1)) {
                 transformWithSource.pop();
+            }
 
             // update our depth
             depth--;

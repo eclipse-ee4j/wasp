@@ -17,9 +17,9 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.tag.common.core.WhenTagSupport;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>
@@ -41,6 +41,7 @@ public class WhenTag extends WhenTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -49,6 +50,7 @@ public class WhenTag extends WhenTagSupport {
     // *********************************************************************
     // Supplied conditional logic
 
+    @Override
     protected boolean condition() throws JspTagException {
         XPathUtil xu = new XPathUtil(pageContext);
         return (xu.booleanValueOf(XPathUtil.getContext(this), select));

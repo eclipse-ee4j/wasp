@@ -66,6 +66,7 @@ public class RemoveTag extends TagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -75,11 +76,13 @@ public class RemoveTag extends TagSupport {
     // Tag logic
 
     // removes the variable (from a specific scope, if specified)
+    @Override
     public int doEndTag() throws JspException {
-        if (!scopeSpecified)
+        if (!scopeSpecified) {
             pageContext.removeAttribute(var);
-        else
+        } else {
             pageContext.removeAttribute(var, scope);
+        }
         return EVAL_PAGE;
     }
 

@@ -29,7 +29,7 @@ import java.util.Map;
  * an object. The following are the rules for evaluating this operator:
  *
  * <ul>
- * 
+ *
  * <pre>
  * Evaluating a[b] (assuming a.b == a["b"])
  *   a is null
@@ -52,7 +52,7 @@ import java.util.Map;
  *     a.get(b) or Array.get(a, b) throws other exception
  *       error
  *     return a.get(b) or Array.get(a, b)
- * 
+ *
  *   coerce b to String
  *   b is a readable property of a
  *     getter throws an exception
@@ -64,7 +64,7 @@ import java.util.Map;
  *     error
  * </pre>
  * </ul>
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -128,6 +128,7 @@ public class ArraySuffix extends ValueSuffix {
      *
      * Returns the expression in the expression language syntax
      **/
+    @Override
     public String getExpressionString() {
         return "[" + mIndex.getExpressionString() + "]";
     }
@@ -137,6 +138,7 @@ public class ArraySuffix extends ValueSuffix {
      *
      * Evaluates the expression in the given context, operating on the given value.
      **/
+    @Override
     public Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         Object indexVal;

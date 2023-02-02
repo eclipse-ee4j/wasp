@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * <p>
  * An expression representing a literal value
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -61,6 +61,7 @@ public abstract class Literal extends Expression {
      *
      * Evaluates to the literal value
      **/
+    @Override
     public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         return mValue;

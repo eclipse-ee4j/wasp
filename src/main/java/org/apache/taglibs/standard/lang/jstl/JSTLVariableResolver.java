@@ -24,7 +24,7 @@ import jakarta.servlet.jsp.PageContext;
  * <p>
  * This is the JSTL-specific implementation of VariableResolver. It looks up variable references in the PageContext, and
  * also recognizes references to implicit objects.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -35,6 +35,7 @@ public class JSTLVariableResolver implements VariableResolver {
      *
      * Resolves the specified variable within the given context. Returns null if the variable is not found.
      **/
+    @Override
     public Object resolveVariable(String pName, Object pContext) throws ELException {
         PageContext ctx = (PageContext) pContext;
 

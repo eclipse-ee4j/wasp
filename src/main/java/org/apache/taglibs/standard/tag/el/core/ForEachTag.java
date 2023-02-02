@@ -19,13 +19,13 @@ package org.apache.taglibs.standard.tag.el.core;
 
 import java.util.ArrayList;
 
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.jstl.core.LoopTag;
-import jakarta.servlet.jsp.tagext.IterationTag;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.core.ForEachSupport;
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
+
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.jstl.core.LoopTag;
+import jakarta.servlet.jsp.tagext.IterationTag;
 
 /**
  * <p>
@@ -57,6 +57,7 @@ public class ForEachTag extends ForEachSupport implements LoopTag, IterationTag 
     // Tag logic
 
     /* Begins iterating by processing the first item. */
+    @Override
     public int doStartTag() throws JspException {
 
         // evaluate any expressions we were passed, once per invocation
@@ -67,6 +68,7 @@ public class ForEachTag extends ForEachSupport implements LoopTag, IterationTag 
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -119,24 +121,27 @@ public class ForEachTag extends ForEachSupport implements LoopTag, IterationTag 
 
         if (begin_ != null) {
             Object r = ExpressionEvaluatorManager.evaluate("begin", begin_, Integer.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("forEach", "begin");
+            }
             begin = ((Integer) r).intValue();
             validateBegin();
         }
 
         if (end_ != null) {
             Object r = ExpressionEvaluatorManager.evaluate("end", end_, Integer.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("forEach", "end");
+            }
             end = ((Integer) r).intValue();
             validateEnd();
         }
 
         if (step_ != null) {
             Object r = ExpressionEvaluatorManager.evaluate("step", step_, Integer.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("forEach", "step");
+            }
             step = ((Integer) r).intValue();
             validateStep();
         }
@@ -144,8 +149,9 @@ public class ForEachTag extends ForEachSupport implements LoopTag, IterationTag 
         if (items_ != null) {
             rawItems = ExpressionEvaluatorManager.evaluate("items", items_, Object.class, this, pageContext);
             // use an empty list to indicate "no iteration", if relevant
-            if (rawItems == null)
+            if (rawItems == null) {
                 rawItems = new ArrayList();
+            }
         }
     }
 }

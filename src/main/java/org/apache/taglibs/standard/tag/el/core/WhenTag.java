@@ -17,12 +17,12 @@
 
 package org.apache.taglibs.standard.tag.el.core;
 
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.core.NullAttributeException;
 import org.apache.taglibs.standard.tag.common.core.WhenTagSupport;
+
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>
@@ -44,6 +44,7 @@ public class WhenTag extends WhenTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         super.release();
         init();
@@ -52,13 +53,15 @@ public class WhenTag extends WhenTagSupport {
     // *********************************************************************
     // Supplied conditional logic
 
+    @Override
     protected boolean condition() throws JspTagException {
         try {
             Object r = ExpressionEvaluatorManager.evaluate("test", test, Boolean.class, this, pageContext);
-            if (r == null)
+            if (r == null) {
                 throw new NullAttributeException("when", "test");
-            else
+            } else {
                 return (((Boolean) r).booleanValue());
+            }
         } catch (JspException ex) {
             throw new JspTagException(ex.toString(), ex);
         }

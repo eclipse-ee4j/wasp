@@ -128,7 +128,7 @@ public class Constants {
     // -------------------------------------
     /**
      *
-     * 
+     *
      **/
     public static String getStringResource(String pResourceName) throws MissingResourceException {
         try {

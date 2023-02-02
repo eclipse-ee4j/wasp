@@ -76,6 +76,7 @@ public abstract class RedirectSupport extends BodyTagSupport implements ParamPar
     // Collaboration with subtags
 
     // inherit Javadoc
+    @Override
     public void addParameter(String name, String value) {
         params.addParameter(name, value);
     }
@@ -84,12 +85,14 @@ public abstract class RedirectSupport extends BodyTagSupport implements ParamPar
     // Tag logic
 
     // resets any parameters that might be sent
+    @Override
     public int doStartTag() throws JspException {
         params = new ParamSupport.ParamManager();
         return EVAL_BODY_BUFFERED;
     }
 
     // gets the right value, encodes it, and prints or stores it
+    @Override
     public int doEndTag() throws JspException {
         String result; // the eventual result
 
@@ -99,8 +102,9 @@ public abstract class RedirectSupport extends BodyTagSupport implements ParamPar
 
         // if the URL is relative, rewrite it with 'redirect' encoding rules
         HttpServletResponse response = ((HttpServletResponse) pageContext.getResponse());
-        if (!ImportSupport.isAbsoluteUrl(result))
+        if (!ImportSupport.isAbsoluteUrl(result)) {
             result = response.encodeRedirectURL(result);
+        }
 
         // redirect!
         try {
@@ -113,6 +117,7 @@ public abstract class RedirectSupport extends BodyTagSupport implements ParamPar
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }

@@ -17,9 +17,9 @@
 
 package org.apache.taglibs.standard.tag.common.core;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.resources.Resources;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>

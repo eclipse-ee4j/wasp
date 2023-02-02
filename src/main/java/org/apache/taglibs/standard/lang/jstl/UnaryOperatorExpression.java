@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * <p>
  * An expression representing one or more unary operators on a value
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -100,8 +100,8 @@ public class UnaryOperatorExpression extends Expression {
             buf.append(mOperator.getOperatorSymbol());
             buf.append(" ");
         } else {
-            for (int i = 0; i < mOperators.size(); i++) {
-                UnaryOperator operator = (UnaryOperator) mOperators.get(i);
+            for (Object mOperator2 : mOperators) {
+                UnaryOperator operator = (UnaryOperator) mOperator2;
                 buf.append(operator.getOperatorSymbol());
                 buf.append(" ");
             }
@@ -116,6 +116,7 @@ public class UnaryOperatorExpression extends Expression {
      *
      * Evaluates to the literal value
      **/
+    @Override
     public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         Object value = mExpression.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);

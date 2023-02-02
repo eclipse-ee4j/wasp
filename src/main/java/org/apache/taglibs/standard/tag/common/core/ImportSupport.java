@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Writer;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
@@ -34,6 +33,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
+
+import org.apache.taglibs.standard.resources.Resources;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
@@ -48,8 +49,6 @@ import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.TryCatchFinally;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -121,6 +120,7 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
     // Tag logic
 
     // determines what kind of import and variable exposure to perform
+    @Override
     public int doStartTag() throws JspException {
         // Sanity check
         if (context != null && (!context.startsWith("/") || !url.startsWith("/"))) {
@@ -132,8 +132,9 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
         params = new ParamSupport.ParamManager();
 
         // check the URL
-        if (url == null || url.equals(""))
+        if (url == null || url.equals("")) {
             throw new NullAttributeException("import", "url");
+        }
 
         // Record whether our URL is absolute or relative
         isAbsoluteUrl = isAbsoluteUrl();
@@ -152,16 +153,18 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
     }
 
     // manages connections as necessary (creating or destroying)
+    @Override
     public int doEndTag() throws JspException {
         try {
             // If we didn't expose a Reader earlier...
             if (varReader == null) {
                 // ... store it in 'var', if available ...
-                if (var != null)
+                if (var != null) {
                     pageContext.setAttribute(var, acquireString(), scope);
                 // ... or simply output it, if we have nowhere to expose it
-                else
+                } else {
                     pageContext.getOut().print(acquireString());
+                }
             }
             return EVAL_PAGE;
         } catch (IOException ex) {
@@ -170,18 +173,21 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
     }
 
     // simply rethrows its exception
+    @Override
     public void doCatch(Throwable t) throws Throwable {
         throw t;
     }
 
     // cleans up if appropriate
+    @Override
     public void doFinally() {
         try {
             // If we exposed a Reader in doStartTag(), close it.
             if (varReader != null) {
                 // 'r' can be null if an exception was thrown...
-                if (r != null)
+                if (r != null) {
                     r.close();
+                }
                 pageContext.removeAttribute(varReader, PageContext.PAGE_SCOPE);
             }
         } catch (IOException ex) {
@@ -190,6 +196,7 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
         super.release();
@@ -214,6 +221,7 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
     // Collaboration with subtags
 
     // inherit Javadoc
+    @Override
     public void addParameter(String name, String value) {
         params.addParameter(name, value);
     }
@@ -244,8 +252,9 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
             // gmurray71 : putting in try/catch/finally block to make sure the
             // reader is closed to fix a bug with file descriptors being left open
             try {
-                while ((i = r.read()) != -1)
+                while ((i = r.read()) != -1) {
                     sb.append((char) i);
+                }
             } catch (IOException iox) {
                 throw iox;
             } finally {
@@ -257,15 +266,16 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
             // handle relative URLs ourselves
 
             // URL is relative, so we must be an HTTP request
-            if (!(pageContext.getRequest() instanceof HttpServletRequest && pageContext.getResponse() instanceof HttpServletResponse))
+            if (!(pageContext.getRequest() instanceof HttpServletRequest && pageContext.getResponse() instanceof HttpServletResponse)) {
                 throw new JspTagException(Resources.getMessage("IMPORT_REL_WITHOUT_HTTP"));
+            }
 
             // retrieve an appropriate ServletContext
             ServletContext c = null;
             String targetUrl = targetUrl();
-            if (context != null)
+            if (context != null) {
                 c = pageContext.getServletContext().getContext(context);
-            else {
+            } else {
                 c = pageContext.getServletContext();
 
                 // normalize the URL if we have an HttpServletRequest
@@ -281,8 +291,9 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
 
             // from this context, get a dispatcher
             RequestDispatcher rd = c.getRequestDispatcher(stripSession(targetUrl));
-            if (rd == null)
+            if (rd == null) {
                 throw new JspTagException(stripSession(targetUrl));
+            }
 
             // include the resource, using our custom wrapper
             ImportResponseWrapper irw = new ImportResponseWrapper(pageContext);
@@ -296,10 +307,11 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
                 throw new JspException(ex);
             } catch (ServletException ex) {
                 Throwable rc = ex.getRootCause();
-                if (rc == null)
+                if (rc == null) {
                     throw new JspException(ex);
-                else
+                } else {
                     throw new JspException(rc);
+                }
             }
 
             // disallow inappropriate response codes per JSTL spec
@@ -335,8 +347,9 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
                     String contentType = uc.getContentType();
                     if (contentType != null) {
                         charSet = Util.getContentTypeAttribute(contentType, "charset");
-                        if (charSet == null)
+                        if (charSet == null) {
                             charSet = DEFAULT_ENCODING;
+                        }
                     } else {
                         charSet = DEFAULT_ENCODING;
                     }
@@ -351,8 +364,9 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
                 // before returning
                 if (uc instanceof HttpURLConnection) {
                     int status = ((HttpURLConnection) uc).getResponseCode();
-                    if (status < 200 || status > 299)
+                    if (status < 200 || status > 299) {
                         throw new JspTagException(status + " " + target);
+                    }
                 }
                 return r;
             } catch (IOException ex) {
@@ -403,10 +417,12 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
 
             }
 
+            @Override
             public void write(int b) throws IOException {
                 bos.write(b);
             }
 
+            @Override
             public void flush() throws IOException {
                 pageContext.getOut().write(getString());
                 bos.reset();
@@ -434,35 +450,43 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
         }
 
         /** Returns a Writer designed to buffer the output. */
+        @Override
         public PrintWriter getWriter() throws IOException {
-            if (isStreamUsed)
+            if (isStreamUsed) {
                 throw new IllegalStateException(Resources.getMessage("IMPORT_ILLEGAL_STREAM"));
+            }
             isWriterUsed = true;
             return new PrintWriter(sw);
         }
 
         /** Returns a ServletOutputStream designed to buffer the output. */
+        @Override
         public ServletOutputStream getOutputStream() {
-            if (isWriterUsed)
+            if (isWriterUsed) {
                 throw new IllegalStateException(Resources.getMessage("IMPORT_ILLEGAL_WRITER"));
+            }
             isStreamUsed = true;
             return sos;
         }
 
         /** Has no effect. */
+        @Override
         public void setContentType(String x) {
             // ignore
         }
 
         /** Has no effect. */
+        @Override
         public void setLocale(Locale x) {
             // ignore
         }
 
+        @Override
         public void setStatus(int status) {
             this.status = status;
         }
 
+        @Override
         public int getStatus() {
             return status;
         }
@@ -474,15 +498,18 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
         // not simply toString() because we need to throw
         // UnsupportedEncodingException
         public String getString() throws UnsupportedEncodingException {
-            if (isWriterUsed)
+            if (isWriterUsed) {
                 return sw.toString();
-            else if (isStreamUsed) {
-                if (charEncoding != null && !charEncoding.equals(""))
+            } else if (isStreamUsed) {
+                if (charEncoding != null && !charEncoding.equals("")) {
                     return bos.toString(charEncoding);
-                else
+                } else {
                     return bos.toString(DEFAULT_ENCODING);
-            } else
+                }
+            }
+            else {
                 return ""; // target didn't write anything
+            }
         }
     }
 
@@ -491,8 +518,9 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
 
     /** Returns our URL (potentially with parameters) */
     private String targetUrl() {
-        if (urlWithParams == null)
+        if (urlWithParams == null) {
             urlWithParams = params.aggregateParams(url);
+        }
         return urlWithParams;
     }
 
@@ -511,19 +539,23 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
      */
     public static boolean isAbsoluteUrl(String url) {
         // a null URL is not absolute, by our definition
-        if (url == null)
+        if (url == null) {
             return false;
+        }
 
         // do a fast, simple check first
         int colonPos;
-        if ((colonPos = url.indexOf(":")) == -1)
+        if ((colonPos = url.indexOf(":")) == -1) {
             return false;
+        }
 
         // if we DO have a colon, make sure that every character
         // leading up to it is a valid scheme character
-        for (int i = 0; i < colonPos; i++)
-            if (VALID_SCHEME_CHARS.indexOf(url.charAt(i)) == -1)
+        for (int i = 0; i < colonPos; i++) {
+            if (VALID_SCHEME_CHARS.indexOf(url.charAt(i)) == -1) {
                 return false;
+            }
+        }
 
         // if so, we've got an absolute url
         return true;
@@ -539,10 +571,12 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
         int sessionStart;
         while ((sessionStart = u.toString().indexOf(";jsessionid=")) != -1) {
             int sessionEnd = u.toString().indexOf(";", sessionStart + 1);
-            if (sessionEnd == -1)
+            if (sessionEnd == -1) {
                 sessionEnd = u.toString().indexOf("?", sessionStart + 1);
-            if (sessionEnd == -1) // still
-                sessionEnd = u.length();
+            }
+            if (sessionEnd == -1) { // still
+            	sessionEnd = u.length();
+            }
             u.delete(sessionStart, sessionEnd);
         }
         return u.toString();

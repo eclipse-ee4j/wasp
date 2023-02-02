@@ -24,11 +24,11 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Enumeration;
 
+import org.apache.taglibs.standard.resources.Resources;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
-
-import org.apache.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -70,12 +70,13 @@ public class Util {
     public static int getScope(String scope) {
         int ret = PageContext.PAGE_SCOPE; // default
 
-        if (REQUEST.equalsIgnoreCase(scope))
+        if (REQUEST.equalsIgnoreCase(scope)) {
             ret = PageContext.REQUEST_SCOPE;
-        else if (SESSION.equalsIgnoreCase(scope))
+        } else if (SESSION.equalsIgnoreCase(scope)) {
             ret = PageContext.SESSION_SCOPE;
-        else if (APPLICATION.equalsIgnoreCase(scope))
+        } else if (APPLICATION.equalsIgnoreCase(scope)) {
             ret = PageContext.APPLICATION_SCOPE;
+        }
 
         return ret;
     }
@@ -85,7 +86,7 @@ public class Util {
      * java.util.DateFormat constant.
      *
      * @param style String description of formatting style for dates and times
-     * 
+     *
      * @param errCode Error code to throw if given style is invalid
      *
      * @return java.util.DateFormat constant corresponding to given style
@@ -165,12 +166,14 @@ public class Util {
         int begin;
         int end;
         int index = input.toUpperCase().indexOf(name.toUpperCase());
-        if (index == -1)
+        if (index == -1) {
             return null;
+        }
         index = index + name.length(); // positioned after the attribute name
         index = input.indexOf('=', index); // positioned at the '='
-        if (index == -1)
+        if (index == -1) {
             return null;
+        }
         index += 1; // positioned after the '='
         input = input.substring(index).trim();
 
@@ -178,15 +181,18 @@ public class Util {
             // attribute value is a quoted string
             begin = 1;
             end = input.indexOf('"', begin);
-            if (end == -1)
+            if (end == -1) {
                 return null;
+            }
         } else {
             begin = 0;
             end = input.indexOf(';');
-            if (end == -1)
+            if (end == -1) {
                 end = input.indexOf(' ');
-            if (end == -1)
+            }
+            if (end == -1) {
                 end = input.length();
+            }
         }
         return input.substring(begin, end).trim();
     }
@@ -194,7 +200,7 @@ public class Util {
     /**
      * URL encodes a string, based on the supplied character encoding. This performs the same function as
      * java.next.URLEncode.encode in J2SDK1.4, and should be removed if the only platform supported is 1.4 or higher.
-     * 
+     *
      * @param s The String to be URL encoded.
      * @param enc The character encoding
      * @return The URL encoded String [taken from jakarta-tomcat-jasper/jasper2
@@ -236,11 +242,11 @@ public class Util {
                     continue;
                 }
                 byte[] ba = buf.toByteArray();
-                for (int j = 0; j < ba.length; j++) {
+                for (byte element : ba) {
                     out.append('%');
                     // Converting each byte in the buffer
-                    out.append(Character.forDigit((ba[j] >> 4) & 0xf, 16));
-                    out.append(Character.forDigit(ba[j] & 0xf, 16));
+                    out.append(Character.forDigit((element >> 4) & 0xf, 16));
+                    out.append(Character.forDigit(element & 0xf, 16));
                 }
                 buf.reset();
             }
@@ -249,10 +255,7 @@ public class Util {
     }
 
     private static boolean isSafeChar(int c) {
-        if (c >= 'a' && c <= 'z') {
-            return true;
-        }
-        if (c >= 'A' && c <= 'Z') {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
             return true;
         }
         if (c >= '0' && c <= '9') {

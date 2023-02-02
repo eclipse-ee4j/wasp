@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * <p>
  * Represents a name that can be used as the first element of a value.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @author Shawn Bayern
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
@@ -61,6 +61,7 @@ public class NamedValue extends Expression {
      *
      * Returns the expression in the expression language syntax
      **/
+    @Override
     public String getExpressionString() {
         return StringLiteral.toIdentifierToken(mName);
     }
@@ -70,6 +71,7 @@ public class NamedValue extends Expression {
      *
      * Evaluates by looking up the name in the VariableResolver
      **/
+    @Override
     public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         if (pResolver == null) {

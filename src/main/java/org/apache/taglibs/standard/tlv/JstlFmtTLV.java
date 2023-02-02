@@ -21,24 +21,24 @@ package org.apache.taglibs.standard.tlv;
 import java.util.Set;
 import java.util.Stack;
 
-import jakarta.servlet.jsp.tagext.PageData;
-import jakarta.servlet.jsp.tagext.ValidationMessage;
-
 import org.apache.taglibs.standard.resources.Resources;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import jakarta.servlet.jsp.tagext.PageData;
+import jakarta.servlet.jsp.tagext.ValidationMessage;
 
 /**
  * <p>
  * A SAX-based TagLibraryValidator for the JSTL i18n-capable formatting library. Currently implements the following
  * checks:
  * </p>
- * 
+ *
  * <ul>
  * <li>Expression syntax validation.
  * <li>Tag bodies that must either be empty or non-empty given particular attributes.</li>
  * </ul>
- * 
+ *
  * @author Shawn Bayern
  * @author Jan Luehe
  */
@@ -84,6 +84,7 @@ public class JstlFmtTLV extends JstlBaseTLV {
 
     // *********************************************************************
     // set its type and delegate validation to super-class
+    @Override
     public ValidationMessage[] validate(String prefix, String uri, PageData page) {
         return super.validate(TYPE_FMT, prefix, uri, page);
     }
@@ -91,6 +92,7 @@ public class JstlFmtTLV extends JstlBaseTLV {
     // *********************************************************************
     // Contract fulfillment
 
+    @Override
     protected DefaultHandler getHandler() {
         return new Handler();
     }
@@ -109,42 +111,50 @@ public class JstlFmtTLV extends JstlBaseTLV {
         private boolean bodyIllegal = false;
 
         // process under the existing context (state), then modify it
+        @Override
         public void startElement(String ns, String ln, String qn, Attributes a) {
 
             // substitute our own parsed 'ln' if it's not provided
-            if (ln == null)
+            if (ln == null) {
                 ln = getLocalPart(qn);
+            }
 
             // for simplicity, we can ignore <jsp:text> for our purposes
             // (don't bother distinguishing between it and its characters)
-            if (qn.equals(JSP_TEXT))
+            if (qn.equals(JSP_TEXT)) {
                 return;
+            }
 
             // check body-related constraint
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
 
             // validate expression syntax if we need to
             Set expAtts;
-            if (qn.startsWith(prefix + ":") && (expAtts = (Set) config.get(ln)) != null) {
+            if (qn.startsWith(prefix + ":") && (expAtts = config.get(ln)) != null) {
                 for (int i = 0; i < a.getLength(); i++) {
                     String attName = a.getLocalName(i);
                     if (expAtts.contains(attName)) {
                         String vMsg = validateExpression(ln, attName, a.getValue(i));
-                        if (vMsg != null)
+                        if (vMsg != null) {
                             fail(vMsg);
+                        }
                     }
                 }
             }
 
             // validate attributes
-            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a))
+            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a)) {
                 fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
-            if (qn.startsWith(prefix + ":") && hasEmptyVar(a))
+            }
+            if (qn.startsWith(prefix + ":") && hasEmptyVar(a)) {
                 fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
+            }
             if (qn.startsWith(prefix + ":") && !isFmtTag(ns, ln, SETLOCALE) && !isFmtTag(ns, ln, SETBUNDLE)
-                    && !isFmtTag(ns, ln, SETTIMEZONE) && hasDanglingScope(a))
+                    && !isFmtTag(ns, ln, SETTIMEZONE) && hasDanglingScope(a)) {
                 fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+            }
 
             /*
              * Make sure <fmt:param> is nested inside <fmt:message>. Note that <fmt:param> does not need to be a direct child of
@@ -169,10 +179,11 @@ public class JstlFmtTLV extends JstlBaseTLV {
             bodyNecessary = false;
             if (isFmtTag(ns, ln, MESSAGE_PARAM) || isFmtTag(ns, ln, FORMAT_NUMBER) || isFmtTag(ns, ln, PARSE_NUMBER)
                     || isFmtTag(ns, ln, PARSE_DATE)) {
-                if (hasAttribute(a, VALUE))
+                if (hasAttribute(a, VALUE)) {
                     bodyIllegal = true;
-                else
+                } else {
                     bodyNecessary = true;
+                }
             } else if (isFmtTag(ns, ln, MESSAGE) && !hasAttribute(a, MESSAGE_KEY)) {
                 bodyNecessary = true;
             } else if (isFmtTag(ns, ln, BUNDLE) && hasAttribute(a, BUNDLE_PREFIX)) {
@@ -187,29 +198,35 @@ public class JstlFmtTLV extends JstlBaseTLV {
             depth++;
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) {
 
             bodyNecessary = false; // body is no longer necessary!
 
             // ignore strings that are just whitespace
             String s = new String(ch, start, length).trim();
-            if (s.equals(""))
+            if (s.equals("")) {
                 return;
+            }
 
             // check and update body-related constraints
-            if (bodyIllegal)
+            if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
+            }
         }
 
+        @Override
         public void endElement(String ns, String ln, String qn) {
 
             // consistently, we ignore JSP_TEXT
-            if (qn.equals(JSP_TEXT))
+            if (qn.equals(JSP_TEXT)) {
                 return;
+            }
 
             // handle body-related invariant
-            if (bodyNecessary)
+            if (bodyNecessary) {
                 fail(Resources.getMessage("TLV_MISSING_BODY", lastElementName));
+            }
             bodyIllegal = false; // reset: we've left the tag
 
             // update <message>-related state

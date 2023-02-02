@@ -19,9 +19,9 @@ package org.apache.taglibs.standard.tag.rt.fmt;
 
 import java.util.Date;
 
-import jakarta.servlet.jsp.JspTagException;
-
 import org.apache.taglibs.standard.tag.common.fmt.FormatDateSupport;
+
+import jakarta.servlet.jsp.JspTagException;
 
 /**
  * <p>

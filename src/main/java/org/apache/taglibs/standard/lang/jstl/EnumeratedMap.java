@@ -32,7 +32,7 @@ import java.util.Set;
  * <p>
  * Some of the methods may incur a performance penalty that involves enumerating the entire data source. In these cases,
  * the Map will try to save the results of that enumeration, but only if the underlying data source is immutable.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
@@ -45,61 +45,73 @@ public abstract class EnumeratedMap implements Map {
     Map mMap;
 
     // -------------------------------------
+    @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }
 
     // -------------------------------------
+    @Override
     public boolean containsKey(Object pKey) {
         return getValue(pKey) != null;
     }
 
     // -------------------------------------
+    @Override
     public boolean containsValue(Object pValue) {
         return getAsMap().containsValue(pValue);
     }
 
     // -------------------------------------
+    @Override
     public Set entrySet() {
         return getAsMap().entrySet();
     }
 
     // -------------------------------------
+    @Override
     public Object get(Object pKey) {
         return getValue(pKey);
     }
 
     // -------------------------------------
+    @Override
     public boolean isEmpty() {
         return !enumerateKeys().hasMoreElements();
     }
 
     // -------------------------------------
+    @Override
     public Set keySet() {
         return getAsMap().keySet();
     }
 
     // -------------------------------------
+    @Override
     public Object put(Object pKey, Object pValue) {
         throw new UnsupportedOperationException();
     }
 
     // -------------------------------------
+    @Override
     public void putAll(Map pMap) {
         throw new UnsupportedOperationException();
     }
 
     // -------------------------------------
+    @Override
     public Object remove(Object pKey) {
         throw new UnsupportedOperationException();
     }
 
     // -------------------------------------
+    @Override
     public int size() {
         return getAsMap().size();
     }
 
     // -------------------------------------
+    @Override
     public Collection values() {
         return getAsMap().values();
     }

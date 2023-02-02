@@ -35,7 +35,7 @@ import java.util.Map;
  * Manages the BeanInfo for one class - contains the BeanInfo, and also a mapping from property name to
  * BeanInfoProperty. There are also static methods for accessing the BeanInfoManager for a class - those mappings are
  * cached permanently so that once the BeanInfoManager is calculated, it doesn't have to be calculated again.
- * 
+ *
  * @author Nathan Abramson - Art Technology Group
  * @version $Change: 181181 $$DateTime: 2001/06/26 09:55:09 $$Author: kchung $
  **/
@@ -298,8 +298,8 @@ public class BeanInfoManager {
         {
             Class[] interfaces = pClass.getInterfaces();
             if (interfaces != null) {
-                for (int i = 0; i < interfaces.length; i++) {
-                    Method m = getPublicMethod(interfaces[i], pMethod);
+                for (Class element : interfaces) {
+                    Method m = getPublicMethod(element, pMethod);
                     if (m != null) {
                         return m;
                     }

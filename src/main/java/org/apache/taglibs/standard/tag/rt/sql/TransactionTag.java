@@ -17,9 +17,9 @@
 
 package org.apache.taglibs.standard.tag.rt.sql;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.tag.common.sql.TransactionTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Subclass for the JSTL library with rtexprvalue support.
@@ -43,13 +43,16 @@ public class TransactionTag extends TransactionTagSupport {
     /**
      * Setter method for the Transaction Isolation level.
      */
+    @Override
     public void setIsolation(String isolation) {
         this.isolationRT = isolation;
     }
 
+    @Override
     public int doStartTag() throws JspException {
-        if (isolationRT != null)
+        if (isolationRT != null) {
             super.setIsolation(isolationRT);
+        }
         return super.doStartTag();
     }
 }

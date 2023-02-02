@@ -17,10 +17,10 @@
 
 package org.apache.taglibs.standard.tag.el.sql;
 
-import jakarta.servlet.jsp.JspException;
-
 import org.apache.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.apache.taglibs.standard.tag.common.sql.UpdateTagSupport;
+
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Subclass for the JSTL library with EL support.
@@ -45,9 +45,10 @@ public class UpdateTag extends UpdateTagSupport {
         this.sqlEL = sqlEL;
     }
 
+    @Override
     public int doStartTag() throws JspException {
         if (dataSourceEL != null) {
-            rawDataSource = (Object) ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
+            rawDataSource = ExpressionEvaluatorManager.evaluate("dataSource", dataSourceEL, Object.class, this, pageContext);
         }
         if (sqlEL != null) {
             sql = (String) ExpressionEvaluatorManager.evaluate("sql", sqlEL, String.class, this, pageContext);

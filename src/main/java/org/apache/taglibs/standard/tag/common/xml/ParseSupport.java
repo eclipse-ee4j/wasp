@@ -18,12 +18,6 @@
 
 package org.apache.taglibs.standard.tag.common.xml;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.JspTagException;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.tagext.BodyTagSupport;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +42,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.BodyTagSupport;
 
 /**
  * <p>
@@ -102,6 +102,7 @@ public abstract class ParseSupport extends BodyTagSupport {
     // Tag logic
 
     // parse 'source' or body, storing result in 'var'
+    @Override
     public int doEndTag() throws JspException {
         try {
 
@@ -109,10 +110,12 @@ public abstract class ParseSupport extends BodyTagSupport {
 
             // if we've gotten a filter, set up a transformer to support it
             if (filter != null) {
-                if (tf == null)
+                if (tf == null) {
                     tf = TransformerFactory.newInstance();
-                if (!tf.getFeature(SAXTransformerFactory.FEATURE))
+                }
+                if (!tf.getFeature(SAXTransformerFactory.FEATURE)) {
                     throw new JspTagException(Resources.getMessage("PARSE_NO_SAXTRANSFORMER"));
+                }
                 try {
                     tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                 } catch (TransformerConfigurationException e) {
@@ -127,24 +130,28 @@ public abstract class ParseSupport extends BodyTagSupport {
             Object xmlText = this.xml;
             if (xmlText == null) {
                 // if the attribute was specified, use the body as 'xml'
-                if (bodyContent != null && bodyContent.getString() != null)
+                if (bodyContent != null && bodyContent.getString() != null) {
                     xmlText = bodyContent.getString().trim();
-                else
+                } else {
                     xmlText = "";
+                }
             }
-            if (xmlText instanceof String)
+            if (xmlText instanceof String) {
                 d = parseStringWithFilter((String) xmlText, filter);
-            else if (xmlText instanceof Reader)
+            } else if (xmlText instanceof Reader) {
                 d = parseReaderWithFilter((Reader) xmlText, filter);
-            else
+            } else {
                 throw new JspTagException(Resources.getMessage("PARSE_INVALID_SOURCE"));
+            }
 
             // we've got a Document object; store it out as appropriate
             // (let any exclusivity or other constraints be enforced by TEI/TLV)
-            if (var != null)
+            if (var != null) {
                 pageContext.setAttribute(var, d, scope);
-            if (varDom != null)
+            }
+            if (varDom != null) {
                 pageContext.setAttribute(varDom, d, scopeDom);
+            }
 
             return EVAL_PAGE;
         } catch (SAXException ex) {
@@ -157,6 +164,7 @@ public abstract class ParseSupport extends BodyTagSupport {
     }
 
     // Releases any resources we may have (or inherit)
+    @Override
     public void release() {
         init();
     }
@@ -182,8 +190,9 @@ public abstract class ParseSupport extends BodyTagSupport {
             f.setContentHandler(th);
             f.parse(s);
             return o;
-        } else
+        } else {
             return parseInputSource(s);
+        }
     }
 
     /** Parses the given Reader after applying the given XMLFilter. */
@@ -207,12 +216,13 @@ public abstract class ParseSupport extends BodyTagSupport {
         db.setEntityResolver(new JstlEntityResolver(pageContext));
 
         // normalize URIs so they can be processed consistently by resolver
-        if (systemId == null)
+        if (systemId == null) {
             s.setSystemId("jstl:");
-        else if (ImportSupport.isAbsoluteUrl(systemId))
+        } else if (ImportSupport.isAbsoluteUrl(systemId)) {
             s.setSystemId(systemId);
-        else
+        } else {
             s.setSystemId("jstl:" + systemId);
+        }
         return db.parse(s);
     }
 
@@ -243,19 +253,23 @@ public abstract class ParseSupport extends BodyTagSupport {
             this.ctx = ctx;
         }
 
+        @Override
         public InputSource resolveEntity(String publicId, String systemId) throws FileNotFoundException {
 
             // pass if we don't have a systemId
-            if (systemId == null)
+            if (systemId == null) {
                 return null;
+            }
 
             // strip leading "jstl:" off URL if applicable
-            if (systemId.startsWith("jstl:"))
+            if (systemId.startsWith("jstl:")) {
                 systemId = systemId.substring(5);
+            }
 
             // we're only concerned with relative URLs
-            if (ImportSupport.isAbsoluteUrl(systemId))
+            if (ImportSupport.isAbsoluteUrl(systemId)) {
                 return null;
+            }
 
             // for relative URLs, load and wrap the resource.
             // don't bother checking for 'null' since we specifically want
@@ -263,14 +277,16 @@ public abstract class ParseSupport extends BodyTagSupport {
             InputStream s;
             if (systemId.startsWith("/")) {
                 s = ctx.getServletContext().getResourceAsStream(systemId);
-                if (s == null)
+                if (s == null) {
                     throw new FileNotFoundException(Resources.getMessage("UNABLE_TO_RESOLVE_ENTITY", systemId));
+                }
             } else {
                 String pagePath = ((HttpServletRequest) ctx.getRequest()).getServletPath();
                 String basePath = pagePath.substring(0, pagePath.lastIndexOf("/"));
                 s = ctx.getServletContext().getResourceAsStream(basePath + "/" + systemId);
-                if (s == null)
+                if (s == null) {
                     throw new FileNotFoundException(Resources.getMessage("UNABLE_TO_RESOLVE_ENTITY", systemId));
+                }
             }
             return new InputSource(s);
         }

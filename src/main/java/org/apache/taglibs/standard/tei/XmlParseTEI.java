@@ -34,20 +34,18 @@ public class XmlParseTEI extends TagExtraInfo {
     final private static String SCOPE = "scope";
     final private static String SCOPE_DOM = "scopeDom";
 
+    @Override
     public boolean isValid(TagData us) {
         // must have no more than one of VAR and VAR_DOM ...
-        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_DOM))
-            return false;
-
         // ... and must have no less than one of VAR and VAR_DOM
-        if (!(Util.isSpecified(us, VAR) || Util.isSpecified(us, VAR_DOM)))
+        if ((Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_DOM)) || !(Util.isSpecified(us, VAR) || Util.isSpecified(us, VAR_DOM))) {
             return false;
+        }
 
         // When either 'scope' is specified, its 'var' must be specified
-        if (Util.isSpecified(us, SCOPE) && !Util.isSpecified(us, VAR))
+        if ((Util.isSpecified(us, SCOPE) && !Util.isSpecified(us, VAR)) || (Util.isSpecified(us, SCOPE_DOM) && !Util.isSpecified(us, VAR_DOM))) {
             return false;
-        if (Util.isSpecified(us, SCOPE_DOM) && !Util.isSpecified(us, VAR_DOM))
-            return false;
+        }
 
         return true;
     }

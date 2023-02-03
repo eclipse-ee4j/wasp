@@ -80,21 +80,25 @@
             <groupId>jakarta.servlet.jsp</groupId>
             <artifactId>jakarta.servlet.jsp-api</artifactId>
             <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>3.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <version>6.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
             <version>5.0.1</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Other dependencies -->
@@ -102,7 +106,7 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
@@ -232,6 +236,67 @@
                 </configuration>
             </plugin>
             
+            <!-- Post process the jar we created by including XALAN and moving packages -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                            <artifactSet>
+                                <includes>
+                                    <include>xalan:xalan</include>
+                                </includes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>xalan:xalan</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.apache.xpath</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.xpath</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.xml</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.xml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.xalan</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.xalan</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.regexp</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.regexp</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.bcel</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.bcel</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>java_cup.runtime</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.java_cup.runtime</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>trax</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.trax</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <!-- Configure the jar with the sources. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -269,7 +334,6 @@
                         	</additionalJOptions>
 							<doclint>none</doclint>
 							<failOnError>false</failOnError>
-							
 							<detectOfflineLinks>false</detectOfflineLinks>
 							
 							<excludePackageNames>org.glassfish.wasp.util,org.apache.*,java_cup.*,trax</excludePackageNames>

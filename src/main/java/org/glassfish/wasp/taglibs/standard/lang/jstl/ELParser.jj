@@ -14,9 +14,9 @@ options {
 
 PARSER_BEGIN(ELParser)
 
-package org.apache.taglibs.standard.lang.jstl.parser;
+package org.glassfish.wasp.taglibs.standard.lang.jstl.parser;
 
-import org.apache.taglibs.standard.lang.jstl.*;
+import org.glassfish.wasp.taglibs.standard.lang.jstl.*;
 import java.util.ArrayList;
 import java.util.List;
 

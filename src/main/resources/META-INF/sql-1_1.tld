@@ -33,7 +33,7 @@
         Provides core validation features for JSTL tags.
     </description>
     <validator-class>
-        org.apache.taglibs.standard.tlv.JstlSqlTLV
+        org.glassfish.wasp.taglibs.standard.tlv.JstlSqlTLV
     </validator-class>
   </validator>
 
@@ -43,7 +43,7 @@
         set up to execute all statements as one transaction.
     </description>
     <name>transaction</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.sql.TransactionTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.sql.TransactionTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -74,7 +74,7 @@ with.
         sql attribute.
     </description>
     <name>query</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.sql.QueryTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.sql.QueryTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -145,7 +145,7 @@ enforced.
         sql attribute.
     </description>
     <name>update</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.sql.UpdateTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.sql.UpdateTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -191,7 +191,7 @@ DriverManager class.
         Sets a parameter in an SQL statement to the specified value.
     </description>
     <name>param</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.sql.ParamTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.sql.ParamTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -208,7 +208,7 @@ Parameter value.
         Sets a parameter in an SQL statement to the specified java.util.Date value.
     </description>
     <name>dateParam</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.sql.DateParamTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.sql.DateParamTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -234,7 +234,7 @@ One of "date", "time" or "timestamp".
         Creates a simple DataSource suitable only for prototyping.
     </description>
     <name>setDataSource</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.sql.SetDataSourceTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.sql.SetDataSourceTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>

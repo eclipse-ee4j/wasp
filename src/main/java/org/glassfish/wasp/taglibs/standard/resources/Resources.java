@@ -53,7 +53,7 @@ public class Resources {
     // Static data
 
     /** The location of our resources. */
-    private static final String RESOURCE_LOCATION = "org.apache.taglibs.standard.resources.Resources";
+    private static final String RESOURCE_LOCATION = "org.glassfish.wasp.taglibs.standard.resources.Resources";
 
     /** Our class-wide ResourceBundle. */
     private static ResourceBundle rb = ResourceBundle.getBundle(RESOURCE_LOCATION);

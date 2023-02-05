@@ -34,7 +34,7 @@
       Tests if an input string contains the specified substring.
     </description>
     <name>contains</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>boolean contains(java.lang.String, java.lang.String)</function-signature>
     <example>
       &lt;c:if test="${fn:contains(name, searchString)}">
@@ -46,7 +46,7 @@
       Tests if an input string contains the specified substring in a case insensitive way.
     </description>
     <name>containsIgnoreCase</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>boolean containsIgnoreCase(java.lang.String, java.lang.String)</function-signature>
     <example>
       &lt;c:if test="${fn:containsIgnoreCase(name, searchString)}">
@@ -58,7 +58,7 @@
       Tests if an input string ends with the specified suffix.
     </description>
     <name>endsWith</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>boolean endsWith(java.lang.String, java.lang.String)</function-signature>
     <example>
       &lt;c:if test="${fn:endsWith(filename, ".txt")}">
@@ -70,7 +70,7 @@
       Escapes characters that could be interpreted as XML markup.
     </description>
     <name>escapeXml</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String escapeXml(java.lang.String)</function-signature>
     <example>
       ${fn:escapeXml(param:info)}
@@ -82,7 +82,7 @@
       Returns the index withing a string of the first occurrence of a specified substring.
     </description>
     <name>indexOf</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>int indexOf(java.lang.String, java.lang.String)</function-signature>
     <example>
       ${fn:indexOf(name, "-")}
@@ -94,7 +94,7 @@
       Joins all elements of an array into a string.
     </description>
     <name>join</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String join(java.lang.String[], java.lang.String)</function-signature>
     <example>
       ${fn:join(array, ";")}
@@ -106,7 +106,7 @@
       Returns the number of items in a collection, or the number of characters in a string.
     </description>
     <name>length</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>int length(java.lang.Object)</function-signature>
     <example>
       You have ${fn:length(shoppingCart.products)} in your shopping cart.
@@ -119,7 +119,7 @@
       of a "before" string into an "after" substring.
     </description>
     <name>replace</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String replace(java.lang.String, java.lang.String, java.lang.String)</function-signature>
     <example>
       ${fn:replace(text, "-", "&#149;")}
@@ -131,7 +131,7 @@
       Splits a string into an array of substrings.
     </description>
     <name>split</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String[] split(java.lang.String, java.lang.String)</function-signature>
     <example>
       ${fn:split(customerNames, ";")}
@@ -143,7 +143,7 @@
       Tests if an input string starts with the specified prefix.
     </description>
     <name>startsWith</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>boolean startsWith(java.lang.String, java.lang.String)</function-signature>
     <example>
       &lt;c:if test="${fn:startsWith(product.id, "100-")}">
@@ -155,7 +155,7 @@
       Returns a subset of a string.
     </description>
     <name>substring</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String substring(java.lang.String, int, int)</function-signature>
     <example>
       P.O. Box: ${fn:substring(zip, 6, -1)}
@@ -167,7 +167,7 @@
       Returns a subset of a string following a specific substring.
     </description>
     <name>substringAfter</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String substringAfter(java.lang.String, java.lang.String)</function-signature>
     <example>
       P.O. Box: ${fn:substringAfter(zip, "-")}
@@ -179,7 +179,7 @@
       Returns a subset of a string before a specific substring.
     </description>
     <name>substringBefore</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String substringBefore(java.lang.String, java.lang.String)</function-signature>
     <example>
       Zip (without P.O. Box): ${fn:substringBefore(zip, "-")}
@@ -191,7 +191,7 @@
       Converts all of the characters of a string to lower case.
     </description>
     <name>toLowerCase</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String toLowerCase(java.lang.String)</function-signature>
     <example>
       Product name: ${fn.toLowerCase(product.name)}
@@ -203,7 +203,7 @@
       Converts all of the characters of a string to upper case.
     </description>
     <name>toUpperCase</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String toUpperCase(java.lang.String)</function-signature>
     <example>
       Product name: ${fn.UpperCase(product.name)}
@@ -215,7 +215,7 @@
       Removes white spaces from both ends of a string.
     </description>
     <name>trim</name>
-    <function-class>org.apache.taglibs.standard.functions.Functions</function-class>
+    <function-class>org.glassfish.wasp.taglibs.standard.functions.Functions</function-class>
     <function-signature>java.lang.String trim(java.lang.String)</function-signature>
     <example>
       Name: ${fn.trim(name)}

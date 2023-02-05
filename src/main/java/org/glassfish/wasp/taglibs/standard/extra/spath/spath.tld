@@ -32,7 +32,7 @@
 
   <tag>
     <name>filter</name>
-    <tag-class>org.apache.taglibs.standard.extra.spath.SPathTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.extra.spath.SPathTag</tag-class>
     <body-content>JSP</body-content>
     <description>
       Exposes an XMLFilter that filters an XML document based on a subset

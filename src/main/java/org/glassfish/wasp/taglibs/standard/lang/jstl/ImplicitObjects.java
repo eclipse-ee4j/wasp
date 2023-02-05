@@ -60,7 +60,7 @@ public class ImplicitObjects
 
     static final String sAttributeName =
 
-            "org.apache.taglibs.standard.ImplicitObjects";
+            "org.glassfish.wasp.taglibs.standard.ImplicitObjects";
 
     // -------------------------------------
 

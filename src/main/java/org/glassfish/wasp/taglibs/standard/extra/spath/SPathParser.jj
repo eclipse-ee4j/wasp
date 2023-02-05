@@ -14,7 +14,7 @@ options {
 
 PARSER_BEGIN(SPathParser)
 
-package org.apache.taglibs.standard.extra.spath;
+package org.glassfish.wasp.taglibs.standard.extra.spath;
 
 import java.util.Vector;
 

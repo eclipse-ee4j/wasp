@@ -46,7 +46,7 @@ public class ExpressionEvaluatorManager {
     // *********************************************************************
     // Constants
 
-    public static final String EVALUATOR_CLASS = "org.apache.taglibs.standard.lang.jstl.Evaluator";
+    public static final String EVALUATOR_CLASS = "org.glassfish.wasp.taglibs.standard.lang.jstl.Evaluator";
     // private static final String EVALUATOR_PARAMETER =
     // "jakarta.servlet.jsp.jstl.temp.ExpressionEvaluatorClass";
 

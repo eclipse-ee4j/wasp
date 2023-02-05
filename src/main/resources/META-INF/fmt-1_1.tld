@@ -33,7 +33,7 @@
         Provides core validation features for JSTL tags.
     </description>
     <validator-class>
-        org.apache.taglibs.standard.tlv.JstlFmtTLV
+        org.glassfish.wasp.taglibs.standard.tlv.JstlFmtTLV
     </validator-class>
   </validator>
 
@@ -42,7 +42,7 @@
         Sets the request character encoding
     </description>
     <name>requestEncoding</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.RequestEncodingTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.RequestEncodingTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -60,7 +60,7 @@ decoding request parameters.
         Stores the given locale in the locale configuration variable
     </description>
     <name>setLocale</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.SetLocaleTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.SetLocaleTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -104,7 +104,7 @@ Scope of the locale configuration variable.
         nested in its body
     </description>
     <name>timeZone</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.TimeZoneTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.TimeZoneTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -127,7 +127,7 @@ supported time zone formats.
         Stores the given time zone in the time zone configuration variable
     </description>
     <name>setTimeZone</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.SetTimeZoneTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.SetTimeZoneTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -169,7 +169,7 @@ variable.
         Loads a resource bundle to be used by its tag body
     </description>
     <name>bundle</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.BundleTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.BundleTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -201,7 +201,7 @@ key of any nested &lt;fmt:message&gt; action.
         the bundle configuration variable
     </description>
     <name>setBundle</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.SetBundleTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.SetBundleTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -243,7 +243,7 @@ configuration variable.
         Maps key to localized message and performs parametric replacement
     </description>
     <name>message</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.MessageTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.MessageTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -287,7 +287,7 @@ Scope of var.
         &lt;message&gt; tag
     </description>
     <name>param</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.ParamTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.ParamTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -304,7 +304,7 @@ Argument used for parametric replacement.
         Formats a numeric value as a number, currency, or percentage
     </description>
     <name>formatNumber</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.FormatNumberTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.FormatNumberTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -422,7 +422,7 @@ Scope of var.
         Parses the string representation of a number, currency, or percentage
     </description>
     <name>parseNumber</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.ParseNumberTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.ParseNumberTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -499,7 +499,7 @@ Scope of var.
         Formats a date and/or time using the supplied styles and pattern
     </description>
     <name>formatDate</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.FormatDateTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.FormatDateTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -586,7 +586,7 @@ Scope of var.
         Parses the string representation of a date and/or time
     </description>
     <name>parseDate</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.fmt.ParseDateTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.fmt.ParseDateTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>

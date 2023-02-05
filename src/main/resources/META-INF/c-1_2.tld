@@ -33,7 +33,7 @@
         Provides core validation features for JSTL tags.
     </description>
     <validator-class>
-        org.apache.taglibs.standard.tlv.JstlCoreTLV
+        org.glassfish.wasp.taglibs.standard.tlv.JstlCoreTLV
     </validator-class>
   </validator>
 
@@ -43,7 +43,7 @@
         exposes it.
     </description>
     <name>catch</name>
-    <tag-class>org.apache.taglibs.standard.tag.common.core.CatchTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.common.core.CatchTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -64,7 +64,7 @@ scoped variable is the type of the exception thrown.
 	&lt;when&gt; and &lt;otherwise&gt;
     </description>
     <name>choose</name>
-    <tag-class>org.apache.taglibs.standard.tag.common.core.ChooseTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.common.core.ChooseTag</tag-class>
     <body-content>JSP</body-content>
   </tag>
 
@@ -75,7 +75,7 @@ scoped variable is the type of the exception thrown.
 	scripting variable representing the evaluation of this condition
     </description>
     <name>if</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.IfTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.IfTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -113,8 +113,8 @@ Scope for var.
         to either the page, a String in 'var', or a Reader in 'varReader'.
     </description>
     <name>import</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.ImportTag</tag-class>
-    <tei-class>org.apache.taglibs.standard.tei.ImportTEI</tei-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.ImportTag</tag-class>
+    <tei-class>org.glassfish.wasp.taglibs.standard.tei.ImportTEI</tei-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -180,8 +180,8 @@ resource.
         functionality
     </description>
     <name>forEach</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.ForEachTag</tag-class>
-    <tei-class>org.apache.taglibs.standard.tei.ForEachTEI</tei-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.ForEachTag</tag-class>
+    <tei-class>org.glassfish.wasp.taglibs.standard.tei.ForEachTEI</tei-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -263,7 +263,7 @@ visibility.
 	Iterates over tokens, separated by the supplied delimeters
     </description>
     <name>forTokens</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.ForTokensTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.ForTokensTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -347,7 +347,7 @@ visibility.
         Like &lt;%= ... &gt;, but for expressions.
     </description> 
     <name>out</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.OutTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.OutTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -386,7 +386,7 @@ true.
         'false'
     </description>
     <name>otherwise</name>
-    <tag-class>org.apache.taglibs.standard.tag.common.core.OtherwiseTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.common.core.OtherwiseTag</tag-class>
     <body-content>JSP</body-content>
   </tag>
 
@@ -395,7 +395,7 @@ true.
         Adds a parameter to a containing 'import' tag's URL.
     </description>
     <name>param</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.ParamTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.ParamTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -420,7 +420,7 @@ Value of the parameter.
         Redirects to a new URL.
     </description>
     <name>redirect</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.RedirectTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.RedirectTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -446,7 +446,7 @@ resource that belongs to a foreign context.
         Removes a scoped variable (from a particular scope, if specified).
     </description>
     <name>remove</name>
-    <tag-class>org.apache.taglibs.standard.tag.common.core.RemoveTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.common.core.RemoveTag</tag-class>
     <body-content>empty</body-content>
     <attribute>
         <description>
@@ -471,7 +471,7 @@ Scope for var.
         Sets the result of an expression evaluation in a 'scope'
     </description>
     <name>set</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.SetTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.SetTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -527,7 +527,7 @@ Scope for var.
         Creates a URL with optional query parameters.
     </description>
     <name>url</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.UrlTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.UrlTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>
@@ -572,7 +572,7 @@ resource that belongs to a foreign context.
 	condition evalutes to 'true'
     </description>
     <name>when</name>
-    <tag-class>org.apache.taglibs.standard.tag.rt.core.WhenTag</tag-class>
+    <tag-class>org.glassfish.wasp.taglibs.standard.tag.rt.core.WhenTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
         <description>

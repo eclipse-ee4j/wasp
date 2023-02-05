@@ -35,7 +35,7 @@ public class Constants {
     // -------------------------------------
     // Resources
 
-    static ResourceBundle sResources = ResourceBundle.getBundle("org.apache.taglibs.standard.lang.jstl.Resources");
+    static ResourceBundle sResources = ResourceBundle.getBundle("org.glassfish.wasp.taglibs.standard.lang.jstl.Resources");
 
     // -------------------------------------
     // Messages from the resource bundle
@@ -136,7 +136,7 @@ public class Constants {
             if (ret == null) {
                 String str = "ERROR: Unable to load resource " + pResourceName;
                 System.err.println(str);
-                throw new MissingResourceException(str, "org.apache.taglibs.standard.lang.jstl.Constants", pResourceName);
+                throw new MissingResourceException(str, "org.glassfish.wasp.taglibs.standard.lang.jstl.Constants", pResourceName);
             } else {
                 return ret;
             }

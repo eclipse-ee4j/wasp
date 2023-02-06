@@ -20,9 +20,7 @@ package org.glassfish.wasp.taglibs.standard.tei;
 import jakarta.servlet.jsp.tagext.TagData;
 
 /**
- * <p>
  * Utilities in support of TagExtraInfo classes.
- * </p>
  *
  * @author Shawn Bayern
  */
@@ -32,7 +30,7 @@ public class Util {
      * Returns true if the given attribute name is specified, false otherwise.
      */
     public static boolean isSpecified(TagData data, String attributeName) {
-        return (data.getAttribute(attributeName) != null);
+        return data.getAttribute(attributeName) != null;
     }
 
 }

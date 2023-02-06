@@ -24,14 +24,14 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.FormatDateSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;formatDate&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
 
 public class FormatDateTag extends FormatDateSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

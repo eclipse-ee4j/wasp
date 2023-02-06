@@ -84,31 +84,30 @@ public class JstlSqlTLV extends JstlBaseTLV {
 
         // process under the existing context (state), then modify it
         @Override
-        public void startElement(String ns, String ln, String qn, Attributes a) {
-
-            // substitute our own parsed 'ln' if it's not provided
-            if (ln == null) {
-                ln = getLocalPart(qn);
+        public void startElement(String nameSpace, String localName, String qualifiedName, Attributes attributes) {
+            // Substitute our own parsed 'ln' if it's not provided
+            if (localName == null) {
+                localName = getLocalPart(qualifiedName);
             }
 
-            // for simplicity, we can ignore <jsp:text> for our purposes
+            // For simplicity, we can ignore <jsp:text> for our purposes
             // (don't bother distinguishing between it and its characters)
-            if (qn.equals(JSP_TEXT)) {
+            if (qualifiedName.equals(JSP_TEXT)) {
                 return;
             }
 
-            // check body-related constraint
+            // Check body-related constraint
             if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
             }
 
-            // validate expression syntax if we need to
+            // Validate expression syntax if we need to
             Set expAtts;
-            if (qn.startsWith(prefix + ":") && (expAtts = config.get(ln)) != null) {
-                for (int i = 0; i < a.getLength(); i++) {
-                    String attName = a.getLocalName(i);
+            if (qualifiedName.startsWith(prefix + ":") && (expAtts = config.get(localName)) != null) {
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    String attName = attributes.getLocalName(i);
                     if (expAtts.contains(attName)) {
-                        String vMsg = validateExpression(ln, attName, a.getValue(i));
+                        String vMsg = validateExpression(localName, attName, attributes.getValue(i));
                         if (vMsg != null) {
                             fail(vMsg);
                         }
@@ -117,14 +116,14 @@ public class JstlSqlTLV extends JstlBaseTLV {
             }
 
             // validate attributes
-            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a)) {
-                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
+            if (qualifiedName.startsWith(prefix + ":") && !hasNoInvalidScope(attributes)) {
+                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qualifiedName, attributes.getValue(SCOPE)));
             }
-            if (qn.startsWith(prefix + ":") && hasEmptyVar(a)) {
-                fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
+            if (qualifiedName.startsWith(prefix + ":") && hasEmptyVar(attributes)) {
+                fail(Resources.getMessage("TLV_EMPTY_VAR", qualifiedName));
             }
-            if (qn.startsWith(prefix + ":") && hasDanglingScope(a) && !qn.startsWith(prefix + ":" + SETDATASOURCE)) {
-                fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+            if (qualifiedName.startsWith(prefix + ":") && hasDanglingScope(attributes) && !qualifiedName.startsWith(prefix + ":" + SETDATASOURCE)) {
+                fail(Resources.getMessage("TLV_DANGLING_SCOPE", qualifiedName));
             }
 
             // now, modify state
@@ -136,20 +135,20 @@ public class JstlSqlTLV extends JstlBaseTLV {
              * <sql:query sql="..." var="..."> <c:forEach var="arg" items="..."> <sql:param value="${arg}"/> </c:forEach>
              * </sql:query>
              */
-            if ((isSqlTag(ns, ln, PARAM) || isSqlTag(ns, ln, DATEPARAM)) && (queryDepths.empty() && updateDepths.empty())) {
+            if ((isSqlTag(nameSpace, localName, PARAM) || isSqlTag(nameSpace, localName, DATEPARAM)) && (queryDepths.empty() && updateDepths.empty())) {
                 fail(Resources.getMessage("SQL_PARAM_OUTSIDE_PARENT"));
             }
 
             // If we're in a <query>, record relevant state
-            if (isSqlTag(ns, ln, QUERY)) {
+            if (isSqlTag(nameSpace, localName, QUERY)) {
                 queryDepths.push(Integer.valueOf(depth));
             }
             // If we're in a <update>, record relevant state
-            if (isSqlTag(ns, ln, UPDATE)) {
+            if (isSqlTag(nameSpace, localName, UPDATE)) {
                 updateDepths.push(Integer.valueOf(depth));
             }
             // If we're in a <transaction>, record relevant state
-            if (isSqlTag(ns, ln, TRANSACTION)) {
+            if (isSqlTag(nameSpace, localName, TRANSACTION)) {
                 transactionDepths.push(Integer.valueOf(depth));
             }
 
@@ -157,22 +156,22 @@ public class JstlSqlTLV extends JstlBaseTLV {
             bodyIllegal = false;
             bodyNecessary = false;
 
-            if (isSqlTag(ns, ln, QUERY) || isSqlTag(ns, ln, UPDATE)) {
-                if (!hasAttribute(a, SQL)) {
+            if (isSqlTag(nameSpace, localName, QUERY) || isSqlTag(nameSpace, localName, UPDATE)) {
+                if (!hasAttribute(attributes, SQL)) {
                     bodyNecessary = true;
                 }
-                if (hasAttribute(a, DATASOURCE) && !transactionDepths.empty()) {
+                if (hasAttribute(attributes, DATASOURCE) && !transactionDepths.empty()) {
                     fail(Resources.getMessage("ERROR_NESTED_DATASOURCE"));
                 }
             }
 
-            if (isSqlTag(ns, ln, DATEPARAM)) {
+            if (isSqlTag(nameSpace, localName, DATEPARAM)) {
                 bodyIllegal = true;
             }
 
             // record the most recent tag (for error reporting)
-            lastElementName = qn;
-            lastElementId = a.getValue("http://java.sun.com/JSP/Page", "id");
+            lastElementName = qualifiedName;
+            lastElementId = attributes.getValue("http://java.sun.com/JSP/Page", "id");
 
             // we're a new element, so increase depth
             depth++;

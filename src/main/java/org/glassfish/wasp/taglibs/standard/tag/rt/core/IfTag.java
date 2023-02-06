@@ -20,16 +20,15 @@ package org.glassfish.wasp.taglibs.standard.tag.rt.core;
 import jakarta.servlet.jsp.jstl.core.ConditionalTagSupport;
 
 /**
- * <p>
  * Tag handler for &lt;if&gt; in JSTL's rtexprvalue library. Because of the support provided by the
  * ConditionalTagSupport class, this tag is trivial enough not to require a separate base supporting class common to
  * both libraries.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class IfTag extends ConditionalTagSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Constructor and lifecycle management

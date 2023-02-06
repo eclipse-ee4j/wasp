@@ -20,14 +20,13 @@ package org.glassfish.wasp.taglibs.standard.tag.rt.core;
 import org.glassfish.wasp.taglibs.standard.tag.common.core.OutSupport;
 
 /**
- * <p>
  * Tag handler for &lt;out&gt; in JSTL's rtexprvalue library.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class OutTag extends OutSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessors

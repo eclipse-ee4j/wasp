@@ -22,14 +22,13 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.SetTimeZoneSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;setTimeZone&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
-
 public class SetTimeZoneTag extends SetTimeZoneSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

@@ -17,13 +17,13 @@
 
 package org.glassfish.wasp.taglibs.standard.tei;
 
+import static org.glassfish.wasp.taglibs.standard.tei.Util.isSpecified;
+
 import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>
  * An implementation of TagExtraInfo that implements validation for {@literal <}x:parse{@literal >}'s attributes
- * </p>
  *
  * @author Shawn Bayern
  */
@@ -38,12 +38,12 @@ public class XmlParseTEI extends TagExtraInfo {
     public boolean isValid(TagData us) {
         // must have no more than one of VAR and VAR_DOM ...
         // ... and must have no less than one of VAR and VAR_DOM
-        if ((Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_DOM)) || !(Util.isSpecified(us, VAR) || Util.isSpecified(us, VAR_DOM))) {
+        if ((isSpecified(us, VAR) && isSpecified(us, VAR_DOM)) || !(isSpecified(us, VAR) || isSpecified(us, VAR_DOM))) {
             return false;
         }
 
         // When either 'scope' is specified, its 'var' must be specified
-        if ((Util.isSpecified(us, SCOPE) && !Util.isSpecified(us, VAR)) || (Util.isSpecified(us, SCOPE_DOM) && !Util.isSpecified(us, VAR_DOM))) {
+        if ((isSpecified(us, SCOPE) && !isSpecified(us, VAR)) || (isSpecified(us, SCOPE_DOM) && !isSpecified(us, VAR_DOM))) {
             return false;
         }
 

@@ -22,14 +22,13 @@ import org.glassfish.wasp.taglibs.standard.tag.common.core.ImportSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;import&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class ImportTag extends ImportSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

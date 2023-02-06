@@ -20,14 +20,13 @@ package org.glassfish.wasp.taglibs.standard.tag.rt.core;
 import org.glassfish.wasp.taglibs.standard.tag.common.core.SetSupport;
 
 /**
- * <p>
  * Tag handler for &lt;set&gt; in JSTL's rtexprvalue library.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class SetTag extends SetSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessors

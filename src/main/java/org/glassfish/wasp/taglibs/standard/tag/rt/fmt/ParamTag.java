@@ -22,14 +22,14 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.ParamSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;param&gt; that supports rtexprvalue-based message arguments.
- * </p>
  *
  * @author Jan Luehe
  */
 
 public class ParamTag extends ParamSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

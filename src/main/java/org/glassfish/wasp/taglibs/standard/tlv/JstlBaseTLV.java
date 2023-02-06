@@ -28,7 +28,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.glassfish.wasp.taglibs.standard.lang.support.ExpressionEvaluator;
@@ -130,7 +129,7 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         try {
             this.tlvType = type;
             this.uri = uri;
-            // initialize
+            // Initialize
             messageVector = new Vector<>();
 
             // save the prefix
@@ -146,21 +145,22 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
                 return vmFromString(Resources.getMessage("TLV_PARAMETER_ERROR", EXP_ATT_PARAM));
             }
 
-            // get a handler
-            DefaultHandler h = getHandler();
+            // Get a handler
+            DefaultHandler handler = getHandler();
 
             // parse the page
-            SAXParserFactory f = SAXParserFactory.newInstance();
-            f.setValidating(false);
-            f.setNamespaceAware(true);
-            SAXParser p = f.newSAXParser();
-            p.parse(page.getInputStream(), h);
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            saxParserFactory.setValidating(false);
+            saxParserFactory.setNamespaceAware(true);
+
+            saxParserFactory.newSAXParser()
+                            .parse(page.getInputStream(), handler);
 
             if (messageVector.size() == 0) {
                 return null;
-            } else {
-                return vmFromVector(messageVector);
             }
+
+            return vmFromVector(messageVector);
 
         } catch (SAXException ex) {
             return vmFromString(ex.toString());
@@ -176,8 +176,7 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
 
     // delegate validation to the appropriate expression language
     protected String validateExpression(String elem, String att, String expr) {
-
-        // let's just use the cache kept by the ExpressionEvaluatorManager
+        // Let's just use the cache kept by the ExpressionEvaluatorManager
         ExpressionEvaluator current;
         try {
             current = ExpressionEvaluatorManager.getEvaluatorByName(ExpressionEvaluatorManager.EVALUATOR_CLASS);
@@ -188,10 +187,10 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
 
         String response = current.validate(att, expr);
         if (response == null) {
-            return response;
-        } else {
-            return "tag = '" + elem + "' / attribute = '" + att + "': " + response;
+            return null;
         }
+
+        return "tag = '" + elem + "' / attribute = '" + att + "': " + response;
     }
 
     // utility methods to help us match elements in our tagset
@@ -199,13 +198,14 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         if (tagUri == null || tagUri.length() == 0 || tagLn == null || matchUri == null || matchLn == null) {
             return false;
         }
-        // match beginning of URI since some suffix *_rt tags can
+
+        // Match beginning of URI since some suffix *_rt tags can
         // be nested in EL enabled tags as defined by the spec
         if (tagUri.length() > matchUri.length()) {
-            return (tagUri.startsWith(matchUri) && tagLn.equals(matchLn));
-        } else {
-            return (matchUri.startsWith(tagUri) && tagLn.equals(matchLn));
+            return tagUri.startsWith(matchUri) && tagLn.equals(matchLn);
         }
+
+        return matchUri.startsWith(tagUri) && tagLn.equals(matchLn);
     }
 
     protected boolean isJspTag(String tagUri, String tagLn, String target) {
@@ -213,7 +213,7 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
     }
 
     private boolean isTag(int type, String tagUri, String tagLn, String target) {
-        return (this.tlvType == type && isTag(tagUri, tagLn, this.uri, target));
+        return this.tlvType == type && isTag(tagUri, tagLn, this.uri, target);
     }
 
     protected boolean isCoreTag(String tagUri, String tagLn, String target) {
@@ -232,9 +232,9 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         return isTag(TYPE_XML, tagUri, tagLn, target);
     }
 
-    // utility method to determine if an attribute exists
-    protected boolean hasAttribute(Attributes a, String att) {
-        return (a.getValue(att) != null);
+    // Utility method to determine if an attribute exists
+    protected boolean hasAttribute(Attributes attributes, String attribute) {
+        return attributes.getValue(attribute) != null;
     }
 
     /*
@@ -247,15 +247,16 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
 
     // returns true if the given attribute name is specified, false otherwise
     protected boolean isSpecified(TagData data, String attributeName) {
-        return (data.getAttribute(attributeName) != null);
+        return data.getAttribute(attributeName) != null;
     }
 
     // returns true if the 'scope' attribute is valid
-    protected boolean hasNoInvalidScope(Attributes a) {
-        String scope = a.getValue(SCOPE);
+    protected boolean hasNoInvalidScope(Attributes attributes) {
+        String scope = attributes.getValue(SCOPE);
 
-        if ((scope != null) && !scope.equals(PAGE_SCOPE) && !scope.equals(REQUEST_SCOPE) && !scope.equals(SESSION_SCOPE)
-                && !scope.equals(APPLICATION_SCOPE)) {
+        if (scope != null &&
+                !scope.equals(PAGE_SCOPE) && !scope.equals(REQUEST_SCOPE) &&
+                !scope.equals(SESSION_SCOPE) && !scope.equals(APPLICATION_SCOPE)) {
             return false;
         }
 
@@ -264,15 +265,12 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
 
     // returns true if the 'var' attribute is empty
     protected boolean hasEmptyVar(Attributes a) {
-        if ("".equals(a.getValue(VAR))) {
-            return true;
-        }
-        return false;
+        return "".equals(a.getValue(VAR));
     }
 
     // returns true if the 'scope' attribute is present without 'var'
-    protected boolean hasDanglingScope(Attributes a) {
-        return (a.getValue(SCOPE) != null && a.getValue(VAR) == null);
+    protected boolean hasDanglingScope(Attributes attributes) {
+        return attributes.getValue(SCOPE) != null && attributes.getValue(VAR) == null;
     }
 
     // retrieves the local part of a QName
@@ -280,9 +278,9 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
         int colon = qname.indexOf(":");
         if (colon == -1) {
             return qname;
-        } else {
-            return qname.substring(colon + 1);
         }
+
+        return qname.substring(colon + 1);
     }
 
     // *********************************************************************
@@ -290,41 +288,44 @@ public abstract class JstlBaseTLV extends TagLibraryValidator {
 
     // parses our configuration parameter for element:attribute pairs
     private void configure(String info) {
-        // construct our configuration map
+        // Construct our configuration map
         config = new HashMap<>();
 
-        // leave the map empty if we have nothing to configure
+        // Leave the map empty if we have nothing to configure
         if (info == null) {
             return;
         }
 
-        // separate parameter into space-separated tokens and store them
-        StringTokenizer st = new StringTokenizer(info);
-        while (st.hasMoreTokens()) {
-            String pair = st.nextToken();
+        // Separate parameter into space-separated tokens and store them
+        StringTokenizer stringTokenizer = new StringTokenizer(info);
+        while (stringTokenizer.hasMoreTokens()) {
+            String pair = stringTokenizer.nextToken();
             StringTokenizer pairTokens = new StringTokenizer(pair, ":");
             String element = pairTokens.nextToken();
             String attribute = pairTokens.nextToken();
-            Set<String> atts = config.get(element);
-            if (atts == null) {
-                atts = new HashSet<>();
-                config.put(element, atts);
+
+            Set<String> attributes = config.get(element);
+            if (attributes == null) {
+                attributes = new HashSet<>();
+                config.put(element, attributes);
             }
-            atts.add(attribute);
+
+            attributes.add(attribute);
         }
     }
 
-    // constructs a ValidationMessage[] from a single String and no ID
+    // Constructs a ValidationMessage[] from a single String and no ID
     static ValidationMessage[] vmFromString(String message) {
         return new ValidationMessage[] { new ValidationMessage(null, message) };
     }
 
-    // constructs a ValidationMessage[] from a ValidationMessage Vector
+    // Constructs a ValidationMessage[] from a ValidationMessage Vector
     static ValidationMessage[] vmFromVector(Vector<ValidationMessage> v) {
-        ValidationMessage[] vm = new ValidationMessage[v.size()];
-        for (int i = 0; i < vm.length; i++) {
-            vm[i] = v.get(i);
+        ValidationMessage[] validationMessages = new ValidationMessage[v.size()];
+        for (int i = 0; i < validationMessages.length; i++) {
+            validationMessages[i] = v.get(i);
         }
-        return vm;
+
+        return validationMessages;
     }
 }

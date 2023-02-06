@@ -23,14 +23,14 @@ import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 
 /**
- * <p>
  * A handler for &lt;message&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
 
 public class MessageTag extends MessageSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

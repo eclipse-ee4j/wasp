@@ -22,14 +22,13 @@ import org.glassfish.wasp.taglibs.standard.tag.common.core.UrlSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;urlEncode&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class UrlTag extends UrlSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

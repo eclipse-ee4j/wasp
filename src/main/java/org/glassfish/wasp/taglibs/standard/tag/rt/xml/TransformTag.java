@@ -24,14 +24,13 @@ import org.glassfish.wasp.taglibs.standard.tag.common.xml.TransformSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;transform&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class TransformTag extends TransformSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

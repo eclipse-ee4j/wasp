@@ -20,14 +20,13 @@ package org.glassfish.wasp.taglibs.standard.tag.rt.core;
 import org.glassfish.wasp.taglibs.standard.tag.common.core.WhenTagSupport;
 
 /**
- * <p>
  * Tag handler for &lt;when&gt; in JSTL's rtexprvalue library.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class WhenTag extends WhenTagSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Constructor and lifecycle management

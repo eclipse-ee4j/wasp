@@ -26,14 +26,13 @@ import jakarta.servlet.jsp.jstl.core.LoopTag;
 import jakarta.servlet.jsp.tagext.IterationTag;
 
 /**
- * <p>
  * A handler for &lt;forEach&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class ForEachTag extends ForEachSupport implements LoopTag, IterationTag {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

@@ -27,6 +27,8 @@ import org.glassfish.wasp.taglibs.standard.tag.common.sql.QueryTagSupport;
  */
 public class QueryTag extends QueryTagSupport {
 
+    private static final long serialVersionUID = 1L;
+
     // *********************************************************************
     // Constructor
 

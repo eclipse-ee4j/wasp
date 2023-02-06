@@ -20,14 +20,14 @@ package org.glassfish.wasp.taglibs.standard.tag.rt.xml;
 import org.glassfish.wasp.taglibs.standard.tag.common.xml.ExprSupport;
 
 /**
- * <p>
  * A handler for &lt;out&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Shawn Bayern
  */
 
 public class ExprTag extends ExprSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

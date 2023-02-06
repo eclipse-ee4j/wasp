@@ -22,14 +22,14 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.RequestEncodingSupport
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;requestEncoding&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
 
 public class RequestEncodingTag extends RequestEncodingSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

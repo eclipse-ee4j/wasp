@@ -26,6 +26,8 @@ import org.glassfish.wasp.taglibs.standard.tag.common.sql.UpdateTagSupport;
  */
 public class UpdateTag extends UpdateTagSupport {
 
+    private static final long serialVersionUID = 1L;
+
     // *********************************************************************
     // Accessor methods
 

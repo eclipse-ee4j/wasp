@@ -17,13 +17,13 @@
 
 package org.glassfish.wasp.taglibs.standard.tei;
 
+import static org.glassfish.wasp.taglibs.standard.tei.Util.isSpecified;
+
 import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>
  * An implementation of TagExtraInfo that implements validation for &lt;c:import&gt;'s attributes
- * </p>
  *
  * @author Shawn Bayern
  */
@@ -34,8 +34,8 @@ public class ImportTEI extends TagExtraInfo {
 
     @Override
     public boolean isValid(TagData us) {
-        // don't allow both VAR and VAR_READER, together
-        if (Util.isSpecified(us, VAR) && Util.isSpecified(us, VAR_READER)) {
+        // Don't allow both VAR and VAR_READER, together
+        if (isSpecified(us, VAR) && isSpecified(us, VAR_READER)) {
             return false;
         }
 

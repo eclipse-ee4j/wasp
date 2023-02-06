@@ -24,7 +24,6 @@ import java.util.Map;
 
 /**
  *
- * <p>
  * Represents an operator that obtains a Map entry, an indexed value, a property value, or an indexed property value of
  * an object. The following are the rules for evaluating this operator:
  *
@@ -107,8 +106,7 @@ public class ArraySuffix extends ValueSuffix {
      *
      * Gets the value of the index
      **/
-    Object evaluateIndex(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
-            throws ELException {
+    Object evaluateIndex(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger) throws ELException {
         return mIndex.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
     }
 
@@ -139,8 +137,7 @@ public class ArraySuffix extends ValueSuffix {
      * Evaluates the expression in the given context, operating on the given value.
      **/
     @Override
-    public Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
-            throws ELException {
+    public Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger) throws ELException {
         Object indexVal;
         String indexStr;
         BeanInfoProperty property;

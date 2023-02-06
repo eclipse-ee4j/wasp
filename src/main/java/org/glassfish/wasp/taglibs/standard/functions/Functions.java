@@ -31,13 +31,10 @@ import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
- * JSTL Functions
- * </p>
+ * Jakarta Pages Standard Tags Functions
  *
  * @author Pierre Delisle
  */
-
 public class Functions {
 
     // *********************************************************************

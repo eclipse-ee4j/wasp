@@ -27,6 +27,9 @@ import jakarta.servlet.jsp.JspException;
  * @author Hans Bergsten
  */
 public class TransactionTag extends TransactionTagSupport {
+
+    private static final long serialVersionUID = 1L;
+
     private String isolationRT;
 
     // *********************************************************************
@@ -53,6 +56,7 @@ public class TransactionTag extends TransactionTagSupport {
         if (isolationRT != null) {
             super.setIsolation(isolationRT);
         }
+
         return super.doStartTag();
     }
 }

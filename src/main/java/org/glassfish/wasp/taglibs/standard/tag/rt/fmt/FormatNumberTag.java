@@ -22,14 +22,14 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.FormatNumberSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;formatNumber&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
 
 public class FormatNumberTag extends FormatNumberSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

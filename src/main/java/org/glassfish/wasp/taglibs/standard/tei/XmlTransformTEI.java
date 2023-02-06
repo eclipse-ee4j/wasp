@@ -17,13 +17,13 @@
 
 package org.glassfish.wasp.taglibs.standard.tei;
 
+import static org.glassfish.wasp.taglibs.standard.tei.Util.isSpecified;
+
 import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>
  * An implementation of TagExtraInfo that implements validation for &lt;x:transform&gt;'s attributes
- * </p>
  *
  * @author Shawn Bayern
  */
@@ -35,11 +35,12 @@ public class XmlTransformTEI extends TagExtraInfo {
 
     @Override
     public boolean isValid(TagData us) {
-        // require XSLT
-        // disallow both VAR and RESULT
-        if (!Util.isSpecified(us, XSLT) || (Util.isSpecified(us, VAR) && Util.isSpecified(us, RESULT))) {
+        // Require XSLT
+        // Disallow both VAR and RESULT
+        if (!isSpecified(us, XSLT) || (isSpecified(us, VAR) && isSpecified(us, RESULT))) {
             return false;
         }
+
         return true;
     }
 

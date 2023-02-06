@@ -26,6 +26,8 @@ import org.glassfish.wasp.taglibs.standard.tag.common.sql.ParamTagSupport;
  */
 public class ParamTag extends ParamTagSupport {
 
+    private static final long serialVersionUID = 1L;
+
     public void setValue(Object value) {
         this.value = value;
     }

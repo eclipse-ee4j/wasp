@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * <p>
  * Manages the BeanInfo for one class - contains the BeanInfo, and also a mapping from property name to
  * BeanInfoProperty. There are also static methods for accessing the BeanInfoManager for a class - those mappings are
  * cached permanently so that once the BeanInfoManager is calculated, it doesn't have to be calculated again.

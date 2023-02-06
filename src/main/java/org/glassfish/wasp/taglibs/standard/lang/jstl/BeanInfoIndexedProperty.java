@@ -21,10 +21,6 @@ import java.beans.IndexedPropertyDescriptor;
 import java.lang.reflect.Method;
 
 /**
- *
- *
- *
- * <p>
  * This contains the information for one indexed property in a
  *
  * BeanInfo - IndexedPropertyDescriptor, read method, and write
@@ -42,16 +38,32 @@ import java.lang.reflect.Method;
  * method (this searching is done by the BeanInfoManager).
  *
  *
- *
  * @author Nathan Abramson - Art Technology Group
  *
  * @version $Change: 181181 $$DateTime: 2001/06/26 09:55:09 $$Author: kchung $
- *
  **/
+public class BeanInfoIndexedProperty {
 
-public class BeanInfoIndexedProperty
+    // property readMethod
+    Method mReadMethod;
 
-{
+    // property writeMethod
+    Method mWriteMethod;
+
+    // property propertyDescriptor
+    IndexedPropertyDescriptor mIndexedPropertyDescriptor;
+
+    // -------------------------------------
+
+    /**
+     * Constructor
+     *
+     **/
+    public BeanInfoIndexedProperty(Method pReadMethod, Method pWriteMethod, IndexedPropertyDescriptor pIndexedPropertyDescriptor) {
+        mReadMethod = pReadMethod;
+        mWriteMethod = pWriteMethod;
+        mIndexedPropertyDescriptor = pIndexedPropertyDescriptor;
+    }
 
     // -------------------------------------
 
@@ -59,68 +71,17 @@ public class BeanInfoIndexedProperty
 
     // -------------------------------------
 
-    // property readMethod
-
-    Method mReadMethod;
-
-    public Method getReadMethod()
-
-    {
+    public Method getReadMethod() {
         return mReadMethod;
     }
 
-    // -------------------------------------
-
-    // property writeMethod
-
-    Method mWriteMethod;
-
-    public Method getWriteMethod()
-
-    {
+    public Method getWriteMethod() {
         return mWriteMethod;
     }
 
-    // -------------------------------------
 
-    // property propertyDescriptor
-
-    IndexedPropertyDescriptor mIndexedPropertyDescriptor;
-
-    public IndexedPropertyDescriptor getIndexedPropertyDescriptor()
-
-    {
+    public IndexedPropertyDescriptor getIndexedPropertyDescriptor() {
         return mIndexedPropertyDescriptor;
     }
-
-    // -------------------------------------
-
-    /**
-     *
-     *
-     *
-     * Constructor
-     *
-     **/
-
-    public BeanInfoIndexedProperty
-
-    (Method pReadMethod,
-
-            Method pWriteMethod,
-
-            IndexedPropertyDescriptor pIndexedPropertyDescriptor)
-
-    {
-
-        mReadMethod = pReadMethod;
-
-        mWriteMethod = pWriteMethod;
-
-        mIndexedPropertyDescriptor = pIndexedPropertyDescriptor;
-
-    }
-
-    // -------------------------------------
 
 }

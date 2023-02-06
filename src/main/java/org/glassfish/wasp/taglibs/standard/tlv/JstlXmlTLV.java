@@ -109,31 +109,30 @@ public class JstlXmlTLV extends JstlBaseTLV {
 
         // process under the existing context (state), then modify it
         @Override
-        public void startElement(String ns, String ln, String qn, Attributes a) {
-
-            // substitute our own parsed 'ln' if it's not provided
-            if (ln == null) {
-                ln = getLocalPart(qn);
+        public void startElement(String nameSpace, String localName, String qualifiedNamed, Attributes attributes) {
+            // Substitute our own parsed 'ln' if it's not provided
+            if (localName == null) {
+                localName = getLocalPart(qualifiedNamed);
             }
 
-            // for simplicity, we can ignore <jsp:text> for our purposes
+            // For simplicity, we can ignore <jsp:text> for our purposes
             // (don't bother distinguishing between it and its characters)
-            if (qn.equals(JSP_TEXT)) {
+            if (qualifiedNamed.equals(JSP_TEXT)) {
                 return;
             }
 
-            // check body-related constraint
+            // Check body-related constraint
             if (bodyIllegal) {
                 fail(Resources.getMessage("TLV_ILLEGAL_BODY", lastElementName));
             }
 
             // validate expression syntax if we need to
             Set<String> expAtts;
-            if (qn.startsWith(prefix + ":") && (expAtts = config.get(ln)) != null) {
-                for (int i = 0; i < a.getLength(); i++) {
-                    String attName = a.getLocalName(i);
+            if (qualifiedNamed.startsWith(prefix + ":") && (expAtts = config.get(localName)) != null) {
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    String attName = attributes.getLocalName(i);
                     if (expAtts.contains(attName)) {
-                        String vMsg = validateExpression(ln, attName, a.getValue(i));
+                        String vMsg = validateExpression(localName, attName, attributes.getValue(i));
                         if (vMsg != null) {
                             fail(vMsg);
                         }
@@ -142,34 +141,34 @@ public class JstlXmlTLV extends JstlBaseTLV {
             }
 
             // validate attributes
-            if (qn.startsWith(prefix + ":") && !hasNoInvalidScope(a)) {
-                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qn, a.getValue(SCOPE)));
+            if (qualifiedNamed.startsWith(prefix + ":") && !hasNoInvalidScope(attributes)) {
+                fail(Resources.getMessage("TLV_INVALID_ATTRIBUTE", SCOPE, qualifiedNamed, attributes.getValue(SCOPE)));
             }
-            if (qn.startsWith(prefix + ":") && hasEmptyVar(a)) {
-                fail(Resources.getMessage("TLV_EMPTY_VAR", qn));
+            if (qualifiedNamed.startsWith(prefix + ":") && hasEmptyVar(attributes)) {
+                fail(Resources.getMessage("TLV_EMPTY_VAR", qualifiedNamed));
             }
-            if (qn.startsWith(prefix + ":") && hasDanglingScope(a)) {
-                fail(Resources.getMessage("TLV_DANGLING_SCOPE", qn));
+            if (qualifiedNamed.startsWith(prefix + ":") && hasDanglingScope(attributes)) {
+                fail(Resources.getMessage("TLV_DANGLING_SCOPE", qualifiedNamed));
             }
 
             // check invariants for <choose>
             if (chooseChild()) {
                 // mark <choose> for the first the first <when>
-                if (isXmlTag(ns, ln, WHEN)) {
+                if (isXmlTag(nameSpace, localName, WHEN)) {
                     chooseHasWhen.pop();
                     chooseHasWhen.push(Boolean.TRUE);
                 }
 
                 // ensure <choose> has the right children
-                if (!isXmlTag(ns, ln, WHEN) && !isXmlTag(ns, ln, OTHERWISE)) {
-                    fail(Resources.getMessage("TLV_ILLEGAL_CHILD_TAG", prefix, CHOOSE, qn));
+                if (!isXmlTag(nameSpace, localName, WHEN) && !isXmlTag(nameSpace, localName, OTHERWISE)) {
+                    fail(Resources.getMessage("TLV_ILLEGAL_CHILD_TAG", prefix, CHOOSE, qualifiedNamed));
                 }
 
                 // make sure <otherwise> is the last tag
                 if (chooseHasOtherwise.peek()) {
-                    fail(Resources.getMessage("TLV_ILLEGAL_ORDER", qn, prefix, OTHERWISE, CHOOSE));
+                    fail(Resources.getMessage("TLV_ILLEGAL_ORDER", qualifiedNamed, prefix, OTHERWISE, CHOOSE));
                 }
-                if (isXmlTag(ns, ln, OTHERWISE)) {
+                if (isXmlTag(nameSpace, localName, OTHERWISE)) {
                     chooseHasOtherwise.pop();
                     chooseHasOtherwise.push(Boolean.TRUE);
                 }
@@ -179,7 +178,7 @@ public class JstlXmlTLV extends JstlBaseTLV {
             // Specific check, directly inside <transform source="...">
             if (!transformWithSource.empty() && topDepth(transformWithSource) == (depth - 1)) {
                 // only allow <param>
-                if (!isXmlTag(ns, ln, PARAM)) {
+                if (!isXmlTag(nameSpace, localName, PARAM)) {
                     fail(Resources.getMessage("TLV_ILLEGAL_BODY", prefix + ":" + TRANSFORM));
                 }
 
@@ -190,7 +189,7 @@ public class JstlXmlTLV extends JstlBaseTLV {
             // now, modify state
 
             // we're a choose, so record new choose-specific state
-            if (isXmlTag(ns, ln, CHOOSE)) {
+            if (isXmlTag(nameSpace, localName, CHOOSE)) {
                 chooseDepths.push(Integer.valueOf(depth));
                 chooseHasWhen.push(Boolean.FALSE);
                 chooseHasOtherwise.push(Boolean.FALSE);
@@ -199,25 +198,25 @@ public class JstlXmlTLV extends JstlBaseTLV {
             // set up a check against illegal attribute/body combinations
             bodyIllegal = false;
             bodyNecessary = false;
-            if (isXmlTag(ns, ln, PARSE)) {
-                if (hasAttribute(a, SOURCE)) {
+            if (isXmlTag(nameSpace, localName, PARSE)) {
+                if (hasAttribute(attributes, SOURCE)) {
                     bodyIllegal = true;
                 }
-            } else if (isXmlTag(ns, ln, PARAM)) {
-                if (hasAttribute(a, VALUE)) {
+            } else if (isXmlTag(nameSpace, localName, PARAM)) {
+                if (hasAttribute(attributes, VALUE)) {
                     bodyIllegal = true;
                 } else {
                     bodyNecessary = true;
                 }
-            } else if (isXmlTag(ns, ln, TRANSFORM)) {
-                if (hasAttribute(a, SOURCE)) {
+            } else if (isXmlTag(nameSpace, localName, TRANSFORM)) {
+                if (hasAttribute(attributes, SOURCE)) {
                     transformWithSource.push(Integer.valueOf(depth));
                 }
             }
 
             // record the most recent tag (for error reporting)
-            lastElementName = qn;
-            lastElementId = a.getValue("http://java.sun.com/JSP/Page", "id");
+            lastElementName = qualifiedNamed;
+            lastElementId = attributes.getValue("http://java.sun.com/JSP/Page", "id");
 
             // we're a new element, so increase depth
             depth++;

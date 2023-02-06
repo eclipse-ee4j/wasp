@@ -68,8 +68,7 @@ public class Resources {
 
     /** Retrieves a message with arbitrarily many arguments. */
     public static String getMessage(String name, Object[] a) throws MissingResourceException {
-        String res = rb.getString(name);
-        return MessageFormat.format(res, a);
+        return MessageFormat.format(rb.getString(name), a);
     }
 
     /** Retrieves a message with one argument. */
@@ -98,8 +97,7 @@ public class Resources {
     }
 
     /** Retrieves a message with six arguments. */
-    public static String getMessage(String name, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6)
-            throws MissingResourceException {
+    public static String getMessage(String name, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6) throws MissingResourceException {
         return getMessage(name, new Object[] { a1, a2, a3, a4, a5, a6 });
     }
 

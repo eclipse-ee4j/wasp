@@ -22,14 +22,13 @@ import org.glassfish.wasp.taglibs.standard.tag.common.core.RedirectSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;redirect&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Shawn Bayern
  */
-
 public class RedirectTag extends RedirectSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

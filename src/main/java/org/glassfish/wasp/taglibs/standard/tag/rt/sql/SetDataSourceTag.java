@@ -20,12 +20,12 @@ package org.glassfish.wasp.taglibs.standard.tag.rt.sql;
 import org.glassfish.wasp.taglibs.standard.tag.common.sql.SetDataSourceTagSupport;
 
 /**
- * <p>
  * Tag handler for &lt;Driver&gt; in JSTL, used to create a simple DataSource for prototyping.
- * </p>
  *
  */
 public class SetDataSourceTag extends SetDataSourceTagSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

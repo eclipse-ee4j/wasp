@@ -17,13 +17,13 @@
 
 package org.glassfish.wasp.taglibs.standard.tei;
 
+import static org.glassfish.wasp.taglibs.standard.tei.Util.isSpecified;
+
 import jakarta.servlet.jsp.tagext.TagData;
 import jakarta.servlet.jsp.tagext.TagExtraInfo;
 
 /**
- * <p>
  * An implementation of TagExtraInfo that implements validation for ForEachTag's attributes
- * </p>
  *
  * @author Shawn Bayern
  */
@@ -40,11 +40,12 @@ public class ForEachTEI extends TagExtraInfo {
      */
     @Override
     public boolean isValid(TagData us) {
-        if (!Util.isSpecified(us, ITEMS)) {
-            if (!Util.isSpecified(us, BEGIN) || !(Util.isSpecified(us, END))) {
+        if (!isSpecified(us, ITEMS)) {
+            if (!isSpecified(us, BEGIN) || !(isSpecified(us, END))) {
                 return false;
             }
         }
+
         return true;
     }
 

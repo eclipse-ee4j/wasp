@@ -28,6 +28,8 @@ import org.glassfish.wasp.taglibs.standard.tag.common.sql.DateParamTagSupport;
  */
 public class DateParamTag extends DateParamTagSupport {
 
+    private static final long serialVersionUID = 1L;
+
     public void setValue(Date value) {
         this.value = value;
     }

@@ -25,14 +25,13 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;parseNumber&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
-
 public class ParseNumberTag extends ParseNumberSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods

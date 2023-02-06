@@ -22,24 +22,23 @@ import org.glassfish.wasp.taglibs.standard.tag.common.fmt.BundleSupport;
 import jakarta.servlet.jsp.JspTagException;
 
 /**
- * <p>
  * A handler for &lt;bundle&gt; that supports rtexprvalue-based attributes.
- * </p>
  *
  * @author Jan Luehe
  */
-
 public class BundleTag extends BundleSupport {
+
+    private static final long serialVersionUID = 1L;
 
     // *********************************************************************
     // Accessor methods
 
-    // for tag attribute
+    // For tag attribute
     public void setBasename(String basename) throws JspTagException {
         this.basename = basename;
     }
 
-    // for tag attribute
+    // For tag attribute
     public void setPrefix(String prefix) throws JspTagException {
         this.prefix = prefix;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2022 Contributors to the Eclipse Foundation
@@ -20,14 +20,20 @@
 package org.glassfish.wasp.compiler;
 
 import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -461,9 +467,9 @@ public class Compiler {
             targetFile = new File(pagesCompilationContext.getServletJavaFileName());
         }
 
-        // Get the target file's last modified time. File.lastModified()
-        // returns 0 if the file does not exist.
-        long targetLastModified = targetFile.lastModified();
+        // Get the target file's last modified time.
+        // getLastModifiedTime() returns 0 if the file does not exist.
+        long targetLastModified = getLastModifiedTime(targetFile);
 
         // Check cached class file
         if (checkClass) {
@@ -484,7 +490,7 @@ public class Compiler {
         }
 
         // Check if the Pages file exists in the filesystem (instead of a jar
-        // or a remote location). If yes, then do a File.lastModified()
+        // or a remote location). If yes, then do a getLastModifiedTime()
         // to determine its last modified time. This is more performant
         // (fewer stat calls) than the ctxt.getResource() followed by
         // openConnection(). However, it only works for file system jsps.
@@ -493,7 +499,7 @@ public class Compiler {
         if (pagesServletWrapper != null) {
             File jspFile = pagesServletWrapper.getJspFile();
             if (jspFile != null) {
-                jspRealLastModified = jspFile.lastModified();
+                jspRealLastModified = getLastModifiedTime(jspFile);
             }
         }
 
@@ -575,6 +581,50 @@ public class Compiler {
 
         return false;
 
+    }
+
+    /**
+     * Returns a file's last modified time.
+     *
+     * <p>The {@code 0L} time stamp may be returned when:
+     * <ul>
+     *     <li>Basic attribute view is not available for {@code file}.</li>
+     *     <li>Creation time stamp and last modified time stamp not implemented for {@code file}.</li>
+     *     <li>An I/O error occurred.</li>
+     * </ul>
+     *
+     * <p>If numeric overflow occurs, returns Long.MIN_VALUE if negative and Long.MAX_VALUE if positive.
+     *
+     * @param file file to read attributes from
+     * @return a time stamp representing the time the file was last modified
+     */
+    private long getLastModifiedTime(File file) {
+        BasicFileAttributeView attributeView = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class);
+        if (attributeView == null) {
+            log.log(SEVERE, "Basic attribute view is not available for " + file.getAbsolutePath());
+            return 0L;
+        }
+
+        BasicFileAttributes attributes;
+        try {
+            attributes = attributeView.readAttributes();
+        } catch (IOException e) {
+            log.log(SEVERE, "Failed to read attributes for file " + file.getAbsolutePath(), e);
+            return 0L;
+        }
+
+        FileTime creationTime = attributes.creationTime();
+        FileTime lastModifiedTime = attributes.lastModifiedTime();
+
+        if (creationTime == null) {
+            return lastModifiedTime != null ? lastModifiedTime.toMillis() : 0L;
+        }
+
+        if (lastModifiedTime == null) {
+            return creationTime.toMillis();
+        }
+
+        return creationTime.compareTo(lastModifiedTime) <= 0 ? lastModifiedTime.toMillis() : creationTime.toMillis();
     }
 
     /**

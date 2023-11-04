@@ -588,6 +588,7 @@ public class Compiler {
      *
      * <p>The {@code 0L} time stamp may be returned when:
      * <ul>
+     *     <li>File does not exists.</li>
      *     <li>Basic attribute view is not available for {@code file}.</li>
      *     <li>Creation time stamp and last modified time stamp not implemented for {@code file}.</li>
      *     <li>An I/O error occurred.</li>
@@ -599,6 +600,10 @@ public class Compiler {
      * @return a time stamp representing the time the file was last modified
      */
     private long getLastModifiedTime(File file) {
+        if (!file.exists()) {
+            return 0L;
+        }
+
         BasicFileAttributeView attributeView = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class);
         if (attributeView == null) {
             log.log(SEVERE, "Basic attribute view is not available for " + file.getAbsolutePath());

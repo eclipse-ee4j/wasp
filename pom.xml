@@ -31,7 +31,7 @@
 
     <groupId>org.glassfish.wasp</groupId>
     <artifactId>wasp</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.2.2-SNAPSHOT</version>
 
     <name>WaSP</name>
     <description>Eclipse compatible implementation of Jakarta Server Pages</description>

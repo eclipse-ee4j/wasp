@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -64,12 +64,10 @@ import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspFactory;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.el.ExpressionEvaluator;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
 import jakarta.servlet.jsp.el.ImportELResolver;
 import jakarta.servlet.jsp.el.NotFoundELResolver;
 import jakarta.servlet.jsp.el.ScopedAttributeELResolver;
-import jakarta.servlet.jsp.el.VariableResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
 
 /**
@@ -642,11 +640,6 @@ public class PageContextImpl extends PageContext {
         JspRuntimeLibrary.include(request, response, relativeUrlPath, out, flush);
     }
 
-    @Override
-    public VariableResolver getVariableResolver() {
-        return new VariableResolverImpl(this);
-    }
-
     private ELResolver getELResolver() {
 
         if (elResolver == null) {
@@ -786,15 +779,6 @@ public class PageContextImpl extends PageContext {
         setAttribute(OUT, out);
 
         return out;
-    }
-
-    /**
-     * Provides programmatic access to the ExpressionEvaluator. The JSP Container must return a valid instance of an
-     * ExpressionEvaluator that can parse EL expressions.
-     */
-    @Override
-    public ExpressionEvaluator getExpressionEvaluator() {
-        return new ExpressionEvaluatorImpl(this);
     }
 
     @Override

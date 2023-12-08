@@ -159,13 +159,13 @@
                 </executions>
             </plugin>
             
-            <!-- Restricts the Java version to 11 -->
+            <!-- Restricts the Java version to 17 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>11</release>
+                    <release>17</release>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                 </configuration>
             </plugin>
@@ -178,7 +178,7 @@
                 <configuration>
                     <instructions>
                         <_noimportjava>true</_noimportjava>
-                        <_runee>JavaSE-11</_runee>
+                        <_runee>JavaSE-17</_runee>
                         <Automatic-Module-Name>org.glassfish.wasp</Automatic-Module-Name>
                         <Extension-Name>org.glassfish.wasp.wasp</Extension-Name>
                         <Bundle-SymbolicName>org.glassfish.wasp.wasp</Bundle-SymbolicName>
@@ -321,16 +321,6 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <source>11</source>
-                            
-                            <additionalparam>-Xdoclint:none</additionalparam>
-							<additionalOptions>
-								<additionalOption>-Xdoclint:none</additionalOption>
-							</additionalOptions>
-							<additionalJOption>-Xdoclint:none</additionalJOption>
-							<additionalJOptions>
-                            	<additionalJOption>-Xdoclint:none</additionalJOption>
-                        	</additionalJOptions>
 							<doclint>none</doclint>
 							<failOnError>false</failOnError>
 							<detectOfflineLinks>false</detectOfflineLinks>

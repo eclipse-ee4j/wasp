@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -45,8 +45,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.jsp.JspContext;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.el.ExpressionEvaluator;
-import jakarta.servlet.jsp.el.VariableResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
 import jakarta.servlet.jsp.tagext.JspTag;
 
@@ -330,11 +328,6 @@ public class JspContextWrapper extends PageContext {
     }
 
     @Override
-    public VariableResolver getVariableResolver() {
-        return null;
-    }
-
-    @Override
     public BodyContent pushBody() {
         return invokingJspCtxt.pushBody();
     }
@@ -347,11 +340,6 @@ public class JspContextWrapper extends PageContext {
     @Override
     public JspWriter popBody() {
         return invokingJspCtxt.popBody();
-    }
-
-    @Override
-    public ExpressionEvaluator getExpressionEvaluator() {
-        return invokingJspCtxt.getExpressionEvaluator();
     }
 
     @Override

@@ -43,6 +43,266 @@ public class DocumentBuilderProvider {
         } catch (ParserConfigurationException e) {
             throw new Error("Parser does not support secure processing");
         }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF_SECURE.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF_SECURE.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF_SECURE.setFeature(FEATURE, false);
+
+            DBF_SECURE.setXIncludeAware(false);
+            DBF_SECURE.setExpandEntityReferences(false);
+
+            DBF_SECURE.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            DBF.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            DBF.setFeature(FEATURE, false);
+
+            DBF.setXIncludeAware(false);
+            DBF.setExpandEntityReferences(false);
+
+            DBF.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+            + FEATURE + "' is not supported by your XML processor.", e);
+        }
     }
 
     /**

@@ -122,6 +122,8 @@ public abstract class TransformSupport extends BodyTagSupport {
                 tf = TransformerFactory.newInstance();
                 try {
                     tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
                 } catch (TransformerConfigurationException e) {
                     throw new AssertionError("TransformerFactory does not support secure processing");
                 }

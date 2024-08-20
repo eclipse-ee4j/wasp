@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -18,6 +19,7 @@
 
 package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -115,7 +117,7 @@ public class BinaryOperatorExpression extends Expression {
      * Evaluates to the literal value
      **/
     @Override
-    public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+    public Object evaluate(Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         Object value = mExpression.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
         for (int i = 0; i < mOperators.size(); i++) {

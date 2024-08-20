@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -20,6 +21,7 @@ package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -86,7 +88,7 @@ public class ELEvaluator {
     /**
      * The mapping from ExpectedType to Maps mapping literal String to parsed value
      **/
-    static Map<Class, Map> sCachedExpectedTypes = new HashMap<>();
+    static Map<Class<?>, Map<String, Object>> sCachedExpectedTypes = new HashMap<>();
 
     /** The static Logger **/
     static Logger sLogger = new Logger(System.out);
@@ -134,7 +136,7 @@ public class ELEvaluator {
      * @param pExpectedType the type to which the evaluated expression should be coerced
      * @return the expression String evaluated to the given expected type
      **/
-    public Object evaluate(String pExpressionString, Object pContext, Class pExpectedType, Map functions, String defaultPrefix)
+    public Object evaluate(String pExpressionString, Object pContext, Class<?> pExpectedType, Map<String, Method> functions, String defaultPrefix)
             throws ELException {
         return evaluate(pExpressionString, pContext, pExpectedType, functions, defaultPrefix, sLogger);
     }
@@ -144,7 +146,7 @@ public class ELEvaluator {
      *
      * Evaluates the given expression string
      **/
-    Object evaluate(String pExpressionString, Object pContext, Class pExpectedType, Map functions, String defaultPrefix, Logger pLogger)
+    Object evaluate(String pExpressionString, Object pContext, Class<?> pExpectedType, Map<String, Method> functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         // Check for null expression strings
         if (pExpressionString == null) {
@@ -155,28 +157,25 @@ public class ELEvaluator {
         Object parsedValue = parseExpressionString(pExpressionString);
 
         // Evaluate differently based on the parsed type
-        if (parsedValue instanceof String) {
+        if (parsedValue instanceof String stringValue) {
             // Convert the String, and cache the conversion
-            String strValue = (String) parsedValue;
-            return convertStaticValueToExpectedType(strValue, pExpectedType, pLogger);
+            return convertStaticValueToExpectedType(stringValue, pExpectedType, pLogger);
         }
 
-        else if (parsedValue instanceof Expression) {
+        if (parsedValue instanceof Expression expression) {
             // Evaluate the expression and convert
-            Object value = ((Expression) parsedValue).evaluate(pContext, mResolver, functions, defaultPrefix, pLogger);
+            Object value = expression.evaluate(pContext, mResolver, functions, defaultPrefix, pLogger);
             return convertToExpectedType(value, pExpectedType, pLogger);
         }
 
-        else if (parsedValue instanceof ExpressionString) {
+        if (parsedValue instanceof ExpressionString expressionString) {
             // Evaluate the expression/string list and convert
-            String strValue = ((ExpressionString) parsedValue).evaluate(pContext, mResolver, functions, defaultPrefix, pLogger);
+            String strValue = expressionString.evaluate(pContext, mResolver, functions, defaultPrefix, pLogger);
             return convertToExpectedType(strValue, pExpectedType, pLogger);
         }
 
-        else {
-            // This should never be reached
-            return null;
-        }
+        // This should never be reached
+        return null;
     }
 
     // -------------------------------------
@@ -220,7 +219,7 @@ public class ELEvaluator {
      *
      * Converts the given value to the specified expected type.
      **/
-    Object convertToExpectedType(Object pValue, Class pExpectedType, Logger pLogger) throws ELException {
+    Object convertToExpectedType(Object pValue, Class<?> pExpectedType, Logger pLogger) throws ELException {
         return Coercions.coerce(pValue, pExpectedType, pLogger);
     }
 
@@ -230,22 +229,23 @@ public class ELEvaluator {
      * Converts the given String, specified as a static expression string, to the given expected type. The conversion is
      * cached.
      **/
-    Object convertStaticValueToExpectedType(String pValue, Class pExpectedType, Logger pLogger) throws ELException {
+    Object convertStaticValueToExpectedType(String pValue, Class<?> pExpectedType, Logger pLogger) throws ELException {
         // See if the value is already of the expected type
         if (pExpectedType == String.class || pExpectedType == Object.class) {
             return pValue;
         }
 
         // Find the cached value
-        Map valueByString = getOrCreateExpectedTypeMap(pExpectedType);
+        Map<String, Object> valueByString = getOrCreateExpectedTypeMap(pExpectedType);
         if (!mBypassCache && valueByString.containsKey(pValue)) {
             return valueByString.get(pValue);
-        } else {
-            // Convert from a String
-            Object ret = Coercions.coerce(pValue, pExpectedType, pLogger);
-            valueByString.put(pValue, ret);
-            return ret;
         }
+
+        // Convert from a String
+        Object ret = Coercions.coerce(pValue, pExpectedType, pLogger);
+        valueByString.put(pValue, ret);
+
+        return ret;
     }
 
     // -------------------------------------
@@ -253,9 +253,9 @@ public class ELEvaluator {
      *
      * Creates or returns the Map that maps string literals to parsed values for the specified expected type.
      **/
-    static Map getOrCreateExpectedTypeMap(Class pExpectedType) {
+    static Map<String, Object> getOrCreateExpectedTypeMap(Class<?> pExpectedType) {
         synchronized (sCachedExpectedTypes) {
-            Map ret = sCachedExpectedTypes.get(pExpectedType);
+            Map<String, Object> ret = sCachedExpectedTypes.get(pExpectedType);
             if (ret == null) {
                 ret = Collections.synchronizedMap(new HashMap<>());
                 sCachedExpectedTypes.put(pExpectedType, ret);

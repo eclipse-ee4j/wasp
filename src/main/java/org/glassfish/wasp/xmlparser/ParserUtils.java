@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,10 +18,6 @@
 
 package org.glassfish.wasp.xmlparser;
 
-import static java.util.logging.Level.FINE;
-import static org.glassfish.wasp.xmlparser.ParserUtils.CACHED_DTD_PUBLIC_IDS;
-import static org.glassfish.wasp.xmlparser.ParserUtils.CACHED_DTD_RESOURCE_PATHS;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +26,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.security.AccessController;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -46,8 +42,6 @@ import javax.xml.validation.SchemaFactory;
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.compiler.Localizer;
-import org.glassfish.wasp.security.PrivilegedGetTccl;
-import org.glassfish.wasp.security.PrivilegedSetTccl;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,6 +56,10 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import static java.util.logging.Level.FINE;
+import static org.glassfish.wasp.xmlparser.ParserUtils.CACHED_DTD_PUBLIC_IDS;
+import static org.glassfish.wasp.xmlparser.ParserUtils.CACHED_DTD_RESOURCE_PATHS;
 
 /**
  * XML parsing utilities for processing web application deployment descriptor and tag library descriptor files. FIXME -
@@ -101,26 +99,26 @@ public class ParserUtils {
      * List of the Public IDs that we cache, and their associated location. This is used by an EntityResolver to return the
      * location of the cached copy of a DTD.
      */
-    static final String[] CACHED_DTD_PUBLIC_IDS = { 
-            Constants.TAGLIB_DTD_PUBLIC_ID_11, 
-            Constants.TAGLIB_DTD_PUBLIC_ID_12, 
+    static final String[] CACHED_DTD_PUBLIC_IDS = {
+            Constants.TAGLIB_DTD_PUBLIC_ID_11,
+            Constants.TAGLIB_DTD_PUBLIC_ID_12,
             Constants.WEBAPP_DTD_PUBLIC_ID_22,
             Constants.WEBAPP_DTD_PUBLIC_ID_23, };
 
     // START PWC 6386258
     private static final String[] DEFAULT_DTD_RESOURCE_PATHS = {
-            Constants.TAGLIB_DTD_RESOURCE_PATH_11, 
+            Constants.TAGLIB_DTD_RESOURCE_PATH_11,
             Constants.TAGLIB_DTD_RESOURCE_PATH_12,
-            Constants.WEBAPP_DTD_RESOURCE_PATH_22, 
+            Constants.WEBAPP_DTD_RESOURCE_PATH_22,
             Constants.WEBAPP_DTD_RESOURCE_PATH_23, };
 
     static final String[] CACHED_DTD_RESOURCE_PATHS = DEFAULT_DTD_RESOURCE_PATHS;
-    
+
 
     private static final String[] DEFAULT_SCHEMA_RESOURCE_PATHS = { // not actually used it seems
-            Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20, 
+            Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20,
             Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
-            Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24, 
+            Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24,
             Constants.WEBAPP_SCHEMA_RESOURCE_PATH_25, };
 
     static final String[] CACHED_SCHEMA_RESOURCE_PATHS = DEFAULT_SCHEMA_RESOURCE_PATHS; // not actually used it seems
@@ -240,27 +238,14 @@ public class ParserUtils {
 
         // Perform an XML parse of this document, via JAXP
 
-        // START 6412405
-        ClassLoader currentLoader;
-        if (Constants.IS_SECURITY_ENABLED) {
-            PrivilegedGetTccl pa = new PrivilegedGetTccl();
-            currentLoader = AccessController.doPrivileged(pa);
-        } else {
-            currentLoader = Thread.currentThread().getContextClassLoader();
-        }
+        ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
+
         try {
-            if (Constants.IS_SECURITY_ENABLED) {
-                PrivilegedSetTccl pa = new PrivilegedSetTccl(getClass().getClassLoader());
-                AccessController.doPrivileged(pa);
-            } else {
-                Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-            }
-            // END 6412405
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
-            /*
-             * See CR 6399139 factory.setFeature( "http://apache.org/xml/features/validation/dynamic", true);
-             */
+
             DocumentBuilder builder = factory.newDocumentBuilder();
             builder.setEntityResolver(entityResolver);
             builder.setErrorHandler(errorHandler);
@@ -272,9 +257,6 @@ public class ParserUtils {
                     // Validate TLD against specified schema
                     schema.newValidator().validate(new DOMSource(document));
                 }
-                /*
-                 * See CR 6399139 else { log.warning(Localizer.getMessage( "jsp.warning.dtdValidationNotSupported")); }
-                 */
             }
         } catch (ParserConfigurationException ex) {
             throw new WaspException(Localizer.getMessage("jsp.error.parse.xml", uri), ex);
@@ -285,15 +267,9 @@ public class ParserUtils {
             throw new WaspException(Localizer.getMessage("jsp.error.parse.xml", uri), sx);
         } catch (IOException io) {
             throw new WaspException(Localizer.getMessage("jsp.error.parse.xml", uri), io);
-            // START 6412405
         } finally {
-            if (Constants.IS_SECURITY_ENABLED) {
-                AccessController.doPrivileged(new PrivilegedSetTccl(currentLoader));
-            } else {
-                Thread.currentThread().setContextClassLoader(currentLoader);
-            }
+            Thread.currentThread().setContextClassLoader(currentLoader);
         }
-        // END 6412405
 
         // Convert the resulting document to a graph of TreeNodes
         return convert(null, document.getDocumentElement());
@@ -488,7 +464,7 @@ class MyEntityResolver implements EntityResolver {
             String cachedDtdPublicId = CACHED_DTD_PUBLIC_IDS[i];
             if (cachedDtdPublicId.equals(publicId)) {
                 String resourcePath = CACHED_DTD_RESOURCE_PATHS[i];
-                
+
                 InputStream input = null;
                 if (ParserUtils.isDtdResourcePrefixFileUrl) {
                     try {
@@ -501,7 +477,7 @@ class MyEntityResolver implements EntityResolver {
                     }
                 } else {
                     input = getClass().getResourceAsStream(resourcePath);
-                    
+
                     if (input == null) {
                         // Try fallback DTD
                         int index = resourcePath.lastIndexOf('/');
@@ -510,13 +486,13 @@ class MyEntityResolver implements EntityResolver {
                             input = getClass().getResourceAsStream(fallBackResourcePath);
                         }
                     }
-                    
+
                 }
-                
+
                 if (input == null) {
                     throw new SAXException(Localizer.getMessage("jsp.error.internal.filenotfound", resourcePath));
                 }
-                
+
                 return new InputSource(input);
             }
         }
@@ -530,7 +506,7 @@ class MyEntityResolver implements EntityResolver {
         if (blockExternal) {
             throw new SAXException(Localizer.getMessage("jsp.error.parse.xml.invalidPublicId", publicId));
         }
-        
+
         return null;
     }
 }

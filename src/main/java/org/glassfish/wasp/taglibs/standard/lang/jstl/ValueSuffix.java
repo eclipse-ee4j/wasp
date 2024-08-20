@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,7 @@
 
 package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -43,7 +45,7 @@ public abstract class ValueSuffix {
      *
      * Evaluates the expression in the given context, operating on the given value.
      **/
-    public abstract Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix,
+    public abstract Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix,
             Logger pLogger) throws ELException;
 
     // -------------------------------------

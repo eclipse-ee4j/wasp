@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,7 +18,6 @@
 
 package org.glassfish.wasp.runtime;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -45,7 +45,7 @@ public class JspFactoryImpl extends JspFactory {
     // Logger
     private static Logger log = Logger.getLogger(JspFactoryImpl.class.getName());
 
-    private static final String SPEC_VERSION = "2.1";
+    private static final String SPEC_VERSION = "4.0";
 
     // Pooling PageContextImpl intances are known to leak memories, see
     // https://glassfish.dev.java.net/issues/show_bug.cgi?id=8601
@@ -65,25 +65,16 @@ public class JspFactoryImpl extends JspFactory {
     public PageContext getPageContext(Servlet servlet, ServletRequest request, ServletResponse response, String errorPageURL, boolean needsSession,
             int bufferSize, boolean autoflush) {
 
-        if (Constants.IS_SECURITY_ENABLED) {
-            PrivilegedGetPageContext dp = new PrivilegedGetPageContext(this, servlet, request, response, errorPageURL, needsSession, bufferSize, autoflush);
-            return AccessController.doPrivileged(dp);
-        } else {
-            return internalGetPageContext(servlet, request, response, errorPageURL, needsSession, bufferSize, autoflush);
-        }
+        return internalGetPageContext(servlet, request, response, errorPageURL, needsSession, bufferSize, autoflush);
     }
 
     @Override
-    public void releasePageContext(PageContext pc) {
-        if (pc == null) {
+    public void releasePageContext(PageContext pageContext) {
+        if (pageContext == null) {
             return;
         }
-        if (Constants.IS_SECURITY_ENABLED) {
-            PrivilegedReleasePageContext dp = new PrivilegedReleasePageContext(this, pc);
-            AccessController.doPrivileged(dp);
-        } else {
-            internalReleasePageContext(pc);
-        }
+
+        internalReleasePageContext(pageContext);
     }
 
     @Override

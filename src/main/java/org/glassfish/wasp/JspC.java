@@ -1,8 +1,7 @@
 /*
- * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2024 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +17,9 @@
  */
 
 package org.glassfish.wasp;
+
+// START GlassFish 750
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
@@ -58,9 +60,6 @@ import org.glassfish.wasp.compiler.TagPluginManager;
 import org.glassfish.wasp.runtime.TldScanner;
 import org.glassfish.wasp.servlet.JspCServletContext;
 import org.glassfish.wasp.xmlparser.ParserUtils;
-
-// START GlassFish 750
-import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 
 /**
@@ -216,8 +215,6 @@ public class JspC implements Options {
     private boolean isValidationEnabled;
 
     private HashMap<String, WaspException> jspErrors = new HashMap<>();
-
-    private static String myJavaVersion = System.getProperty("java.specification.version");
 
     private boolean ignoreJspFragmentErrors = false;
     private Set<String> dependents = new HashSet<>();
@@ -550,7 +547,7 @@ public class JspC implements Options {
         return scratchDir;
     }
 
-    public Class getJspCompilerPlugin() {
+    public Class<?> getJspCompilerPlugin() {
         // we don't compile, so this is meaningless
         return null;
     }
@@ -1388,7 +1385,7 @@ public class JspC implements Options {
             String path = tokenizer.nextToken();
             try {
                 File libFile = new File(path);
-                urls.add(libFile.toURL());
+                urls.add(libFile.toURI().toURL());
             } catch (IOException ioe) {
                 // Failing a toCanonicalPath on a file that
                 // exists() should be a JVM regression test,
@@ -1403,7 +1400,7 @@ public class JspC implements Options {
             try {
                 if (classes.exists()) {
                     classPath = classPath + File.pathSeparator + classes.getCanonicalPath();
-                    urls.add(classes.getCanonicalFile().toURL());
+                    urls.add(classes.getCanonicalFile().toURI().toURL());
                 }
             } catch (IOException ioe) {
                 // failing a toCanonicalPath on a file that
@@ -1428,7 +1425,7 @@ public class JspC implements Options {
                     try {
                         File libFile = new File(lib, libs[i]);
                         classPath = classPath + File.pathSeparator + libFile.getCanonicalPath();
-                        urls.add(libFile.getCanonicalFile().toURL());
+                        urls.add(libFile.getCanonicalFile().toURI().toURL());
                     } catch (IOException ioe) {
                         // failing a toCanonicalPath on a file that
                         // exists() should be a JVM regression test,
@@ -1440,7 +1437,7 @@ public class JspC implements Options {
         }
 
         // What is this ??
-        urls.add(new File(clctxt.getRealPath("/")).getCanonicalFile().toURL());
+        urls.add(new File(clctxt.getRealPath("/")).getCanonicalFile().toURI().toURL());
 
         URL urlsA[] = new URL[urls.size()];
         urls.toArray(urlsA);
@@ -1519,7 +1516,7 @@ public class JspC implements Options {
         ArrayList<URL> urls = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(sysClassPath, File.pathSeparator);
         while (tokenizer.hasMoreTokens()) {
-            urls.add(new File(tokenizer.nextToken()).toURL());
+            urls.add(new File(tokenizer.nextToken()).toURI().toURL());
         }
 
         if (urls.size() == 0) {

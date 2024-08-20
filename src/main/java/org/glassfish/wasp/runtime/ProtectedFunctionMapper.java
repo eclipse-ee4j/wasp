@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,16 +18,10 @@
 
 package org.glassfish.wasp.runtime;
 
-import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.HashMap;
-
-import org.glassfish.wasp.security.SecurityUtil;
-
 import jakarta.el.FunctionMapper;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 /**
  * Maps EL functions to their Java method counterparts. Keeps the actual Method objects protected so that JSP pages
@@ -61,12 +56,8 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
      * @return A new protected function mapper.
      */
     public static ProtectedFunctionMapper getInstance() {
-        ProtectedFunctionMapper funcMapper;
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) ProtectedFunctionMapper::new);
-        } else {
-            funcMapper = new ProtectedFunctionMapper();
-        }
+        ProtectedFunctionMapper funcMapper = new ProtectedFunctionMapper();
+
         funcMapper.fnmap = new java.util.HashMap<>();
         return funcMapper;
     }
@@ -82,18 +73,11 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
      */
     public void mapFunction(String fnQName, final Class<?> c, final String methodName, final Class<?>[] args) {
         java.lang.reflect.Method method;
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            try {
-                method = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> c.getDeclaredMethod(methodName, args));
-            } catch (PrivilegedActionException ex) {
-                throw new RuntimeException("Invalid function mapping - no such method: " + ex.getException().getMessage());
-            }
-        } else {
-            try {
-                method = c.getDeclaredMethod(methodName, args);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Invalid function mapping - no such method: " + e.getMessage());
-            }
+
+        try {
+            method = c.getDeclaredMethod(methodName, args);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Invalid function mapping - no such method: " + e.getMessage());
         }
 
         this.fnmap.put(fnQName, method);
@@ -110,24 +94,15 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
      * @throws RuntimeException if no method with the given signature could be found.
      */
     public static ProtectedFunctionMapper getMapForFunction(String fnQName, final Class<?> c, final String methodName, final Class<?>[] args) {
-        java.lang.reflect.Method method;
-        ProtectedFunctionMapper funcMapper;
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            funcMapper = AccessController.doPrivileged((PrivilegedAction<ProtectedFunctionMapper>) ProtectedFunctionMapper::new);
+        Method method;
+        ProtectedFunctionMapper funcMapper = new ProtectedFunctionMapper();
 
-            try {
-                method = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> c.getDeclaredMethod(methodName, args));
-            } catch (PrivilegedActionException ex) {
-                throw new RuntimeException("Invalid function mapping - no such method: " + ex.getException().getMessage());
-            }
-        } else {
-            funcMapper = new ProtectedFunctionMapper();
-            try {
-                method = c.getDeclaredMethod(methodName, args);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Invalid function mapping - no such method: " + e.getMessage());
-            }
+        try {
+            method = c.getDeclaredMethod(methodName, args);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Invalid function mapping - no such method: " + e.getMessage());
         }
+
         funcMapper.theMethod = method;
         return funcMapper;
     }

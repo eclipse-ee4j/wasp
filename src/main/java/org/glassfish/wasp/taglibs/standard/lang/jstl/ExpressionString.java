@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -18,6 +19,7 @@
 
 package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -61,14 +63,14 @@ public class ExpressionString {
      * Evaluates the expression string by evaluating each element, converting it to a String (using toString, or "" for null
      * values) and concatenating the results into a single String.
      **/
-    public String evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+    public String evaluate(Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix, Logger pLogger)
             throws ELException {
         StringBuilder buf = new StringBuilder();
         for (Object elem : mElements) {
             if (elem instanceof String) {
                 buf.append((String) elem);
-            } else if (elem instanceof Expression) {
-                Object val = ((Expression) elem).evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
+            } else if (elem instanceof Expression expression) {
+                Object val = expression.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
                 if (val != null) {
                     buf.append(val.toString());
                 }

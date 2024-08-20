@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -61,6 +61,7 @@ public abstract class ParseSupport extends BodyTagSupport {
     // *********************************************************************
     // Protected state
 
+    private static final long serialVersionUID = -7207472308673504103L;
     protected Object xml; // 'xml' attribute
     protected String systemId; // 'systemId' attribute
     protected XMLFilter filter; // 'filter' attribute

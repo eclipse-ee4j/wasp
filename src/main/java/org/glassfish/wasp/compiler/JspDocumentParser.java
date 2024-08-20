@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,26 +18,24 @@
 
 package org.glassfish.wasp.compiler;
 
+import jakarta.servlet.jsp.tagext.TagFileInfo;
+import jakarta.servlet.jsp.tagext.TagInfo;
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
+
 import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessController;
-// START GlassFish 750
 import java.util.Iterator;
 import java.util.List;
-// START GlassFish 750
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarFile;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.glassfish.wasp.Constants;
-import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.JspCompilationContext;
-import org.glassfish.wasp.security.PrivilegedGetTccl;
-import org.glassfish.wasp.security.PrivilegedSetTccl;
+import org.glassfish.wasp.WaspException;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -46,10 +45,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
-
-import jakarta.servlet.jsp.tagext.TagFileInfo;
-import jakarta.servlet.jsp.tagext.TagInfo;
-import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 /**
  * Class implementing a parser for a JSP document, that is, a JSP page in XML syntax.
@@ -996,20 +991,10 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
      */
     private static SAXParser getSAXParser(boolean validating, JspDocumentParser jspDocParser) throws Exception {
 
-        ClassLoader original;
-        if (Constants.IS_SECURITY_ENABLED) {
-            PrivilegedGetTccl pa = new PrivilegedGetTccl();
-            original = AccessController.doPrivileged(pa);
-        } else {
-            original = Thread.currentThread().getContextClassLoader();
-        }
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
+
         try {
-            if (Constants.IS_SECURITY_ENABLED) {
-                PrivilegedSetTccl pa = new PrivilegedSetTccl(JspDocumentParser.class.getClassLoader());
-                AccessController.doPrivileged(pa);
-            } else {
-                Thread.currentThread().setContextClassLoader(JspDocumentParser.class.getClassLoader());
-            }
+            Thread.currentThread().setContextClassLoader(JspDocumentParser.class.getClassLoader());
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -1026,12 +1011,7 @@ class JspDocumentParser extends DefaultHandler implements LexicalHandler, TagCon
 
             return saxParser;
         } finally {
-            if (Constants.IS_SECURITY_ENABLED) {
-                PrivilegedSetTccl pa = new PrivilegedSetTccl(original);
-                AccessController.doPrivileged(pa);
-            } else {
-                Thread.currentThread().setContextClassLoader(original);
-            }
+            Thread.currentThread().setContextClassLoader(original);
         }
     }
 

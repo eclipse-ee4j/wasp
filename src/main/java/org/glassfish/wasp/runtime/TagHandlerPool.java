@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,13 +18,13 @@
 
 package org.glassfish.wasp.runtime;
 
-import org.glassfish.jsp.api.ResourceInjector;
-import org.glassfish.wasp.Constants;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.JspTag;
 import jakarta.servlet.jsp.tagext.Tag;
+
+import org.glassfish.jsp.api.ResourceInjector;
+import org.glassfish.wasp.Constants;
 
 /**
  * Pool of tag handlers that can be reused.
@@ -47,8 +48,10 @@ public class TagHandlerPool {
         String tpClassName = getOption(config, OPTION_TAGPOOL, null);
         if (tpClassName != null) {
             try {
-                Class<? extends TagHandlerPool> c = Class.forName(tpClassName).asSubclass(TagHandlerPool.class);
-                result = c.newInstance();
+                result = Class.forName(tpClassName)
+                              .asSubclass(TagHandlerPool.class)
+                              .getDeclaredConstructor()
+                              .newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
                 result = null;
@@ -124,7 +127,7 @@ public class TagHandlerPool {
             if (resourceInjector != null) {
                 tagHandler = resourceInjector.createTagHandlerInstance(handlerClass);
             } else {
-                tagHandler = handlerClass.newInstance();
+                tagHandler = handlerClass.getDeclaredConstructor().newInstance();
             }
         } catch (Exception e) {
             throw new JspException(e.getMessage(), e);

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,7 @@
 
 package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Map;
 
@@ -74,8 +76,8 @@ public class Evaluator implements ExpressionEvaluator {
      *
      * Evaluates the expression at request time
      **/
-    public Object evaluate(String pAttributeName, String pAttributeValue, Class pExpectedType, Tag pTag, PageContext pPageContext,
-            Map functions, String defaultPrefix) throws JspException {
+    public Object evaluate(String pAttributeName, String pAttributeValue, Class<?> pExpectedType, Tag pTag, PageContext pPageContext,
+            Map<String, Method> functions, String defaultPrefix) throws JspException {
         try {
             return sEvaluator.evaluate(pAttributeValue, pPageContext, pExpectedType, functions, defaultPrefix);
         } catch (ELException exc) {
@@ -88,7 +90,7 @@ public class Evaluator implements ExpressionEvaluator {
 
     /** Conduit to old-style call for convenience. */
     @Override
-    public Object evaluate(String pAttributeName, String pAttributeValue, Class pExpectedType, Tag pTag, PageContext pPageContext)
+    public Object evaluate(String pAttributeName, String pAttributeValue, Class<?> pExpectedType, Tag pTag, PageContext pPageContext)
             throws JspException {
         return evaluate(pAttributeName, pAttributeValue, pExpectedType, pTag, pPageContext, null, null);
     }

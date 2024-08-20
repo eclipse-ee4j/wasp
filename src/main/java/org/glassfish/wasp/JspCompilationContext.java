@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,9 @@
 
 package org.glassfish.wasp;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.jsp.tagext.TagInfo;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -32,11 +36,8 @@ import org.glassfish.wasp.compiler.JspUtil;
 import org.glassfish.wasp.compiler.Localizer;
 import org.glassfish.wasp.compiler.ServletWriter;
 import org.glassfish.wasp.compiler.TagLibraryInfoImpl;
-import org.glassfish.wasp.servlet.WaspLoader;
 import org.glassfish.wasp.servlet.JspServletWrapper;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.jsp.tagext.TagInfo;
+import org.glassfish.wasp.servlet.WaspLoader;
 
 /**
  * A place holder for various things that are used through out the JSP engine. This is a per-request/per-context data
@@ -602,7 +603,7 @@ public class JspCompilationContext {
     }
 
     public ClassLoader getJspLoader() {
-        return new WaspLoader(new URL[] { baseUrl }, getClassLoader(), rctxt.getPermissionCollection(), rctxt.getCodeSource(), rctxt.getBytecodes());
+        return new WaspLoader(new URL[] { baseUrl }, getClassLoader(), rctxt.getBytecodes());
     }
 
     public void makeOutputDir(String outdir) {
@@ -631,7 +632,7 @@ public class JspCompilationContext {
             // Append servlet or tag handler path to scratch dir
             File f = new File(options.getScratchDir(), path);
             makeOutputDir(f.getPath() + File.separator);
-            baseUrl = options.getScratchDir().toURL();
+            baseUrl = options.getScratchDir().toURI().toURL();
         } catch (Exception e) {
             throw new IllegalStateException("No output directory: " + e.getMessage());
         }

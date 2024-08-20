@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,15 +18,6 @@
 
 package org.glassfish.wasp.taglibs.standard.tag.common.core;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import org.glassfish.wasp.taglibs.standard.resources.Resources;
-
 import jakarta.el.ExpressionFactory;
 import jakarta.el.ValueExpression;
 import jakarta.el.VariableMapper;
@@ -35,6 +27,15 @@ import jakarta.servlet.jsp.JspFactory;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
+
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
+
+import org.glassfish.wasp.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -48,6 +49,7 @@ public class SetSupport extends BodyTagSupport {
     // *********************************************************************
     // Internal state
 
+    private static final long serialVersionUID = -4884188197847179830L;
     protected Object value; // tag attribute
     protected boolean valueSpecified; // status
     protected Object target; // tag attribute
@@ -85,6 +87,7 @@ public class SetSupport extends BodyTagSupport {
     // *********************************************************************
     // Tag logic
 
+    @SuppressWarnings("unchecked")
     @Override
     public int doEndTag() throws JspException {
 
@@ -151,12 +154,12 @@ public class SetSupport extends BodyTagSupport {
         } else if (target != null) {
 
             // save the result to target.property
-            if (target instanceof Map) {
+            if (target instanceof Map mapEntry) {
                 // ... treating it as a Map entry
                 if (result == null) {
-                    ((Map) target).remove(property);
+                    mapEntry.remove(property);
                 } else {
-                    ((Map) target).put(property, result);
+                    mapEntry.put(property, result);
                 }
             } else {
                 // ... treating it as a bean property
@@ -203,7 +206,7 @@ public class SetSupport extends BodyTagSupport {
     /**
      * Convert an object to an expected type according to the conversion rules of the Expression Language.
      */
-    private Object convertToExpectedType(final Object value, Class expectedType) {
+    private Object convertToExpectedType(final Object value, Class<?> expectedType) {
 
         JspFactory jspFactory = JspFactory.getDefaultFactory();
         JspApplicationContext jspAppContext = jspFactory.getJspApplicationContext(pageContext.getServletContext());

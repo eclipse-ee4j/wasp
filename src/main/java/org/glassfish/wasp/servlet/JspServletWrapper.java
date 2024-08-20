@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to Eclipse Foundation.
+ * Copyright (c) 2021, 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -18,9 +18,14 @@
 
 package org.glassfish.wasp.servlet;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static java.util.logging.Level.SEVERE;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.UnavailableException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.jsp.tagext.TagInfo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,14 +42,9 @@ import org.glassfish.wasp.compiler.JspRuntimeContext;
 import org.glassfish.wasp.compiler.Localizer;
 import org.glassfish.wasp.runtime.JspSourceDependent;
 
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.UnavailableException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.jsp.tagext.TagInfo;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static java.util.logging.Level.SEVERE;
 
 /**
  * The JSP engine (a.k.a WaSP).
@@ -132,11 +132,9 @@ public class JspServletWrapper {
 
                     try {
                         servletClass = ctxt.load();
-                        theServlet = (Servlet) servletClass.newInstance();
-                    } catch (IllegalAccessException ex1) {
+                        theServlet = (Servlet) servletClass.getDeclaredConstructor().newInstance();
+                    } catch (ReflectiveOperationException ex1) {
                         throw new WaspException(ex1);
-                    } catch (InstantiationException ex) {
-                        throw new WaspException(ex);
                     }
 
                     theServlet.init(config);
@@ -240,7 +238,7 @@ public class JspServletWrapper {
                 if (reload) {
                     tagHandlerClass = ctxt.load();
                 }
-                target = tagHandlerClass.newInstance();
+                target = tagHandlerClass.getDeclaredConstructor().newInstance();
             } else {
                 target = getServlet();
             }
@@ -323,15 +321,15 @@ public class JspServletWrapper {
                 // Throw an exception as a response.sendError() will be ignored by the servlet engine.
                 throw ex;
             }
-            
+
             int unavailableSeconds = ex.getUnavailableSeconds();
             if (unavailableSeconds <= 0) {
                 unavailableSeconds = 60; // Arbitrary default
             }
-            
+
             available = System.currentTimeMillis() + unavailableSeconds * 1000L;
             response.sendError(SC_SERVICE_UNAVAILABLE, ex.getMessage());
-            
+
         } catch (ServletException | IOException | IllegalStateException  ex) {
             throw ex;
         } catch (Exception ex) {

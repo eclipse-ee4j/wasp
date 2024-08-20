@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -42,7 +43,7 @@ public class FloatingPointLiteral extends Literal {
      * Parses the given token into the literal value
      **/
     static Object getValueFromToken(String pToken) {
-        return new Double(pToken);
+        return Double.parseDouble(pToken);
     }
 
     // -------------------------------------

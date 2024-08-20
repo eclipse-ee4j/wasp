@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -240,7 +241,7 @@ public class Coercions {
      *
      * Coerces the given value to the specified class.
      **/
-    public static Object coerce(Object pValue, Class pClass, Logger pLogger) throws ELException {
+    public static Object coerce(Object pValue, Class<?> pClass, Logger pLogger) throws ELException {
         if (pClass == String.class) {
             return coerceToString(pValue, pLogger);
         } else if (isPrimitiveNumberClass(pClass)) {
@@ -259,7 +260,7 @@ public class Coercions {
      *
      * Returns true if the given class is Byte, Short, Integer, Long, Float, Double
      **/
-    static boolean isPrimitiveNumberClass(Class pClass) {
+    static boolean isPrimitiveNumberClass(Class<?> pClass) {
         return pClass == Byte.class || pClass == Byte.TYPE || pClass == Short.class || pClass == Short.TYPE || pClass == Integer.class
                 || pClass == Integer.TYPE || pClass == Long.class || pClass == Long.TYPE || pClass == Float.class || pClass == Float.TYPE
                 || pClass == Double.class || pClass == Double.TYPE;
@@ -292,7 +293,7 @@ public class Coercions {
      *
      * Coerces a value to the given primitive number class
      **/
-    public static Number coerceToPrimitiveNumber(Object pValue, Class pClass, Logger pLogger) throws ELException {
+    public static Number coerceToPrimitiveNumber(Object pValue, Class<?> pClass, Logger pLogger) throws ELException {
         if (pValue == null || "".equals(pValue)) {
             return coerceToPrimitiveNumber(0, pClass);
         } else if (pValue instanceof Character) {
@@ -365,7 +366,7 @@ public class Coercions {
      *
      * Coerces a long to the given primitive number class
      **/
-    static Number coerceToPrimitiveNumber(long pValue, Class pClass) throws ELException {
+    static Number coerceToPrimitiveNumber(long pValue, Class<?> pClass) throws ELException {
         if (pClass == Byte.class || pClass == Byte.TYPE) {
             return PrimitiveObjects.getByte((byte) pValue);
         } else if (pClass == Short.class || pClass == Short.TYPE) {
@@ -388,7 +389,7 @@ public class Coercions {
      *
      * Coerces a double to the given primitive number class
      **/
-    static Number coerceToPrimitiveNumber(double pValue, Class pClass) throws ELException {
+    static Number coerceToPrimitiveNumber(double pValue, Class<?> pClass) throws ELException {
         if (pClass == Byte.class || pClass == Byte.TYPE) {
             return PrimitiveObjects.getByte((byte) pValue);
         } else if (pClass == Short.class || pClass == Short.TYPE) {
@@ -411,7 +412,7 @@ public class Coercions {
      *
      * Coerces a Number to the given primitive number class
      **/
-    static Number coerceToPrimitiveNumber(Number pValue, Class pClass) throws ELException {
+    static Number coerceToPrimitiveNumber(Number pValue, Class<?> pClass) throws ELException {
         if (pClass == Byte.class || pClass == Byte.TYPE) {
             return PrimitiveObjects.getByte(pValue.byteValue());
         } else if (pClass == Short.class || pClass == Short.TYPE) {
@@ -434,7 +435,7 @@ public class Coercions {
      *
      * Coerces a String to the given primitive number class
      **/
-    static Number coerceToPrimitiveNumber(String pValue, Class pClass) throws ELException {
+    static Number coerceToPrimitiveNumber(String pValue, Class<?> pClass) throws ELException {
         if (pClass == Byte.class || pClass == Byte.TYPE) {
             return Byte.valueOf(pValue);
         } else if (pClass == Short.class || pClass == Short.TYPE) {
@@ -607,9 +608,10 @@ public class Coercions {
             return PrimitiveObjects.getBoolean(pOperator.apply(left, right, pLogger));
         }
 
-        else if (pLeft instanceof Comparable) {
+        else if (pLeft instanceof Comparable comparable) {
             try {
-                int result = ((Comparable) pLeft).compareTo(pRight);
+                @SuppressWarnings("unchecked")
+                int result = comparable.compareTo(pRight);
                 return PrimitiveObjects.getBoolean(pOperator.apply(result, -result, pLogger));
             } catch (Exception exc) {
                 if (pLogger.isLoggingError()) {
@@ -620,9 +622,10 @@ public class Coercions {
             }
         }
 
-        else if (pRight instanceof Comparable) {
+        else if (pRight instanceof Comparable comparable) {
             try {
-                int result = ((Comparable) pRight).compareTo(pLeft);
+                @SuppressWarnings("unchecked")
+                int result = comparable.compareTo(pLeft);
                 return PrimitiveObjects.getBoolean(pOperator.apply(-result, result, pLogger));
             } catch (Exception exc) {
                 if (pLogger.isLoggingError()) {
@@ -707,7 +710,7 @@ public class Coercions {
      *
      * Returns true if the given class is of a floating point type
      **/
-    public static boolean isFloatingPointType(Class pClass) {
+    public static boolean isFloatingPointType(Class<?> pClass) {
         return pClass == Float.class || pClass == Float.TYPE || pClass == Double.class || pClass == Double.TYPE;
     }
 
@@ -746,7 +749,7 @@ public class Coercions {
      *
      * Returns true if the given class is of an integer type
      **/
-    public static boolean isIntegerType(Class pClass) {
+    public static boolean isIntegerType(Class<?> pClass) {
         return pClass == Byte.class || pClass == Byte.TYPE || pClass == Short.class || pClass == Short.TYPE || pClass == Character.class
                 || pClass == Character.TYPE || pClass == Integer.class || pClass == Integer.TYPE || pClass == Long.class
                 || pClass == Long.TYPE;

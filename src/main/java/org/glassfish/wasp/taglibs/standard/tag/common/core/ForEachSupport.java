@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,10 @@
 
 package org.glassfish.wasp.taglibs.standard.tag.common.core;
 
+import jakarta.el.ValueExpression;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.jstl.core.LoopTagSupport;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,10 +31,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.glassfish.wasp.taglibs.standard.resources.Resources;
-
-import jakarta.el.ValueExpression;
-import jakarta.servlet.jsp.JspTagException;
-import jakarta.servlet.jsp.jstl.core.LoopTagSupport;
 
 /**
  * <p>
@@ -67,6 +68,8 @@ public abstract class ForEachSupport extends LoopTagSupport {
     // *********************************************************************
     // Internal, supporting classes and interfaces
 
+    private static final long serialVersionUID = -2094020134956069089L;
+
     /*
      * Acts as a focal point for converting the various types we support. It would have been ideal to use Iterator here
      * except for one problem: Iterator.hasNext() and Iterator.next() can't throw the JspTagException we want to throw. So
@@ -88,9 +91,9 @@ public abstract class ForEachSupport extends LoopTagSupport {
      * and next() don't need to throw JspTagException. Such cases are common.core.
      */
     protected class SimpleForEachIterator implements ForEachIterator {
-        private Iterator i;
+        private Iterator<?> i;
 
-        public SimpleForEachIterator(Iterator i) {
+        public SimpleForEachIterator(Iterator<?> i) {
             this.i = i;
         }
 
@@ -132,12 +135,12 @@ public abstract class ForEachSupport extends LoopTagSupport {
         if (rawItems != null) {
             // If this is a deferred expression, make a note and get
             // the 'items' instance.
-            if (rawItems instanceof ValueExpression) {
-                deferredExpression = (ValueExpression) rawItems;
+            if (rawItems instanceof ValueExpression valueExpression) {
+                deferredExpression = valueExpression;
                 rawItems = deferredExpression.getValue(pageContext.getELContext());
                 if (rawItems == null) {
                     // Simulate an empty list
-                    rawItems = new ArrayList();
+                    rawItems = new ArrayList<>();
                 }
             }
             // extract an iterator over the 'items' we've got
@@ -201,16 +204,16 @@ public abstract class ForEachSupport extends LoopTagSupport {
             items = toForEachIterator((float[]) o);
         } else if (o instanceof double[]) {
             items = toForEachIterator((double[]) o);
-        } else if (o instanceof Collection) {
-            items = toForEachIterator((Collection) o);
-        } else if (o instanceof Iterator) {
-            items = toForEachIterator((Iterator) o);
-        } else if (o instanceof Enumeration) {
-            items = toForEachIterator((Enumeration) o);
-        } else if (o instanceof Map) {
-            items = toForEachIterator((Map) o);
-        } else if (o instanceof String) {
-            items = toForEachIterator((String) o);
+        } else if (o instanceof Collection collection) {
+            items = toForEachIterator(collection);
+        } else if (o instanceof Iterator iterator) {
+            items = toForEachIterator(iterator);
+        } else if (o instanceof Enumeration enumeration) {
+            items = toForEachIterator(enumeration);
+        } else if (o instanceof Map map) {
+            items = toForEachIterator(map);
+        } else if (o instanceof String string) {
+            items = toForEachIterator(string);
         } else {
             items = toForEachIterator(o);
         }
@@ -309,7 +312,7 @@ public abstract class ForEachSupport extends LoopTagSupport {
     protected ForEachIterator toForEachIterator(float[] a) {
         Float[] wrapped = new Float[a.length];
         for (int i = 0; i < a.length; i++) {
-            wrapped[i] = new Float(a[i]);
+            wrapped[i] = Float.valueOf(a[i]);
         }
         return new SimpleForEachIterator(Arrays.asList(wrapped).iterator());
     }
@@ -318,7 +321,7 @@ public abstract class ForEachSupport extends LoopTagSupport {
     protected ForEachIterator toForEachIterator(double[] a) {
         Double[] wrapped = new Double[a.length];
         for (int i = 0; i < a.length; i++) {
-            wrapped[i] = new Double(a[i]);
+            wrapped[i] = Double.valueOf(a[i]);
         }
         return new SimpleForEachIterator(Arrays.asList(wrapped).iterator());
     }

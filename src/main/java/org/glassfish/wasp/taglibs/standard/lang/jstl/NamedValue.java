@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,7 @@
 
 package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -72,13 +74,12 @@ public class NamedValue extends Expression {
      * Evaluates by looking up the name in the VariableResolver
      **/
     @Override
-    public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
-            throws ELException {
+    public Object evaluate(Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix, Logger pLogger) throws ELException {
         if (pResolver == null) {
             return null;
-        } else {
-            return pResolver.resolveVariable(mName, pContext);
         }
+
+        return pResolver.resolveVariable(mName, pContext);
     }
 
     // -------------------------------------

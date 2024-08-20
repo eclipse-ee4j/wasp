@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -19,6 +20,7 @@ package org.glassfish.wasp.taglibs.standard.lang.jstl;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -106,7 +108,7 @@ public class ArraySuffix extends ValueSuffix {
      *
      * Gets the value of the index
      **/
-    Object evaluateIndex(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger) throws ELException {
+    Object evaluateIndex(Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix, Logger pLogger) throws ELException {
         return mIndex.evaluate(pContext, pResolver, functions, defaultPrefix, pLogger);
     }
 
@@ -137,11 +139,10 @@ public class ArraySuffix extends ValueSuffix {
      * Evaluates the expression in the given context, operating on the given value.
      **/
     @Override
-    public Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger) throws ELException {
+    public Object evaluate(Object pValue, Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix, Logger pLogger) throws ELException {
         Object indexVal;
         String indexStr;
         BeanInfoProperty property;
-        BeanInfoIndexedProperty ixproperty;
 
         // Check for null value
         if (pValue == null) {

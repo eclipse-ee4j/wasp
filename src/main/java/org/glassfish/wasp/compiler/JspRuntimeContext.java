@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,22 +18,15 @@
 
 package org.glassfish.wasp.compiler;
 
-import static java.util.logging.Level.SEVERE;
-import static org.glassfish.wasp.Constants.IS_SECURITY_ENABLED;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.jsp.JspFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLDecoder;
-import java.security.CodeSource;
-import java.security.PermissionCollection;
-import java.security.Policy;
-import java.security.cert.Certificate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,12 +39,10 @@ import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.JspCompilationContext;
 import org.glassfish.wasp.Options;
 import org.glassfish.wasp.runtime.JspFactoryImpl;
-import org.glassfish.wasp.security.SecurityClassLoad;
 import org.glassfish.wasp.servlet.JspCServletContext;
 import org.glassfish.wasp.servlet.JspServletWrapper;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.jsp.JspFactory;
+import static java.util.logging.Level.SEVERE;
 
 /**
  * Class for tracking JSP compile time file dependencies when the <code>&lt;@include file="..."&gt;</code> directive is used.
@@ -74,26 +66,8 @@ public final class JspRuntimeContext implements Runnable {
      */
     private AtomicInteger jspReloadCount = new AtomicInteger(0);
 
-    /**
-     * Preload classes required at runtime by a JSP servlet so that we don't get a defineClassInPackage security exception.
-     */
     static {
-        JspFactoryImpl factory = new JspFactoryImpl();
-        SecurityClassLoad.securityClassLoad(factory.getClass().getClassLoader());
-        if (System.getSecurityManager() != null) {
-            String basePackage = "org.glassfish.wasp.";
-            try {
-                factory.getClass().getClassLoader().loadClass(basePackage + "runtime.JspFactoryImpl$PrivilegedGetPageContext");
-                factory.getClass().getClassLoader().loadClass(basePackage + "runtime.JspFactoryImpl$PrivilegedReleasePageContext");
-                factory.getClass().getClassLoader().loadClass(basePackage + "runtime.JspRuntimeLibrary");
-                factory.getClass().getClassLoader().loadClass(basePackage + "runtime.ServletResponseWrapperInclude");
-                factory.getClass().getClassLoader().loadClass(basePackage + "servlet.JspServletWrapper");
-            } catch (ClassNotFoundException ex) {
-                log.log(SEVERE, "Wasp JspRuntimeContext preload of class failed: " + ex.getMessage(), ex);
-            }
-        }
-
-        JspFactory.setDefaultFactory(factory);
+        JspFactory.setDefaultFactory(new JspFactoryImpl());
     }
 
     // ----------------------------------------------------------- Constructors
@@ -132,10 +106,6 @@ public final class JspRuntimeContext implements Runnable {
             return;
         }
 
-        if (IS_SECURITY_ENABLED) {
-            initSecurity();
-        }
-
         // If this web application context is running from a
         // directory, start the background compilation thread
         String appBase = context.getRealPath("/");
@@ -156,8 +126,6 @@ public final class JspRuntimeContext implements Runnable {
      */
     private ServletContext context;
     private Options options;
-    private PermissionCollection permissionCollection;
-    private CodeSource codeSource;
     private String classpath;
 
     /**
@@ -234,15 +202,6 @@ public final class JspRuntimeContext implements Runnable {
     }
 
     /**
-     * Get the SecurityManager Policy CodeSource for this web applicaiton context.
-     *
-     * @return CodeSource for JSP
-     */
-    public CodeSource getCodeSource() {
-        return codeSource;
-    }
-
-    /**
      * Get the parent class loader.
      *
      * @return ClassLoader parent
@@ -253,15 +212,6 @@ public final class JspRuntimeContext implements Runnable {
             parentClassLoader = this.getClass().getClassLoader();
         }
         return parentClassLoader;
-    }
-
-    /**
-     * Get the SecurityManager PermissionCollection for this web application context.
-     *
-     * @return PermissionCollection permissions
-     */
-    public PermissionCollection getPermissionCollection() {
-        return permissionCollection;
     }
 
     /**
@@ -450,83 +400,6 @@ public final class JspRuntimeContext implements Runnable {
         // END GlassFish Issue 845
     }
 
-    /**
-     * Method used to initialize SecurityManager data.
-     */
-    private void initSecurity() {
-
-        // Setup the PermissionCollection for this web app context
-        // based on the permissions configured for the root of the
-        // web app context directory, then add a file read permission
-        // for that directory.
-        Policy policy = Policy.getPolicy();
-        if (policy != null) {
-            try {
-                // Get the permissions for the web app context
-                String docBase = context.getRealPath("/");
-                if (docBase == null) {
-                    docBase = options.getScratchDir().toString();
-                }
-                String codeBase = docBase;
-                if (!codeBase.endsWith(File.separator)) {
-                    codeBase = codeBase + File.separator;
-                }
-                File contextDir = new File(codeBase);
-                URL url = contextDir.getCanonicalFile().toURL();
-                codeSource = new CodeSource(url, (Certificate[]) null);
-                permissionCollection = policy.getPermissions(codeSource);
-
-                // Create a file read permission for web app context directory
-                if (!docBase.endsWith(File.separator)) {
-                    permissionCollection.add(new FilePermission(docBase, "read"));
-                    docBase = docBase + File.separator;
-                } else {
-                    permissionCollection.add(new FilePermission(docBase.substring(0, docBase.length() - 1), "read"));
-                }
-                docBase = docBase + "-";
-                permissionCollection.add(new FilePermission(docBase, "read"));
-
-                // Create a file read permission for web app tempdir (work)
-                // directory
-                String workDir = options.getScratchDir().toString();
-                if (!workDir.endsWith(File.separator)) {
-                    permissionCollection.add(new FilePermission(workDir, "read"));
-                    workDir = workDir + File.separator;
-                }
-                workDir = workDir + "-";
-                permissionCollection.add(new FilePermission(workDir, "read"));
-
-                // Allow the JSP to access org.glassfish.wasp.runtime.HttpJspBase
-                permissionCollection.add(new RuntimePermission("accessClassInPackage.org.glassfish.wasp.runtime"));
-
-                ClassLoader parentClassLoader = getParentClassLoader();
-                if (parentClassLoader instanceof URLClassLoader) {
-                    URL[] urls = ((URLClassLoader) parentClassLoader).getURLs();
-                    String jarUrl = null;
-                    String jndiUrl = null;
-                    for (int i = 0; i < urls.length; i++) {
-                        if (jndiUrl == null && urls[i].toString().startsWith("jndi:")) {
-                            jndiUrl = urls[i].toString() + "-";
-                        }
-                        if (jarUrl == null && urls[i].toString().startsWith("jar:jndi:")) {
-                            jarUrl = urls[i].toString();
-                            jarUrl = jarUrl.substring(0, jarUrl.length() - 2);
-                            jarUrl = jarUrl.substring(0, jarUrl.lastIndexOf('/')) + "/-";
-                        }
-                    }
-                    if (jarUrl != null) {
-                        permissionCollection.add(new FilePermission(jarUrl, "read"));
-                        permissionCollection.add(new FilePermission(jarUrl.substring(4), "read"));
-                    }
-                    if (jndiUrl != null) {
-                        permissionCollection.add(new FilePermission(jndiUrl, "read"));
-                    }
-                }
-            } catch (Exception e) {
-                context.log("Security Init for context failed", e);
-            }
-        }
-    }
 
     // -------------------------------------------------------- Thread Support
 

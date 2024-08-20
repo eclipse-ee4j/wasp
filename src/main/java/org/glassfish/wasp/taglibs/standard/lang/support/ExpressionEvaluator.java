@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -48,11 +49,10 @@ public interface ExpressionEvaluator {
      * Translation time validation of an expression. This method will return a null String if the expression is valid;
      * otherwise an error message.
      */
-    public String validate(String attributeName, String expression);
+    String validate(String attributeName, String expression);
 
     /**
      * Evaluates the expression at request time.
      */
-    public Object evaluate(String attributeName, String expression, Class expectedType, Tag tag, PageContext pageContext)
-            throws JspException;
+    Object evaluate(String attributeName, String expression, Class<?> expectedType, Tag tag, PageContext pageContext) throws JspException;
 }

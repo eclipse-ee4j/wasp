@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -95,7 +96,7 @@ public class FunctionInvocation extends Expression {
      * Evaluates by looking up the name in the VariableResolver
      **/
     @Override
-    public Object evaluate(Object pContext, VariableResolver pResolver, Map functions, String defaultPrefix, Logger pLogger)
+    public Object evaluate(Object pContext, VariableResolver pResolver, Map<String, Method> functions, String defaultPrefix, Logger pLogger)
             throws ELException {
 
         // if the Map is null, then the function is invalid
@@ -113,13 +114,13 @@ public class FunctionInvocation extends Expression {
         }
 
         // ensure that the function's name is mapped
-        Method target = (Method) functions.get(functionName);
+        Method target = functions.get(functionName);
         if (target == null) {
             pLogger.logError(Constants.UNKNOWN_FUNCTION, functionName);
         }
 
         // ensure that the number of arguments matches the number of parameters
-        Class[] params = target.getParameterTypes();
+        Class<?>[] params = target.getParameterTypes();
         if (params.length != argumentList.size()) {
             pLogger.logError(Constants.INAPPROPRIATE_FUNCTION_ARG_COUNT, Integer.valueOf(params.length),
                     Integer.valueOf(argumentList.size()));

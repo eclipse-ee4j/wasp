@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,24 +17,6 @@
  */
 
 package org.glassfish.wasp.runtime;
-
-import static java.lang.Boolean.TRUE;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.logging.Logger;
-
-import org.glassfish.wasp.Constants;
-import org.glassfish.wasp.compiler.Localizer;
-import org.glassfish.wasp.security.SecurityUtil;
 
 import jakarta.el.ArrayELResolver;
 import jakarta.el.BeanELResolver;
@@ -69,6 +51,19 @@ import jakarta.servlet.jsp.el.ImportELResolver;
 import jakarta.servlet.jsp.el.NotFoundELResolver;
 import jakarta.servlet.jsp.el.ScopedAttributeELResolver;
 import jakarta.servlet.jsp.tagext.BodyContent;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.logging.Logger;
+
+import org.glassfish.wasp.Constants;
+import org.glassfish.wasp.compiler.Localizer;
+
+import static java.lang.Boolean.TRUE;
 
 /**
  * Implementation of the PageContext class from the JSP spec.
@@ -206,17 +201,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public Object getAttribute(final String name) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            return AccessController.doPrivileged((PrivilegedAction<Object>) () -> doGetAttribute(name));
-        } else {
-            return doGetAttribute(name);
-        }
-
+        return doGetAttribute(name);
     }
 
     private Object doGetAttribute(String name) {
@@ -228,17 +217,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public Object getAttribute(final String name, final int scope) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            return AccessController.doPrivileged((PrivilegedAction<Object>) () -> doGetAttribute(name, scope));
-        } else {
-            return doGetAttribute(name, scope);
-        }
-
+        return doGetAttribute(name, scope);
     }
 
     private Object doGetAttribute(String name, int scope) {
@@ -268,19 +251,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public void setAttribute(final String name, final Object attribute) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                doSetAttribute(name, attribute);
-                return null;
-            });
-        } else {
-            doSetAttribute(name, attribute);
-        }
+        doSetAttribute(name, attribute);
     }
 
     private void doSetAttribute(String name, Object attribute) {
@@ -296,20 +271,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public void setAttribute(final String name, final Object o, final int scope) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                doSetAttribute(name, o, scope);
-                return null;
-            });
-        } else {
-            doSetAttribute(name, o, scope);
-        }
-
+        doSetAttribute(name, o, scope);
     }
 
     private void doSetAttribute(String name, Object o, int scope) {
@@ -347,18 +313,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public void removeAttribute(final String name, final int scope) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                doRemoveAttribute(name, scope);
-                return null;
-            });
-        } else {
-            doRemoveAttribute(name, scope);
-        }
+
+        doRemoveAttribute(name, scope);
     }
 
     private void doRemoveAttribute(String name, int scope) {
@@ -392,16 +351,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public int getAttributesScope(final String name) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            return AccessController.doPrivileged((PrivilegedAction<Integer>) () -> doGetAttributeScope(name));
-        } else {
-            return doGetAttributeScope(name);
-        }
+        return doGetAttributeScope(name);
     }
 
     private int doGetAttributeScope(String name) {
@@ -438,25 +392,14 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public Object findAttribute(final String name) {
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                if (name == null) {
-                    throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
-                }
-
-                return doFindAttribute(name);
-            });
-        } else {
-            if (name == null) {
-                throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
-            }
-
-            return doFindAttribute(name);
+        if (name == null) {
+            throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
+
+        return doFindAttribute(name);
     }
 
     private Object doFindAttribute(String name) {
-
         if (!isNametableInitialized) {
             initializePageScopeNameTable();
         }
@@ -489,11 +432,7 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public Enumeration<String> getAttributeNamesInScope(final int scope) {
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            return AccessController.doPrivileged((PrivilegedAction<Enumeration<String>>) () -> doGetAttributeNamesInScope(scope));
-        } else {
-            return doGetAttributeNamesInScope(scope);
-        }
+        return doGetAttributeNamesInScope(scope);
     }
 
     private Enumeration<String> doGetAttributeNamesInScope(int scope) {
@@ -523,19 +462,11 @@ public class PageContextImpl extends PageContext {
 
     @Override
     public void removeAttribute(final String name) {
-
         if (name == null) {
             throw new NullPointerException(Localizer.getMessage("jsp.error.attribute.null_name"));
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                doRemoveAttribute(name);
-                return null;
-            });
-        } else {
-            doRemoveAttribute(name);
-        }
+        doRemoveAttribute(name);
     }
 
     private void doRemoveAttribute(String name) {
@@ -794,24 +725,7 @@ public class PageContextImpl extends PageContext {
             throw new NullPointerException("null Throwable");
         }
 
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            try {
-                AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                    doHandlePageException(t);
-                    return null;
-                });
-            } catch (PrivilegedActionException e) {
-                Exception ex = e.getException();
-                if (ex instanceof IOException) {
-                    throw (IOException) ex;
-                } else {
-                    throw (ServletException) ex;
-                }
-            }
-        } else {
-            doHandlePageException(t);
-        }
-
+        doHandlePageException(t);
     }
 
     private void doHandlePageException(Throwable t) throws IOException, ServletException {
@@ -894,35 +808,12 @@ public class PageContextImpl extends PageContext {
      * @return The result of the evaluation
      */
     public static Object evaluateExpression(final String expression, final Class<?> expectedType, final PageContext pageContext, final ProtectedFunctionMapper functionMap) throws ELException {
-        Object retValue;
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            try {
-                retValue = AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                    ELContext elContext = pageContext.getELContext();
-                    toELContextImpl(elContext).setFunctionMapper(functionMap);
+        ELContext elContext = pageContext.getELContext();
+        toELContextImpl(elContext).setFunctionMapper(functionMap);
 
-                    return getExpressionFactory(pageContext)
-                                .createValueExpression(elContext, expression, expectedType)
-                                .getValue(elContext);
-                });
-            } catch (PrivilegedActionException ex) {
-                Exception realEx = ex.getException();
-                if (realEx instanceof ELException) {
-                    throw (ELException) realEx;
-                }
-
-                throw new ELException(realEx);
-            }
-        } else {
-            ELContext elContext = pageContext.getELContext();
-            toELContextImpl(elContext).setFunctionMapper(functionMap);
-
-            retValue = getExpressionFactory(pageContext)
-                        .createValueExpression(elContext, expression, expectedType)
-                        .getValue(elContext);
-        }
-
-        return retValue;
+        return getExpressionFactory(pageContext)
+                    .createValueExpression(elContext, expression, expectedType)
+                    .getValue(elContext);
     }
 
     public static ValueExpression getValueExpression(String expression, PageContext pageContext, Class<?> expectedType, FunctionMapper functionMap) {

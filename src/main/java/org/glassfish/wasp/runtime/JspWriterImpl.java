@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,18 +18,15 @@
 
 package org.glassfish.wasp.runtime;
 
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.jsp.JspWriter;
+
 import java.io.IOException;
 import java.io.Writer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import org.glassfish.jsp.api.ByteWriter;
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.compiler.Localizer;
-import org.glassfish.wasp.security.SecurityUtil;
-
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.jsp.JspWriter;
 
 /**
  * Write text to a character-output stream, buffering characters so as to provide for the efficient writing of single
@@ -147,11 +145,7 @@ public class JspWriterImpl extends JspWriter {
     }
 
     private String getLocalizeMessage(final String message) {
-        if (SecurityUtil.isPackageProtectionEnabled()) {
-            return AccessController.doPrivileged((PrivilegedAction<String>) () -> Localizer.getMessage(message));
-        } else {
-            return Localizer.getMessage(message);
-        }
+        return Localizer.getMessage(message);
     }
 
     /**

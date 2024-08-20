@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,8 @@
 
 package org.glassfish.wasp.compiler;
 
+import jakarta.servlet.ServletContext;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,8 +30,6 @@ import org.glassfish.wasp.compiler.tagplugin.TagPlugin;
 import org.glassfish.wasp.compiler.tagplugin.TagPluginContext;
 import org.glassfish.wasp.xmlparser.ParserUtils;
 import org.glassfish.wasp.xmlparser.TreeNode;
-
-import jakarta.servlet.ServletContext;
 
 /**
  * Manages tag plugin optimizations.
@@ -90,9 +91,9 @@ public class TagPluginManager {
         }
 
         tagPlugins = new HashMap<>();
-        Iterator pluginList = root.findChildren("tag-plugin");
+        Iterator<TreeNode> pluginList = root.findChildren("tag-plugin");
         while (pluginList.hasNext()) {
-            TreeNode pluginNode = (TreeNode) pluginList.next();
+            TreeNode pluginNode = pluginList.next();
             TreeNode tagClassNode = pluginNode.findChild("tag-class");
             if (tagClassNode == null) {
                 // Error
@@ -108,8 +109,10 @@ public class TagPluginManager {
             String pluginClassStr = pluginClassNode.getBody();
             TagPlugin tagPlugin = null;
             try {
-                Class<? extends TagPlugin> pluginClass = Class.forName(pluginClassStr).asSubclass(TagPlugin.class);
-                tagPlugin = pluginClass.newInstance();
+                tagPlugin = Class.forName(pluginClassStr)
+                                 .asSubclass(TagPlugin.class)
+                                 .getDeclaredConstructor()
+                                 .newInstance();
             } catch (Exception e) {
                 throw new WaspException(e);
             }

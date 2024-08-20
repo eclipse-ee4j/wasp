@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,10 +17,6 @@
 
 package org.glassfish.wasp.runtime;
 
-import static java.util.Arrays.asList;
-import static org.glassfish.wasp.runtime.Classpath.SearchAdvice.AllMatches;
-import static org.glassfish.wasp.runtime.Classpath.SearchAdvice.FirstMatchOnly;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +33,10 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
+
+import static java.util.Arrays.asList;
+import static org.glassfish.wasp.runtime.Classpath.SearchAdvice.AllMatches;
+import static org.glassfish.wasp.runtime.Classpath.SearchAdvice.FirstMatchOnly;
 
 /**
  * @author Jacob Hookom
@@ -64,13 +65,13 @@ public final class Classpath {
     public static URL[] search(ClassLoader classLoader, String prefix, String suffix, SearchAdvice advice) throws IOException {
         List<Enumeration<URL>> urlResources = asList(classLoader.getResources(prefix), classLoader.getResources(prefix + "MANIFEST.MF"));
         Set<URL> allUrls = new LinkedHashSet<URL>();
-        
+
         for (Enumeration<URL> urlResource : urlResources) {
             while (urlResource.hasMoreElements()) {
                 URL url = urlResource.nextElement();
-                
+
                 // Due to issue 13045 this collection can contain URLs that have their spaces incorrectly escaped
-                // by having %20 replaced with %2520. 
+                // by having %20 replaced with %2520.
                 // This quick conditional check catches this particular case and averts it.
                 String str = url.getPath();
                 if (-1 != str.indexOf("%2520")) {
@@ -78,14 +79,14 @@ public final class Classpath {
                     str = str.replace("%2520", "%20");
                     url = new URL(str);
                 }
-                
+
                 JarFile jarFile = getJarFile(url);
-                
+
                 if (jarFile != null) {
                     // Strategy 1: search in jar archive
                     searchJar(classLoader, allUrls, jarFile, prefix, suffix, advice);
                 } else {
-                    // Strategy 2: search in file system directory 
+                    // Strategy 2: search in file system directory
                     boolean searchDone = searchDir(allUrls, new File(URLDecoder.decode(url.getFile(), "UTF-8")), suffix);
                     if (!searchDone) {
                         // Strategy 3: search in URL
@@ -94,21 +95,21 @@ public final class Classpath {
                 }
             }
         }
-        
+
         return allUrls.toArray(new URL[allUrls.size()]);
     }
-    
+
     private static JarFile getJarFile(URL url) throws IOException {
         URLConnection urlConnection = url.openConnection();
         urlConnection.setUseCaches(false);
-        
+
         if (urlConnection instanceof JarURLConnection) {
             return ((JarURLConnection) urlConnection).getJarFile();
         }
-        
+
         return getAlternativeJarFile(url);
     }
-    
+
     /**
      * For URLs to JARs that do not use JarURLConnection - allowed by the servlet spec - attempt to produce a JarFile object
      * all the same. Known servlet engines that function like this include Weblogic and OC4J. This is not a full solution,
@@ -120,10 +121,10 @@ public final class Classpath {
 
     static JarFile getAlternativeJarFile(String urlFile) throws IOException {
         JarFile alternativeJarFile = null;
-        
+
         // Trim off any suffix - which is prefixed by "!/" on Weblogic
         int bangSlash = urlFile.indexOf("!/");
-        
+
         // Try the less safe "!", used on OC4J
         int bang = urlFile.indexOf('!');
         int separatorIndex = -1;
@@ -136,19 +137,19 @@ public final class Classpath {
                 separatorIndex = bang;
             }
         }
-        
+
         if (separatorIndex == -1) {
             return null;
         }
 
         String jarFileUrl = urlFile.substring(0, separatorIndex);
-        
+
         // And trim off any "file:" prefix.
         if (jarFileUrl.startsWith("file:")) {
             jarFileUrl = jarFileUrl.substring("file:".length());
             jarFileUrl = URLDecoder.decode(jarFileUrl, "UTF-8");
         }
-        
+
         boolean foundExclusion = false;
         for (int i = 0; i < PREFIXES_TO_EXCLUDE.length; i++) {
             if (jarFileUrl.startsWith(PREFIXES_TO_EXCLUDE[i]) || jarFileUrl.endsWith(EXTENSIONS_TO_EXCLUDE[i])) {
@@ -156,7 +157,7 @@ public final class Classpath {
                 break;
             }
         }
-        
+
         if (!foundExclusion) {
             try {
                 alternativeJarFile = new JarFile(jarFileUrl);
@@ -167,18 +168,18 @@ public final class Classpath {
 
         return alternativeJarFile;
     }
-    
+
     private static void searchJar(ClassLoader classLoader, Set<URL> urls, JarFile file, String prefix, String suffix, SearchAdvice advice) throws IOException {
         Enumeration<JarEntry> jarEntries = file.entries();
-        
+
         while (jarEntries.hasMoreElements()) {
             JarEntry entry;
             try {
-                entry = (JarEntry) jarEntries.nextElement();
+                entry = jarEntries.nextElement();
             } catch (Throwable t) {
                 continue;
             }
-            
+
             String name = entry.getName();
             if (name.startsWith(prefix) && name.endsWith(suffix)) {
                 Enumeration<URL> resourcesFromClassLoader = classLoader.getResources(name);
@@ -195,7 +196,7 @@ public final class Classpath {
     private static boolean searchDir(Set<URL> result, File directory, String suffix) throws IOException {
         if (directory.exists() && directory.isDirectory()) {
             File[] filesInDir = directory.listFiles();
-            
+
             // Protect against Windows JDK bugs for listFiles -
             // If it's null (even though it shouldn't be) return false
             if (filesInDir == null) {
@@ -206,13 +207,12 @@ public final class Classpath {
                 if (fileInDir.isDirectory()) {
                     searchDir(result, fileInDir, suffix);
                 } else if (fileInDir.getAbsolutePath().endsWith(suffix)) {
-                    // result.add(new URL("file:/" + path));
-                    result.add(fileInDir.toURL());
+                    result.add(fileInDir.toURI().toURL());
                 }
             }
             return true;
         }
-        
+
         return false;
     }
 
@@ -228,12 +228,12 @@ public final class Classpath {
      */
     private static void searchFromURL(Set<URL> result, String prefix, String suffix, URL url) throws IOException {
         boolean done = false;
-        
+
         InputStream urlInputStream = getInputStream(url);
         if (urlInputStream != null) {
             try (ZipInputStream zipInputStream = urlInputStream instanceof ZipInputStream ? (ZipInputStream) urlInputStream : new ZipInputStream(urlInputStream)) {
                 ZipEntry entry = zipInputStream.getNextEntry();
-                
+
                 // Initial entry should not be null if we assume this is some inner jar
                 done = entry != null;
                 while (entry != null) {
@@ -246,9 +246,9 @@ public final class Classpath {
                 }
             }
         }
-        
+
         if (!done && prefix.length() > 0) {
-            
+
             // we add '/' at the end since join adds it as well
             String urlString = url.toExternalForm() + "/";
             String[] split = prefix.split("/");
@@ -266,7 +266,7 @@ public final class Classpath {
                     return;
                 }
             }
-            
+
             searchFromURL(result, prefix, suffix, new URL(urlString));
         }
     }
@@ -302,8 +302,8 @@ public final class Classpath {
         }
     }
 
-    
 
-   
+
+
 
 }

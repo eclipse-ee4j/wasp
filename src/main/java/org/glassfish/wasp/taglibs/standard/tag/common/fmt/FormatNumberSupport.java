@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -18,20 +19,20 @@
 
 package org.glassfish.wasp.taglibs.standard.tag.common.fmt;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.Locale;
-
-import org.glassfish.wasp.taglibs.standard.resources.Resources;
-import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
-
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
+
+import org.glassfish.wasp.taglibs.standard.resources.Resources;
+import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;formatNumber&gt;, the number formatting tag in JSTL 1.0.
@@ -44,7 +45,7 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
     // *********************************************************************
     // Private constants
 
-    private static final Class<?>[] GET_INSTANCE_PARAM_TYPES = new Class[] { String.class };
+    private static final long serialVersionUID = 1021830879024348617L;
     private static final String NUMBER = "number";
     private static final String CURRENCY = "currency";
     private static final String PERCENT = "percent";
@@ -74,18 +75,10 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
 
     private String var; // 'var' attribute
     private int scope; // 'scope' attribute
-    private static Class currencyClass;
+    private static Class<?> currencyClass = Currency.class;
 
     // *********************************************************************
     // Constructor and initialization
-
-    static {
-        try {
-            currencyClass = Class.forName("java.util.Currency");
-            // container's runtime is J2SE 1.4 or greater
-        } catch (Exception cnfe) {
-        }
-    }
 
     public FormatNumberSupport() {
         super();
@@ -289,24 +282,7 @@ public abstract class FormatNumberSupport extends BodyTagSupport {
         }
 
         if (code != null) {
-            Object[] methodArgs = new Object[1];
-
-            /*
-             * java.util.Currency.getInstance()
-             */
-            Method m = currencyClass.getMethod("getInstance", GET_INSTANCE_PARAM_TYPES);
-            methodArgs[0] = code;
-            Object currency = m.invoke(null, methodArgs);
-
-            /*
-             * java.text.NumberFormat.setCurrency()
-             */
-            Class<?>[] paramTypes = new Class[1];
-            paramTypes[0] = currencyClass;
-            Class numberFormatClass = Class.forName("java.text.NumberFormat");
-            m = numberFormatClass.getMethod("setCurrency", paramTypes);
-            methodArgs[0] = currency;
-            m.invoke(formatter, methodArgs);
+            formatter.setCurrency(Currency.getInstance(code));
         } else {
             /*
              * Let potential ClassCastException propagate up (will almost never happen)

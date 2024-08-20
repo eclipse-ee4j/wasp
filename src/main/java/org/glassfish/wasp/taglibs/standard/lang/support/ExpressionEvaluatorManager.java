@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -18,15 +19,15 @@
 
 package org.glassfish.wasp.taglibs.standard.lang.support;
 
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.Tag;
+
 import java.util.HashMap;
 
 import org.glassfish.wasp.taglibs.standard.lang.jstl.Coercions;
 import org.glassfish.wasp.taglibs.standard.lang.jstl.ELException;
 import org.glassfish.wasp.taglibs.standard.lang.jstl.Logger;
-
-import jakarta.servlet.jsp.JspException;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.tagext.Tag;
 
 /**
  * <p>
@@ -62,7 +63,7 @@ public class ExpressionEvaluatorManager {
     /**
      * Invokes the evaluate() method on the "active" ExpressionEvaluator for the given pageContext.
      */
-    public static Object evaluate(String attributeName, String expression, Class expectedType, Tag tag, PageContext pageContext)
+    public static Object evaluate(String attributeName, String expression, Class<?> expectedType, Tag tag, PageContext pageContext)
             throws JspException {
 
         // the evaluator we'll use
@@ -75,7 +76,7 @@ public class ExpressionEvaluatorManager {
     /**
      * Invokes the evaluate() method on the "active" ExpressionEvaluator for the given pageContext.
      */
-    public static Object evaluate(String attributeName, String expression, Class expectedType, PageContext pageContext)
+    public static Object evaluate(String attributeName, String expression, Class<?> expectedType, PageContext pageContext)
             throws JspException {
 
         // the evaluator we'll use
@@ -101,7 +102,7 @@ public class ExpressionEvaluatorManager {
                 if (oEvaluator != null) {
                     return ((ExpressionEvaluator) oEvaluator);
                 }
-                ExpressionEvaluator e = (ExpressionEvaluator) Class.forName(name).newInstance();
+                ExpressionEvaluator e = (ExpressionEvaluator) Class.forName(name).getDeclaredConstructor().newInstance();
                 nameMap.put(name, e);
                 return (e);
             }
@@ -112,7 +113,7 @@ public class ExpressionEvaluatorManager {
             throw new JspException("couldn't find ExpressionEvaluator: " + ex.toString(), ex);
         } catch (IllegalAccessException ex) {
             throw new JspException("couldn't access ExpressionEvaluator: " + ex.toString(), ex);
-        } catch (InstantiationException ex) {
+        } catch (ReflectiveOperationException ex) {
             throw new JspException("couldn't instantiate ExpressionEvaluator: " + ex.toString(), ex);
         }
     }

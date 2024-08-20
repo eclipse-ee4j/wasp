@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -186,11 +186,6 @@ public class Constants {
     // The constant value (instead of the constant name) is being referenced from
     // other modules, and therefore requires special caution whenever it is changed.
     public static final String JSP_ERROR_HANDLED = "org.glassfish.jsp.error_handled";
-
-    /**
-     * Has security been turned on?
-     */
-    public static final boolean IS_SECURITY_ENABLED = System.getSecurityManager() != null;
 
     /**
      * The name of the JSP engine. Used for X-Powered-By identification in the response header

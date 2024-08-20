@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -21,15 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.CodeSource;
-import java.security.PermissionCollection;
-import java.security.PrivilegedAction;
-import java.security.ProtectionDomain;
 import java.util.Map;
 
 import org.glassfish.wasp.Constants;
-import org.glassfish.wasp.security.SecurityUtil;
 
 /**
  * Class loader for loading servlet class files (corresponding to JSP files) and tag handler class files (corresponding
@@ -42,18 +37,12 @@ import org.glassfish.wasp.security.SecurityUtil;
  */
 public class WaspLoader extends URLClassLoader {
 
-    private PermissionCollection permissionCollection;
-    private CodeSource codeSource;
     private ClassLoader parent;
-    private SecurityManager securityManager;
     private Map<String, byte[]> bytecodes;
 
-    public WaspLoader(URL[] urls, ClassLoader parent, PermissionCollection permissionCollection, CodeSource codeSource, Map<String, byte[]> bytecodes) {
+    public WaspLoader(URL[] urls, ClassLoader parent, Map<String, byte[]> bytecodes) {
         super(urls, parent);
-        this.permissionCollection = permissionCollection;
-        this.codeSource = codeSource;
         this.parent = parent;
-        this.securityManager = System.getSecurityManager();
         this.bytecodes = bytecodes;
     }
 
@@ -91,7 +80,6 @@ public class WaspLoader extends URLClassLoader {
      */
     @Override
     public synchronized Class<?> loadClass(final String name, boolean resolve) throws ClassNotFoundException {
-
         Class<?> clazz;
 
         // (0) Check our previously loaded class cache
@@ -101,23 +89,6 @@ public class WaspLoader extends URLClassLoader {
                 resolveClass(clazz);
             }
             return clazz;
-        }
-
-        // (.5) Permission to access this class when using a SecurityManager
-        if (securityManager != null) {
-            int dot = name.lastIndexOf('.');
-            if (dot >= 0) {
-                try {
-                    // Do not call the security manager since by default, we grant that package.
-                    if (!"org.glassfish.wasp.runtime".equalsIgnoreCase(name.substring(0, dot))) {
-                        securityManager.checkPackageAccess(name.substring(0, dot));
-                    }
-                } catch (SecurityException se) {
-                    String error = "Security Violation, attempt to use " + "Restricted Class: " + name;
-                    se.printStackTrace();
-                    throw new ClassNotFoundException(error);
-                }
-            }
         }
 
         if (!name.startsWith(Constants.JSP_PACKAGE_NAME)) {
@@ -132,7 +103,6 @@ public class WaspLoader extends URLClassLoader {
         return findClass(name);
     }
 
-    // START OF IASRI 4709374
     @Override
     public Class<?> findClass(String className) throws ClassNotFoundException {
 
@@ -149,17 +119,8 @@ public class WaspLoader extends URLClassLoader {
         }
 
         // Preprocess the loaded byte code
-
-        Class<?> clazz = null;
-        if (securityManager != null) {
-            ProtectionDomain pd = new ProtectionDomain(codeSource, permissionCollection);
-            clazz = defineClass(className, cdata, 0, cdata.length, pd);
-        } else {
-            clazz = defineClass(className, cdata, 0, cdata.length);
-        }
-        return clazz;
+        return defineClass(className, cdata, 0, cdata.length);
     }
-    // END OF IASRI 4709374
 
     /*
      * Load JSP class data from file.
@@ -167,13 +128,7 @@ public class WaspLoader extends URLClassLoader {
     private byte[] loadClassDataFromFile(final String fileName) {
         byte[] classBytes = null;
         try {
-            InputStream in = null;
-
-            if (SecurityUtil.isPackageProtectionEnabled()) {
-                in = AccessController.doPrivileged((PrivilegedAction<InputStream>) () -> getResourceAsStream(fileName));
-            } else {
-                in = getResourceAsStream(fileName);
-            }
+            InputStream in = getResourceAsStream(fileName);
 
             if (in == null) {
                 return null;
@@ -192,19 +147,5 @@ public class WaspLoader extends URLClassLoader {
             return null;
         }
         return classBytes;
-    }
-
-    /**
-     * Get the Permissions for a CodeSource.
-     *
-     * Since this ClassLoader is only used for a JSP page in a web application context, we just return our preset
-     * PermissionCollection for the web app context.
-     *
-     * @param codeSource Code source where the code was loaded from
-     * @return PermissionCollection for CodeSource
-     */
-    @Override
-    public final PermissionCollection getPermissions(CodeSource codeSource) {
-        return permissionCollection;
     }
 }

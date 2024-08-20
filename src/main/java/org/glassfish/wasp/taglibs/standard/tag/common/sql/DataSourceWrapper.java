@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -42,11 +43,14 @@ public class DataSourceWrapper implements DataSource {
     private String userName;
     private String password;
 
-    public void setDriverClassName(String driverClassName) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public void setDriverClassName(String driverClassName) throws ReflectiveOperationException {
+        Object instance = Class.forName(driverClassName, true, Thread.currentThread()
+                               .getContextClassLoader())
+                               .getDeclaredConstructor()
+                               .newInstance();
 
-        Object instance = Class.forName(driverClassName, true, Thread.currentThread().getContextClassLoader()).newInstance();
-        if (instance instanceof Driver) {
-            driver = (Driver) instance;
+        if (instance instanceof Driver driverInstance) {
+            driver = driverInstance;
         }
     }
 

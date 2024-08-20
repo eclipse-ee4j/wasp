@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  *
@@ -17,6 +18,17 @@
 
 package org.glassfish.wasp.runtime;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.BodyContent;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.io.IOException;
@@ -27,15 +39,6 @@ import java.util.Enumeration;
 
 import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.compiler.Localizer;
-
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.jsp.JspWriter;
-import jakarta.servlet.jsp.PageContext;
-import jakarta.servlet.jsp.tagext.BodyContent;
 
 /**
  * Bunch of util methods that are used by code generated for useBean, getProperty and setProperty.
@@ -204,7 +207,7 @@ public class JspRuntimeLibrary {
     }
 
     // __begin convertMethod
-    public static Object convert(String propertyName, String s, Class t, Class propertyEditorClass) throws WaspException {
+    public static Object convert(String propertyName, String s, Class<?> t, Class<?> propertyEditorClass) throws WaspException {
         try {
             if (s == null) {
                 if (t.equals(Boolean.class) || t.equals(Boolean.TYPE)) {
@@ -252,9 +255,9 @@ public class JspRuntimeLibrary {
 
     // __begin introspectMethod
     public static void introspect(Object bean, ServletRequest request) throws WaspException {
-        Enumeration e = request.getParameterNames();
+        Enumeration<String> e = request.getParameterNames();
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             String value = request.getParameter(name);
             introspecthelper(bean, name, value, request, name, true);
         }
@@ -265,8 +268,9 @@ public class JspRuntimeLibrary {
     public static void introspecthelper(Object bean, String prop, String value, ServletRequest request, String param, boolean ignoreMethodNF)
             throws WaspException {
         Method method = null;
-        Class type = null;
-        Class propertyEditorClass = null;
+        Class<?> type = null;
+        Class<?> propertyEditorClass = null;
+
         try {
             java.beans.BeanInfo info = java.beans.Introspector.getBeanInfo(bean.getClass());
             if (info != null) {
@@ -285,12 +289,14 @@ public class JspRuntimeLibrary {
                     if (request == null) {
                         throw new WaspException(Localizer.getMessage("jsp.error.beans.setproperty.noindexset"));
                     }
-                    Class t = type.getComponentType();
+                    Class<?> t = type.getComponentType();
                     String[] values = request.getParameterValues(param);
+
                     // XXX Please check.
                     if (values == null) {
                         return;
                     }
+
                     if (t.equals(String.class)) {
                         method.invoke(bean, new Object[] { values });
                     } else {
@@ -363,7 +369,7 @@ public class JspRuntimeLibrary {
     /**
      * Create a typed array. This is a special case where params are passed through the request and the property is indexed.
      */
-    public static void createTypedArray(String propertyName, Object bean, Method method, String[] values, Class t, Class propertyEditorClass)
+    public static void createTypedArray(String propertyName, Object bean, Method method, String[] values, Class<?> t, Class<?> propertyEditorClass)
             throws WaspException {
 
         try {
@@ -623,11 +629,11 @@ public class JspRuntimeLibrary {
         }
     }
 
-    public static Method getWriteMethod(Class beanClass, String prop) throws WaspException {
+    public static Method getWriteMethod(Class<?> beanClass, String prop) throws WaspException {
         Method method = null;
-        Class type = null;
+        Class<?> type = null;
         try {
-            java.beans.BeanInfo info = java.beans.Introspector.getBeanInfo(beanClass);
+            BeanInfo info = Introspector.getBeanInfo(beanClass);
             if (info != null) {
                 java.beans.PropertyDescriptor pd[] = info.getPropertyDescriptors();
                 for (int i = 0; i < pd.length; i++) {
@@ -644,6 +650,7 @@ public class JspRuntimeLibrary {
         } catch (Exception ex) {
             throw new WaspException(ex);
         }
+
         if (method == null) {
             if (type == null) {
                 throw new WaspException(Localizer.getMessage("jsp.error.beans.noproperty", prop, beanClass.getName()));
@@ -654,10 +661,10 @@ public class JspRuntimeLibrary {
         return method;
     }
 
-    public static Method getReadMethod(Class beanClass, String prop) throws WaspException {
+    public static Method getReadMethod(Class<?> beanClass, String prop) throws WaspException {
 
         Method method = null;
-        Class type = null;
+        Class<?> type = null;
         try {
             java.beans.BeanInfo info = java.beans.Introspector.getBeanInfo(beanClass);
             if (info != null) {
@@ -676,6 +683,7 @@ public class JspRuntimeLibrary {
         } catch (Exception ex) {
             throw new WaspException(ex);
         }
+
         if (method == null) {
             if (type == null) {
                 throw new WaspException(Localizer.getMessage("jsp.error.beans.noproperty", prop, beanClass.getName()));
@@ -690,10 +698,10 @@ public class JspRuntimeLibrary {
     // *********************************************************************
     // PropertyEditor Support
 
-    public static Object getValueFromBeanInfoPropertyEditor(Class attrClass, String attrName, String attrValue, Class propertyEditorClass)
+    public static Object getValueFromBeanInfoPropertyEditor(Class<?> attrClass, String attrName, String attrValue, Class<?> propertyEditorClass)
             throws WaspException {
         try {
-            PropertyEditor pe = (PropertyEditor) propertyEditorClass.newInstance();
+            PropertyEditor pe = (PropertyEditor) propertyEditorClass.getDeclaredConstructor().newInstance();
             pe.setAsText(attrValue);
             return pe.getValue();
         } catch (Exception ex) {
@@ -701,7 +709,7 @@ public class JspRuntimeLibrary {
         }
     }
 
-    public static Object getValueFromPropertyEditorManager(Class attrClass, String attrName, String attrValue) throws WaspException {
+    public static Object getValueFromPropertyEditorManager(Class<?> attrClass, String attrName, String attrValue) throws WaspException {
         try {
             PropertyEditor propEditor = PropertyEditorManager.findEditor(attrClass);
             if (propEditor != null) {

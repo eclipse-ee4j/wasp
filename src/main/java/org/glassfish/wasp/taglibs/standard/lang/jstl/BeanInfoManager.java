@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to Eclipse Foundation.
  * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright 2004 The Apache Software Foundation
  * Copyright (c) 2020 Payara Services Ltd.
@@ -77,7 +78,7 @@ public class BeanInfoManager {
      *
      * Constructor
      **/
-    BeanInfoManager(Class pBeanClass) {
+    BeanInfoManager(Class<?> pBeanClass) {
         mBeanClass = pBeanClass;
     }
 
@@ -130,7 +131,7 @@ public class BeanInfoManager {
      *
      * Returns the BeanInfoIndexedProperty for the specified property in the given class, or null if not found.
      **/
-    public static BeanInfoIndexedProperty getBeanInfoIndexedProperty(Class pClass, String pIndexedPropertyName, Logger pLogger)
+    public static BeanInfoIndexedProperty getBeanInfoIndexedProperty(Class<?> pClass, String pIndexedPropertyName, Logger pLogger)
             throws ELException {
         return getBeanInfoManager(pClass).getIndexedProperty(pIndexedPropertyName, pLogger);
     }
@@ -272,19 +273,11 @@ public class BeanInfoManager {
      * If the given class is public and has a Method that declares the same name and arguments as the given method, then
      * that method is returned. Otherwise the superclass and interfaces are searched recursively.
      **/
-    static Method getPublicMethod(Class pClass, Method pMethod) {
+    static Method getPublicMethod(Class<?> pClass, Method pMethod) {
         // See if this is a public class declaring the method
         if (Modifier.isPublic(pClass.getModifiers())) {
             try {
-                Method m;
-                try {
-                    m = pClass.getDeclaredMethod(pMethod.getName(), pMethod.getParameterTypes());
-                } catch (java.security.AccessControlException ex) {
-                    // kludge to accommodate J2EE RI's default settings
-                    // TODO: see if we can simply replace
-                    // getDeclaredMethod() with getMethod() ...?
-                    m = pClass.getMethod(pMethod.getName(), pMethod.getParameterTypes());
-                }
+                Method m = pClass.getDeclaredMethod(pMethod.getName(), pMethod.getParameterTypes());
                 if (Modifier.isPublic(m.getModifiers())) {
                     return m;
                 }
@@ -294,9 +287,9 @@ public class BeanInfoManager {
 
         // Search the interfaces
         {
-            Class[] interfaces = pClass.getInterfaces();
+            Class<?>[] interfaces = pClass.getInterfaces();
             if (interfaces != null) {
-                for (Class element : interfaces) {
+                for (Class<?> element : interfaces) {
                     Method m = getPublicMethod(element, pMethod);
                     if (m != null) {
                         return m;
@@ -307,7 +300,7 @@ public class BeanInfoManager {
 
         // Search the superclass
         {
-            Class superclass = pClass.getSuperclass();
+            Class<?> superclass = pClass.getSuperclass();
             if (superclass != null) {
                 Method m = getPublicMethod(superclass, pMethod);
                 if (m != null) {

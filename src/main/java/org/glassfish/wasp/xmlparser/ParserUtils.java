@@ -244,6 +244,26 @@ public class ParserUtils {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            String FEATURE = null;
+            try {
+                FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+                factory.setFeature(FEATURE, false);
+
+                FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+                factory.setFeature(FEATURE, false);
+
+                FEATURE = "http://xml.org/sax/features/external-general-entities";
+                factory.setFeature(FEATURE, false);
+
+                factory.setXIncludeAware(false);
+                factory.setExpandEntityReferences(false);
+
+                factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+            } catch (ParserConfigurationException e) {
+                throw new IllegalStateException("The feature '"
+                + FEATURE + "' is not supported by your XML processor.", e);
+            }
             factory.setNamespaceAware(true);
 
             DocumentBuilder builder = factory.newDocumentBuilder();

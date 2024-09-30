@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-	Copyright (c) 2021, 2023 Contributors to Eclipse Foundation.
+	Copyright (c) 2021, 2024 Contributors to Eclipse Foundation.
     Copyright (c) 1997, 2020 Oracle and/or its affiliates and others.
     All rights reserved.
 
@@ -31,7 +31,7 @@
 
     <groupId>org.glassfish.wasp</groupId>
     <artifactId>wasp</artifactId>
-    <version>3.2.2-SNAPSHOT</version>
+    <version>3.2.3-SNAPSHOT</version>
 
     <name>WaSP</name>
     <description>Eclipse compatible implementation of Jakarta Server Pages</description>

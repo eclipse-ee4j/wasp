@@ -18,19 +18,15 @@
 package org.glassfish.wasp.taglibs.standard.tag.common.fmt;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import org.glassfish.wasp.taglibs.standard.resources.Resources;
-import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
 
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.TagSupport;
+
+import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;formatDate&gt;, the date and time formatting tag in JSTL 1.0.
@@ -41,16 +37,9 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 public abstract class FormatDateSupport extends TagSupport {
 
     // *********************************************************************
-    // Private constants
-
-    private static final String DATE = "date";
-    private static final String TIME = "time";
-    private static final String DATETIME = "both";
-
-    // *********************************************************************
     // Protected state
 
-    protected Date value; // 'value' attribute
+    protected Object value; // 'value' attribute
     protected String type; // 'type' attribute
     protected String pattern; // 'pattern' attribute
     protected Object timeZone; // 'timeZone' attribute
@@ -111,39 +100,14 @@ public abstract class FormatDateSupport extends TagSupport {
         // Create formatter
         Locale locale = SetLocaleSupport.getFormattingLocale(pageContext, this, true, true);
         if (locale != null) {
-            DateFormat formatter = createFormatter(locale);
+            // Set up time zone
+            TimeZone tz = TimeZoneSupport.getTimeZone(pageContext, this, timeZone, false);
 
-            // Apply pattern, if present
-            if (pattern != null) {
-                try {
-                    ((SimpleDateFormat) formatter).applyPattern(pattern);
-                } catch (ClassCastException cce) {
-                    formatter = new SimpleDateFormat(pattern, locale);
-                }
-            }
+            DateFormatSupport formatter = DateFormatSupport.createFormatter(locale, tz, type, dateStyle, timeStyle, pattern, false);
 
-            // Set time zone
-            TimeZone tz = null;
-            if ((timeZone instanceof String) && ((String) timeZone).equals("")) {
-                timeZone = null;
-            }
-            if (timeZone != null) {
-                if (timeZone instanceof String) {
-                    tz = TimeZone.getTimeZone((String) timeZone);
-                } else if (timeZone instanceof TimeZone) {
-                    tz = (TimeZone) timeZone;
-                } else {
-                    throw new JspTagException(Resources.getMessage("FORMAT_DATE_BAD_TIMEZONE"));
-                }
-            } else {
-                tz = TimeZoneSupport.getTimeZone(pageContext, this);
-            }
-            if (tz != null) {
-                formatter.setTimeZone(tz);
-            }
             formatted = formatter.format(value);
         } else {
-            // no formatting locale available, use Date.toString()
+            // no formatting locale available, use toString()
             formatted = value.toString();
         }
 
@@ -164,25 +128,5 @@ public abstract class FormatDateSupport extends TagSupport {
     @Override
     public void release() {
         init();
-    }
-
-    // *********************************************************************
-    // Private utility methods
-
-    private DateFormat createFormatter(Locale loc) throws JspException {
-        DateFormat formatter = null;
-
-        if ((type == null) || DATE.equalsIgnoreCase(type)) {
-            formatter = DateFormat.getDateInstance(Util.getStyle(dateStyle, "FORMAT_DATE_INVALID_DATE_STYLE"), loc);
-        } else if (TIME.equalsIgnoreCase(type)) {
-            formatter = DateFormat.getTimeInstance(Util.getStyle(timeStyle, "FORMAT_DATE_INVALID_TIME_STYLE"), loc);
-        } else if (DATETIME.equalsIgnoreCase(type)) {
-            formatter = DateFormat.getDateTimeInstance(Util.getStyle(dateStyle, "FORMAT_DATE_INVALID_DATE_STYLE"),
-                    Util.getStyle(timeStyle, "FORMAT_DATE_INVALID_TIME_STYLE"), loc);
-        } else {
-            throw new JspException(Resources.getMessage("FORMAT_DATE_INVALID_TYPE", type));
-        }
-
-        return formatter;
     }
 }

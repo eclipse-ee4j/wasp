@@ -17,11 +17,9 @@
 
 package org.glassfish.wasp.taglibs.standard.tag.rt.fmt;
 
-import java.util.Date;
+import jakarta.servlet.jsp.JspTagException;
 
 import org.glassfish.wasp.taglibs.standard.tag.common.fmt.FormatDateSupport;
-
-import jakarta.servlet.jsp.JspTagException;
 
 /**
  * A handler for &lt;formatDate&gt; that supports rtexprvalue-based attributes.
@@ -37,7 +35,7 @@ public class FormatDateTag extends FormatDateSupport {
     // Accessor methods
 
     // 'value' attribute
-    public void setValue(Date value) throws JspTagException {
+    public void setValue(Object value) throws JspTagException {
         this.value = value;
     }
 

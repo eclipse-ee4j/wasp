@@ -22,13 +22,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
+import java.time.format.FormatStyle;
 import java.util.Enumeration;
-
-import org.glassfish.wasp.taglibs.standard.resources.Resources;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
+
+import org.glassfish.wasp.taglibs.standard.resources.Resources;
 
 /**
  * <p>
@@ -107,6 +108,40 @@ public class Util {
                 ret = DateFormat.LONG;
             } else if (FULL.equalsIgnoreCase(style)) {
                 ret = DateFormat.FULL;
+            } else {
+                throw new JspException(Resources.getMessage(errCode, style));
+            }
+        }
+
+        return ret;
+    }
+
+    /*
+     * Converts the given string description of a formatting style for dates and times to the corresponding
+     * java.time.format.FormatStyle enum.
+     *
+     * @param style String description of formatting style for dates and times
+     *
+     * @param errCode Error code to throw if given style is invalid
+     *
+     * @return java.time.format.FormatStyle enum corresponding to given style
+     *
+     * @throws JspException if the given style is invalid
+     */
+    public static FormatStyle getFormatStyle(String style, String errCode) throws JspException {
+        FormatStyle ret = FormatStyle.MEDIUM;
+
+        if (style != null) {
+            if (DEFAULT.equalsIgnoreCase(style)) {
+                ret = FormatStyle.MEDIUM;
+            } else if (SHORT.equalsIgnoreCase(style)) {
+                ret = FormatStyle.SHORT;
+            } else if (MEDIUM.equalsIgnoreCase(style)) {
+                ret = FormatStyle.MEDIUM;
+            } else if (LONG.equalsIgnoreCase(style)) {
+                ret = FormatStyle.LONG;
+            } else if (FULL.equalsIgnoreCase(style)) {
+                ret = FormatStyle.FULL;
             } else {
                 throw new JspException(Resources.getMessage(errCode, style));
             }

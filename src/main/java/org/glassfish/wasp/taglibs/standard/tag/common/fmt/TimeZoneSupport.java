@@ -27,6 +27,8 @@ import jakarta.servlet.jsp.jstl.core.Config;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import jakarta.servlet.jsp.tagext.Tag;
 
+import org.glassfish.wasp.taglibs.standard.resources.Resources;
+
 /**
  * Support for tag handlers for &lt;timeZone&gt;, the time zone tag in JSTL 1.0.
  *
@@ -142,5 +144,22 @@ public abstract class TimeZoneSupport extends BodyTagSupport {
         }
 
         return tz;
+    }
+    
+    static TimeZone getTimeZone(PageContext pc, Tag fromTag, Object timeZone, boolean forParsing) throws JspException {
+        if ((timeZone instanceof String) && ((String) timeZone).equals("")) {
+            timeZone = null;
+        }
+        if (timeZone != null) {
+            if (timeZone instanceof String) {
+                return TimeZone.getTimeZone((String) timeZone);
+            } else if (timeZone instanceof TimeZone) {
+                return (TimeZone) timeZone;
+            } else {
+                throw new JspException(Resources.getMessage(forParsing ? "PARSE_DATE_BAD_TIMEZONE" : "FORMAT_DATE_BAD_TIMEZONE"));
+            }
+        } else {
+            return TimeZoneSupport.getTimeZone(pc, fromTag);
+        }
     }
 }

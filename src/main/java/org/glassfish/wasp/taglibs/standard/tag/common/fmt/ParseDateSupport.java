@@ -18,20 +18,17 @@
 package org.glassfish.wasp.taglibs.standard.tag.common.fmt;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import org.glassfish.wasp.taglibs.standard.resources.Resources;
-import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
 
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspTagException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
+
+import org.glassfish.wasp.taglibs.standard.resources.Resources;
+import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
 
 /**
  * Support for tag handlers for &lt;parseDate&gt;, the date and time parsing tag in JSTL 1.0.
@@ -132,40 +129,14 @@ public abstract class ParseDateSupport extends BodyTagSupport {
             throw new JspException(Resources.getMessage("PARSE_DATE_NO_PARSE_LOCALE"));
         }
 
+        // Set up time zone
+        TimeZone tz = TimeZoneSupport.getTimeZone(pageContext, this, timeZone, true);
+        
         // Create parser
-        DateFormat parser = createParser(locale);
-
-        // Apply pattern, if present
-        if (pattern != null) {
-            try {
-                ((SimpleDateFormat) parser).applyPattern(pattern);
-            } catch (ClassCastException cce) {
-                parser = new SimpleDateFormat(pattern, locale);
-            }
-        }
-
-        // Set time zone
-        TimeZone tz = null;
-        if ((timeZone instanceof String) && ((String) timeZone).equals("")) {
-            timeZone = null;
-        }
-        if (timeZone != null) {
-            if (timeZone instanceof String) {
-                tz = TimeZone.getTimeZone((String) timeZone);
-            } else if (timeZone instanceof TimeZone) {
-                tz = (TimeZone) timeZone;
-            } else {
-                throw new JspException(Resources.getMessage("PARSE_DATE_BAD_TIMEZONE"));
-            }
-        } else {
-            tz = TimeZoneSupport.getTimeZone(pageContext, this);
-        }
-        if (tz != null) {
-            parser.setTimeZone(tz);
-        }
+        DateFormatSupport parser = DateFormatSupport.createFormatter(locale, tz, type, dateStyle, timeStyle, pattern, true);
 
         // Parse date
-        Date parsed = null;
+        Object parsed = null;
         try {
             parsed = parser.parse(input);
         } catch (ParseException pe) {
@@ -189,27 +160,5 @@ public abstract class ParseDateSupport extends BodyTagSupport {
     @Override
     public void release() {
         init();
-    }
-
-    // *********************************************************************
-    // Private utility methods
-
-    private DateFormat createParser(Locale loc) throws JspException {
-        DateFormat parser = null;
-
-        if ((type == null) || DATE.equalsIgnoreCase(type)) {
-            parser = DateFormat.getDateInstance(Util.getStyle(dateStyle, "PARSE_DATE_INVALID_DATE_STYLE"), loc);
-        } else if (TIME.equalsIgnoreCase(type)) {
-            parser = DateFormat.getTimeInstance(Util.getStyle(timeStyle, "PARSE_DATE_INVALID_TIME_STYLE"), loc);
-        } else if (DATETIME.equalsIgnoreCase(type)) {
-            parser = DateFormat.getDateTimeInstance(Util.getStyle(dateStyle, "PARSE_DATE_INVALID_DATE_STYLE"),
-                    Util.getStyle(timeStyle, "PARSE_DATE_INVALID_TIME_STYLE"), loc);
-        } else {
-            throw new JspException(Resources.getMessage("PARSE_DATE_INVALID_TYPE", type));
-        }
-
-        parser.setLenient(false);
-
-        return parser;
     }
 }

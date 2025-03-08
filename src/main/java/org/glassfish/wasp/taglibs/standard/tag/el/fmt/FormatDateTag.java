@@ -17,12 +17,10 @@
 
 package org.glassfish.wasp.taglibs.standard.tag.el.fmt;
 
-import java.util.Date;
+import jakarta.servlet.jsp.JspException;
 
 import org.glassfish.wasp.taglibs.standard.lang.support.ExpressionEvaluatorManager;
 import org.glassfish.wasp.taglibs.standard.tag.common.fmt.FormatDateSupport;
-
-import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -128,7 +126,7 @@ public class FormatDateTag extends FormatDateSupport {
          */
 
         // 'value' attribute (mandatory)
-        value = (Date) ExpressionEvaluatorManager.evaluate("value", value_, Date.class, this, pageContext);
+        value = ExpressionEvaluatorManager.evaluate("value", value_, Object.class, this, pageContext);
 
         // 'type' attribute
         if (type_ != null) {

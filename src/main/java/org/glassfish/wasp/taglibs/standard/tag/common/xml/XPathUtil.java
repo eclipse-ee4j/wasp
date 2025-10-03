@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  * Copyright 2004 The Apache Software Foundation
@@ -66,6 +66,15 @@ public class XPathUtil {
      */
     public XPathUtil(PageContext pc) {
         pageContext = pc;
+    }
+
+    /*
+     * Allows adding custom XML namespaces to the default NamespaceContext
+     * 
+     * Since 3.1 (Added under issue 272)
+     */
+    public static void addNamespaceToXPathNamespaceContext(String prefix, String uri) {
+    	JSTL_XPATH_NS_CTX.addNamespace(prefix, uri);
     }
 
     /**

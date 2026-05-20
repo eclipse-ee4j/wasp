@@ -55,7 +55,7 @@ public class Version {
      * Name of product
      */
     public static String getProduct() {
-        return "standard-taglib";
+        return "jakarta-tags";
     }
 
     /**
@@ -66,7 +66,7 @@ public class Version {
      * changed.
      */
     public static int getMajorVersionNum() {
-        return 1;
+        return 4;
     }
 
     /**
@@ -74,7 +74,7 @@ public class Version {
      * a new W3C specification. - API or behaviour change. - its designated as a reference release.
      */
     public static int getReleaseVersionNum() {
-        return 2;
+        return 0;
     }
 
     /**

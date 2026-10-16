@@ -18,10 +18,12 @@
 package org.glassfish.wasp.servlet;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -32,6 +34,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.xmlparser.ParserUtils;
@@ -75,6 +79,10 @@ public class JspCServletContext implements ServletContext {
     protected URL myResourceBaseURL;
 
     private JspConfigDescriptor jspConfigDescriptor;
+
+    // The version of the deployment descriptor (web-app version attribute), the Servlet version without one
+    private int effectiveMajorVersion = 6;
+    private int effectiveMinorVersion = 0;
 
     // ----------------------------------------------------------- Constructors
 
@@ -177,14 +185,12 @@ public class JspCServletContext implements ServletContext {
 
     @Override
     public int getEffectiveMajorVersion() {
-        // TODO: get it from web.xml
-        return 6;
+        return effectiveMajorVersion;
     }
 
     @Override
     public int getEffectiveMinorVersion() {
-        // TODO: get it from web.xml
-        return 0;
+        return effectiveMinorVersion;
     }
 
     /**
@@ -547,6 +553,8 @@ public class JspCServletContext implements ServletContext {
 
     private static final String WEB_XML = "/WEB-INF/web.xml";
 
+    private static final Pattern DTD_VERSION = Pattern.compile("//DTD Web Application (\\d+\\.\\d+)//");
+
     private void parseWebDotXml() {
         InputStream is = getResourceAsStream(WEB_XML);
         if (is == null) {
@@ -560,6 +568,12 @@ public class JspCServletContext implements ServletContext {
             log("Error in parsing web.xml", ex);
             return;
         }
+
+        String version = web.findAttribute("version");
+        if (version == null) {
+            version = getDtdVersion();
+        }
+        parseVersion(version);
 
         TreeNode jspConfig = web.findChild("jsp-config");
         if (jspConfig == null) {
@@ -603,6 +617,7 @@ public class JspCServletContext implements ServletContext {
             String buffer = null;
             String defaultContentType = null;
             String errorOnUndeclaredNamespace = null;
+            String errorOnELNotFound = null;
 
             TreeNode pgroup = children.next();
             Iterator<TreeNode> properties = pgroup.findChildren();
@@ -637,13 +652,48 @@ public class JspCServletContext implements ServletContext {
                     buffer = element.getBody();
                 } else if ("error-on-undeclared-namespace".equals(tname)) {
                     errorOnUndeclaredNamespace = element.getBody();
+                } else if ("error-on-el-not-found".equals(tname)) {
+                    errorOnELNotFound = element.getBody();
                 }
             }
             jspPropertyGroups.add(new JspPropertyGroupDescriptorImpl(urlPatterns, isXml, elIgnored, scriptingInvalid, trimSpaces, poundAllowed, pageEncoding,
-                    includePrelude, includeCoda, defaultContentType, buffer, errorOnUndeclaredNamespace));
+                    includePrelude, includeCoda, defaultContentType, buffer, errorOnUndeclaredNamespace, errorOnELNotFound));
         }
 
         jspConfigDescriptor = new JspConfigDescriptorImpl(taglibs, jspPropertyGroups);
+    }
+
+    /**
+     * Returns the version of a deployment descriptor declared with a DTD (Servlet 2.2 and 2.3), which has no version
+     * attribute, e.g. "2.3" for "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".
+     */
+    private String getDtdVersion() {
+        try (InputStream is = getResourceAsStream(WEB_XML)) {
+            if (is == null) {
+                return null;
+            }
+            Matcher matcher = DTD_VERSION.matcher(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+            return matcher.find() ? matcher.group(1) : null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Sets the effective Servlet version from the version attribute of the deployment descriptor, e.g. "2.3" or "6.0".
+     */
+    private void parseVersion(String version) {
+        if (version == null) {
+            return;
+        }
+
+        String[] parts = version.trim().split("\\.");
+        try {
+            effectiveMajorVersion = Integer.parseInt(parts[0]);
+            effectiveMinorVersion = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+        } catch (NumberFormatException e) {
+            log("Invalid web-app version in web.xml: " + version);
+        }
     }
 
     static class JspPropertyGroupDescriptorImpl implements JspPropertyGroupDescriptor {
@@ -659,10 +709,11 @@ public class JspCServletContext implements ServletContext {
         String defaultContentType;
         String buffer;
         String errorOnUndeclaredNamespace;
+        String errorOnELNotFound;
 
         JspPropertyGroupDescriptorImpl(Collection<String> urlPatterns, String isXml, String elIgnored, String scriptingInvalid, String trimSpaces,
                 String poundAllowed, String pageEncoding, Collection<String> includePrelude, Collection<String> includeCoda, String defaultContentType,
-                String buffer, String errorOnUndeclaredNamespace) {
+                String buffer, String errorOnUndeclaredNamespace, String errorOnELNotFound) {
             this.urlPatterns = urlPatterns;
             this.isXml = isXml;
             this.elIgnored = elIgnored;
@@ -675,6 +726,7 @@ public class JspCServletContext implements ServletContext {
             this.defaultContentType = defaultContentType;
             this.buffer = buffer;
             this.errorOnUndeclaredNamespace = errorOnUndeclaredNamespace;
+            this.errorOnELNotFound = errorOnELNotFound;
         }
 
         @Override
@@ -739,8 +791,7 @@ public class JspCServletContext implements ServletContext {
 
         @Override
         public String getErrorOnELNotFound() {
-            // TODO Implement!
-            return null;
+            return errorOnELNotFound;
         }
     }
 

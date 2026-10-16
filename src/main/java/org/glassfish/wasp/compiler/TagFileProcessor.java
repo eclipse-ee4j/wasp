@@ -547,6 +547,11 @@ class TagFileProcessor {
                 wrapper.decTripCount();
             }
 
+            // A tag file that invoked tag extra infos or tag library validators makes the page using it one that does
+            if (wrapper.getJspEngineContext().usesTranslationValidators()) {
+                parentPageInfo.setUsesTranslationValidators(true);
+            }
+
             // Add the dependants for this tag file to its parent's
             // dependant list. The only reliable dependency information
             // can only be obtained from the tag instance.

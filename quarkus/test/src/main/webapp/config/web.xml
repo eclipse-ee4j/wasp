@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>/pg/*</url-pattern>
+            <include-prelude>/WEB-INF/prelude.jspf</include-prelude>
+        </jsp-property-group>
+    </jsp-config>
+    <error-page>
+        <exception-type>java.lang.IllegalStateException</exception-type>
+        <location>/error.jsp</location>
+    </error-page>
+</web-app>

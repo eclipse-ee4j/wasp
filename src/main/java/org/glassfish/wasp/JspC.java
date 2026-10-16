@@ -39,10 +39,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -177,6 +180,9 @@ public class JspC implements Options {
 
     private ArrayList<String> extensions;
     private ArrayList<String> pages = new ArrayList<>();
+
+    // Pages compiled in addition to the scanned (or explicitly set) ones
+    private final List<String> additionalPages = new ArrayList<>();
     private boolean errorOnUseBeanInvalidClassAttribute = false;
 
     /**
@@ -215,6 +221,9 @@ public class JspC implements Options {
     private boolean isValidationEnabled;
 
     private HashMap<String, WaspException> jspErrors = new HashMap<>();
+
+    // The result per page (URI) of the most recent execute
+    private final Map<String, JspCompilationResult> compilationResults = new LinkedHashMap<>();
 
     private boolean ignoreJspFragmentErrors = false;
     private Set<String> dependents = new HashSet<>();
@@ -755,6 +764,16 @@ public class JspC implements Options {
         }
     }
 
+    /**
+     * Adds a page to compile in addition to the pages found by scanning the web application, or set with
+     * {@link #setJspFiles(String)}. For example the jsp-file of a Servlet, which may have any extension.
+     *
+     * @param page the page, as a URI relative to the web application root (e.g. "/views/report.page") or as a file
+     */
+    public void addAdditionalPage(String page) {
+        additionalPages.add(page);
+    }
+
     public void setCompile(boolean b) {
         compile = b;
     }
@@ -898,6 +917,39 @@ public class JspC implements Options {
      * @return List of JSP compilation errors caught during most recent invocation of this instance's <code>execute</code>
      * method, or an empty list if no errors were encountered or this instance's failOnError property was set to TRUE
      */
+    /**
+     * @return true if translating the page read a tag library descriptor or a tag file from a jar
+     */
+    private static boolean usesJarResources(PageInfo pageInfo, JspCompilationContext context) throws WaspException {
+        for (String dependant : pageInfo.getDependants()) {
+            if (dependant.startsWith("jar:")) {
+                return true;
+            }
+        }
+        for (TagLibraryInfo taglib : pageInfo.getTaglibs()) {
+            String[] location = context.getTldLocation(taglib.getURI());
+            if (location != null && location[1] != null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the result of compiling each page during the most recent invocation of this instance's
+     * <code>execute</code> method: the page URI, the generated class name, and the translation error if any.
+     *
+     * <p>
+     * Translation errors of individual pages are only collected when the failOnError property is false. Failures of
+     * the compilation itself (e.g. a missing compiler) are not page results: they make <code>execute</code> throw.
+     *
+     * @return the results by page URI, in the order the pages were compiled
+     */
+    public Map<String, JspCompilationResult> getCompilationResults() {
+        return Collections.unmodifiableMap(compilationResults);
+    }
+
     public List<WaspException> getJSPCompilationErrors() {
 
         ArrayList<WaspException> ret = null;
@@ -1029,6 +1081,7 @@ public class JspC implements Options {
     private void processFile(String file) throws WaspException {
         ClassLoader originalClassLoader = null;
         String jspUri = file.replace('\\', '/');
+        String className = null;
 
         try {
             // set up a scratch/output dir if none is provided
@@ -1050,6 +1103,7 @@ public class JspC implements Options {
             if (targetPackage != null) {
                 clctxt.setServletPackageName(targetPackage);
             }
+            className = clctxt.getFullClassName();
 
             originalClassLoader = Thread.currentThread().getContextClassLoader();
             if (loader == null) {
@@ -1066,8 +1120,13 @@ public class JspC implements Options {
             // .jsp file is newer than .class file;
             // Otherwise only generate .java, if .jsp file is newer than
             // the .java file
+            boolean usesTranslationValidators = false;
+            boolean usesJarResources = false;
             if (clc.isOutDated(compile)) {
                 clc.compile(compile);
+                PageInfo compiledPageInfo = clc.getPageInfo();
+                usesTranslationValidators = compiledPageInfo != null && compiledPageInfo.usesTranslationValidators();
+                usesJarResources = compiledPageInfo != null && usesJarResources(compiledPageInfo, clctxt);
             }
 
             // START SJSAS 6393940
@@ -1090,6 +1149,8 @@ public class JspC implements Options {
 
             // Generate mapping
             generateWebMapping(file, clctxt);
+            compilationResults.put(jspUri,
+                    new JspCompilationResult(jspUri, className, null, usesTranslationValidators, usesJarResources));
             if (showSuccess) {
                 log.info("Built File: " + file);
             }
@@ -1113,13 +1174,25 @@ public class JspC implements Options {
                 // START SJAS 6329723
                 jspErrors.put(jspUri, je);
                 // END SJSAS 6329723
+                compilationResults.put(jspUri, new JspCompilationResult(jspUri, className, je));
             }
 
         } catch (Exception e) {
             if (e instanceof FileNotFoundException && log.isLoggable(Level.WARNING)) {
                 log.warning(Localizer.getMessage("jspc.error.fileDoesNotExist", e.getMessage()));
             }
-            throw new WaspException(e);
+            WaspException je = new WaspException(e);
+            if (getFailOnError()) {
+                throw je;
+            }
+
+            // Any other failure while translating this page (e.g. an error in a tag file it uses, reported wrapped)
+            // is a failure of the page
+            if (listErrors) {
+                log.log(Level.SEVERE, Localizer.getMessage("jspc.error.generalException", file), e);
+            }
+            jspErrors.put(jspUri, je);
+            compilationResults.put(jspUri, new JspCompilationResult(jspUri, className, je));
         } finally {
             if (originalClassLoader != null) {
                 Thread.currentThread().setContextClassLoader(originalClassLoader);
@@ -1167,6 +1240,7 @@ public class JspC implements Options {
         // START SJSAS 6329723
         jspErrors.clear();
         // END SJSAS 6329723
+        compilationResults.clear();
         // START SJSAS 6393940
         dependents.clear();
         // END SJSAS 6393940
@@ -1195,6 +1269,16 @@ public class JspC implements Options {
             // No explicit pages, we'll process all .jsp in the webapp
             if (pages.size() == 0) {
                 scanFiles(new File(uriRoot));
+            }
+
+            for (String additionalPage : additionalPages) {
+                File additionalFile = new File(additionalPage);
+                if (!additionalFile.isAbsolute() || !additionalFile.exists()) {
+                    additionalFile = new File(uriRoot, additionalPage);
+                }
+                if (!pages.contains(additionalFile.getPath())) {
+                    pages.add(additionalFile.getPath());
+                }
             }
 
             File uriRootF = new File(uriRoot);

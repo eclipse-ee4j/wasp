@@ -1,0 +1,1 @@
+<%@ page contentType="text/plain" %><%@ taglib prefix="t" tagdir="/WEB-INF/tags" %><%@ taglib prefix="v" uri="urn:wasp:validation" %><v:flag/><t:greet name="tagdir"/>|<%= org.glassfish.wasp.quarkus.test.validation.FlagTEI.calledAndReset() %>

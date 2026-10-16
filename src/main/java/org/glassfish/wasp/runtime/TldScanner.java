@@ -25,6 +25,7 @@ import static java.util.logging.Level.SEVERE;
 import static java.util.logging.Level.WARNING;
 import static org.glassfish.wasp.Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE;
 import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP;
+import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE;
 import static org.glassfish.wasp.Constants.NO_JSPTAG_PRECREATE_INIT_PARAM;
 import static org.glassfish.wasp.Constants.XML_BLOCK_EXTERNAL_INIT_PARAM;
 import static org.glassfish.wasp.compiler.Localizer.getMessage;
@@ -225,6 +226,11 @@ public class TldScanner implements ServletContainerInitializer {
             return mappings.get(uri);
         }
 
+        if (mappings != null && TRUE.equals(servletContext.getAttribute(JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE))) {
+            // The supplied mappings are complete: don't scan, which would also replace them
+            return null;
+        }
+
         if (!doneScanning) {
             scanListeners = false;
             scanTlds();
@@ -235,6 +241,14 @@ public class TldScanner implements ServletContainerInitializer {
             return null;
         }
         return mappings.get(uri);
+    }
+
+    /**
+     * @return the taglib URIs and the locations of their TLDs (as {@link #getLocation(String)} returns them) found so
+     *         far, which after a scan are all of them
+     */
+    public Map<String, String[]> getLocations() {
+        return mappings == null ? Map.of() : Map.copyOf(mappings);
     }
 
     /**

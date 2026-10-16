@@ -75,6 +75,7 @@ public class PageInfo {
     private boolean scriptingInvalid;
     private String isELIgnoredValue;
     private boolean isELIgnored;
+    private boolean usesTranslationValidators;
     private String omitXmlDecl;
     private String doctypeName;
     private String doctypePublic;
@@ -631,6 +632,17 @@ public class PageInfo {
 
     public boolean isELIgnored() {
         return isELIgnored;
+    }
+
+    /**
+     * @return true if validating this page invoked a TagExtraInfo or a TagLibraryValidator
+     */
+    public boolean usesTranslationValidators() {
+        return usesTranslationValidators;
+    }
+
+    public void setUsesTranslationValidators(boolean usesTranslationValidators) {
+        this.usesTranslationValidators = usesTranslationValidators;
     }
 
     /*

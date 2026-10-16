@@ -1,0 +1,1 @@
+<%@ page contentType="text/plain" %><%@ taglib prefix="t" tagdir="/WEB-INF/tags" %><%@ taglib prefix="x" uri="urn:wasp:test" %><t:greet name="tags"/>|<x:shout text="loud"/>|<%= application.getAttribute("tagLibraryListener") %>|<%= application.getAttribute("unusedTagLibraryListener") %>

@@ -178,6 +178,18 @@ public class Constants {
     // START GlassFish 747
     // Must be kept in sync with org.apache.catalina.Globals
     public static final String JSP_TLD_URI_TO_LOCATION_MAP = "com.sun.jsp.tldUriToLocationMap";
+
+    /**
+     * ServletContext attribute that, when Boolean.TRUE, makes the mappings in {@link #JSP_TLD_URI_TO_LOCATION_MAP}
+     * complete: a taglib URI that isn't in them is not resolved by scanning for TLDs.
+     */
+    public static final String JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE = "org.glassfish.wasp.tldUriToLocationMapAuthoritative";
+
+    /**
+     * ServletContext attribute with the URIs (a Set of String) of the precompiled pages to validate again before their
+     * first use, when the option validatePrecompiled is set. When absent, all precompiled pages are validated.
+     */
+    public static final String PRECOMPILED_PAGES_TO_VALIDATE = "org.glassfish.wasp.precompiledPagesToValidate";
     // END GlassFish 747
 
     public static final String JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE = "com.sun.appserv.jsp.resource.injector";

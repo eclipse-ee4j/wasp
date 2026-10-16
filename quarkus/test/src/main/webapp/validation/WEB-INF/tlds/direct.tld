@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="https://jakarta.ee/xml/ns/jakartaee" version="3.0">
+    <tlib-version>1.0</tlib-version>
+    <short-name>direct</short-name>
+    <tag><name>flag</name><tag-class>org.glassfish.wasp.quarkus.test.validation.NoopTag</tag-class><tei-class>org.glassfish.wasp.quarkus.test.validation.FlagTEI</tei-class><body-content>empty</body-content></tag>
+</taglib>

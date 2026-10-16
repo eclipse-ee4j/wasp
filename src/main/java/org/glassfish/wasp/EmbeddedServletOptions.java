@@ -184,6 +184,8 @@ public final class EmbeddedServletOptions implements Options {
 
     private boolean usePrecompiled;
 
+    private boolean validatePrecompiled;
+
     private boolean isValidationEnabled;
 
     /*
@@ -425,6 +427,14 @@ public final class EmbeddedServletOptions implements Options {
         return usePrecompiled;
     }
 
+    /**
+     * Returns the value of the validatePrecompiled init param.
+     */
+    @Override
+    public boolean getValidatePrecompiled() {
+        return validatePrecompiled;
+    }
+
     @Override
     public boolean isValidationEnabled() {
         return isValidationEnabled;
@@ -583,6 +593,8 @@ public final class EmbeddedServletOptions implements Options {
             }
         }
         // END S1AS 6181923
+
+        this.validatePrecompiled = "true".equalsIgnoreCase(config.getInitParameter("validatePrecompiled"));
 
         // START SJSWS
         String capacity = config.getInitParameter("initialCapacity");

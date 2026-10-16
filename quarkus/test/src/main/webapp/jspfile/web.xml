@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+    <servlet>
+        <servlet-name>reportA</servlet-name>
+        <jsp-file>/views/report.page</jsp-file>
+        <init-param><param-name>color</param-name><param-value>red</param-value></init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>reportB</servlet-name>
+        <jsp-file>/views/report.page</jsp-file>
+        <init-param><param-name>color</param-name><param-value>blue</param-value></init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>startup</servlet-name>
+        <jsp-file>/views/startup.jsp</jsp-file>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping><servlet-name>reportA</servlet-name><url-pattern>/a</url-pattern></servlet-mapping>
+    <servlet-mapping><servlet-name>reportB</servlet-name><url-pattern>/b</url-pattern></servlet-mapping>
+    <servlet-mapping><servlet-name>startup</servlet-name><url-pattern>/startup</url-pattern></servlet-mapping>
+</web-app>

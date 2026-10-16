@@ -41,6 +41,7 @@ import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.compiler.JspRuntimeContext;
 import org.glassfish.wasp.compiler.Localizer;
 import org.glassfish.wasp.runtime.JspSourceDependent;
+import org.glassfish.wasp.runtime.PrecompiledPageValidator;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
@@ -73,6 +74,7 @@ public class JspServletWrapper {
     private ServletConfig config;
     private Options options;
     private boolean firstTime = true;
+    private volatile boolean validated;
     private boolean reload = true;
     private boolean isTagFile;
     private int tripCount;
@@ -133,6 +135,9 @@ public class JspServletWrapper {
                     try {
                         servletClass = ctxt.load();
                         theServlet = (Servlet) servletClass.getDeclaredConstructor().newInstance();
+                    } catch (ClassNotFoundException ex1) {
+                        // With use-precompiled, the page doesn't exist (see JspCompilationContext.load)
+                        throw ex1;
                     } catch (ReflectiveOperationException ex1) {
                         throw new WaspException(ex1);
                     }
@@ -290,6 +295,7 @@ public class JspServletWrapper {
                     // Throw cached compilation exception
                     throw compileException;
                 }
+                validatePrecompiled();
             }
 
             /*
@@ -335,6 +341,37 @@ public class JspServletWrapper {
         } catch (Exception ex) {
             throw new WaspException(ex);
         }
+    }
+
+    /**
+     * Validates the precompiled page again in the running application before its first use, when the option
+     * validatePrecompiled is set, which invokes its tag extra infos and tag library validators. A failure is kept as the
+     * compilation exception of the page.
+     *
+     * @throws WaspException when the page didn't validate
+     */
+    public void validatePrecompiled() throws WaspException {
+        if (validated || !options.getUsePrecompiled() || !options.getValidatePrecompiled()) {
+            return;
+        }
+
+        try {
+            PrecompiledPageValidator.getInstance(ctxt.getServletContext()).validate(ctxt.getJspFile(), this::validatePage);
+            validated = true;
+        } catch (WaspException e) {
+            compileException = e;
+            throw e;
+        }
+    }
+
+    private Void validatePage() throws Exception {
+        // A context of its own, so the page gets its own tag extra info and tag library validator instances
+        JspCompilationContext validationContext = new JspCompilationContext(
+            ctxt.getJspFile(), ctxt.isErrorPage(), options, ctxt.getServletContext(), null, ctxt.getRuntimeContext());
+        validationContext.usePrivateTaglibs();
+        validationContext.validate();
+
+        return null;
     }
 
     public void destroy() {

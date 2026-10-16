@@ -86,6 +86,7 @@ public class JspCompilationContext {
     private URL tagFileJarUrl;
     private ConcurrentHashMap<String, TagLibraryInfoImpl> taglibs;
     private ConcurrentHashMap<String, URL> tagFileJarUrls;
+    private volatile boolean usesTranslationValidators;
 
     // jspURI _must_ be relative to the context
     public JspCompilationContext(String jspUri, boolean isErrPage, Options options, ServletContext context, JspServletWrapper jsw, JspRuntimeContext rctxt)
@@ -149,6 +150,36 @@ public class JspCompilationContext {
      */
     public ConcurrentHashMap<String, TagLibraryInfoImpl> getTaglibs() {
         return taglibs;
+    }
+
+    /**
+     * @return true if translating the page or tag file invoked a tag extra info or a tag library validator, also in the
+     *         tag files it uses
+     */
+    public boolean usesTranslationValidators() {
+        return usesTranslationValidators;
+    }
+
+    public void setUsesTranslationValidators(boolean usesTranslationValidators) {
+        this.usesTranslationValidators = usesTranslationValidators;
+    }
+
+    /**
+     * Uses a tag library cache of its own instead of the context-wide one, so that parsing creates new tag extra info and
+     * tag library validator instances, not shared with other pages.
+     */
+    public void usePrivateTaglibs() {
+        taglibs = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Parses and validates the page again, without generating or compiling anything. This invokes the tag extra infos
+     * and tag library validators of the page.
+     *
+     * @throws Exception when the page doesn't parse or doesn't validate
+     */
+    public void validate() throws Exception {
+        createParser().validateOnly();
     }
 
     /**

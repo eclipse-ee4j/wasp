@@ -1,0 +1,1 @@
+<%@ page contentType="text/plain" %><%= org.glassfish.wasp.quarkus.test.validation.CountingTEI.getValidations() %>|<%= org.glassfish.wasp.quarkus.test.validation.CountingTLV.getValidations() %>|<%= org.glassfish.wasp.quarkus.test.validation.CountingTLV.getInstances() %>

@@ -37,9 +37,12 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import jakarta.servlet.jsp.tagext.TagFileInfo;
 
 import org.glassfish.wasp.JspCompilationContext;
 import org.glassfish.wasp.Options;
@@ -130,36 +133,7 @@ public class Compiler {
         }
 
         // Setup page info area
-        pageInfo = new PageInfo(new BeanRepository(pagesCompilationContext.getClassLoader(), errDispatcher), pagesCompilationContext.getJspFile());
-
-        JspConfig jspConfig = options.getJspConfig();
-        JspProperty jspProperty = jspConfig.findJspProperty(pagesCompilationContext.getJspFile());
-
-        /*
-         * If the current uri is matched by a pattern specified in a jsp-property-group in web.xml, initialize pageInfo with
-         * those properties.
-         */
-        pageInfo.setELIgnored(JspUtil.booleanValue(jspProperty.isELIgnored()));
-        pageInfo.setScriptingInvalid(JspUtil.booleanValue(jspProperty.isScriptingInvalid()));
-        pageInfo.setTrimDirectiveWhitespaces(JspUtil.booleanValue(jspProperty.getTrimSpaces()));
-
-        if (jspProperty.getErrorOnELNotFound() != null) {
-            pageInfo.setErrorOnELNotFound(JspUtil.booleanValue(jspProperty.getErrorOnELNotFound()));
-        }
-
-        pageInfo.setDeferredSyntaxAllowedAsLiteral(JspUtil.booleanValue(jspProperty.getPoundAllowed()));
-        pageInfo.setErrorOnUndeclaredNamespace(JspUtil.booleanValue(jspProperty.errorOnUndeclaredNamespace()));
-
-        if (jspProperty.getIncludePrelude() != null) {
-            pageInfo.setIncludePrelude(jspProperty.getIncludePrelude());
-        }
-        if (jspProperty.getIncludeCoda() != null) {
-            pageInfo.setIncludeCoda(jspProperty.getIncludeCoda());
-        }
-        if (options.isDefaultBufferNone() && pageInfo.getBufferValue() == null) {
-            // Set to unbuffered if not specified explicitly
-            pageInfo.setBuffer(0);
-        }
+        initPageInfo();
 
         String javaFileName = pagesCompilationContext.getServletJavaFileName();
         ServletWriter writer = null;
@@ -265,6 +239,109 @@ public class Compiler {
         // .class file need to be removed, to make sure that javac would
         // generate .class again from the new .java file just generated.
         tagFileProcessor.removeProtoTypeFiles(pagesCompilationContext.getClassFileName());
+    }
+
+    /**
+     * Sets up the page info for the page, with the properties of the jsp-property-group that matches it.
+     */
+    private void initPageInfo() throws WaspException {
+        pageInfo = new PageInfo(new BeanRepository(pagesCompilationContext.getClassLoader(), errDispatcher), pagesCompilationContext.getJspFile());
+
+        JspConfig jspConfig = options.getJspConfig();
+        JspProperty jspProperty = jspConfig.findJspProperty(pagesCompilationContext.getJspFile());
+
+        /*
+         * If the current uri is matched by a pattern specified in a jsp-property-group in web.xml, initialize pageInfo with
+         * those properties.
+         */
+        pageInfo.setELIgnored(JspUtil.booleanValue(jspProperty.isELIgnored()));
+        pageInfo.setScriptingInvalid(JspUtil.booleanValue(jspProperty.isScriptingInvalid()));
+        pageInfo.setTrimDirectiveWhitespaces(JspUtil.booleanValue(jspProperty.getTrimSpaces()));
+
+        if (jspProperty.getErrorOnELNotFound() != null) {
+            pageInfo.setErrorOnELNotFound(JspUtil.booleanValue(jspProperty.getErrorOnELNotFound()));
+        }
+
+        pageInfo.setDeferredSyntaxAllowedAsLiteral(JspUtil.booleanValue(jspProperty.getPoundAllowed()));
+        pageInfo.setErrorOnUndeclaredNamespace(JspUtil.booleanValue(jspProperty.errorOnUndeclaredNamespace()));
+
+        if (jspProperty.getIncludePrelude() != null) {
+            pageInfo.setIncludePrelude(jspProperty.getIncludePrelude());
+        }
+        if (jspProperty.getIncludeCoda() != null) {
+            pageInfo.setIncludeCoda(jspProperty.getIncludeCoda());
+        }
+        if (options.isDefaultBufferNone() && pageInfo.getBufferValue() == null) {
+            // Set to unbuffered if not specified explicitly
+            pageInfo.setBuffer(0);
+        }
+    }
+
+    /**
+     * Parses and validates the page, which invokes its tag extra infos and tag library validators, without generating or
+     * compiling anything. Used to validate a precompiled page again in the running application.
+     *
+     * <p>
+     * Only for a compiler created for parsing ({@link JspCompilationContext#createParser()}).
+     *
+     * @throws WaspException when the page doesn't parse or doesn't validate
+     */
+    public void validateOnly() throws Exception {
+        validateOnly(new HashSet<>());
+    }
+
+    /**
+     * Parses and validates the page or tag file, and the tag files it uses that haven't been validated yet.
+     *
+     * @param validatedTagFiles the paths of the tag files validated so far, to which the ones validated now are added
+     */
+    private void validateOnly(Set<String> validatedTagFiles) throws Exception {
+        if (errDispatcher == null) {
+            errDispatcher = new ErrorDispatcher(jspcMode);
+        }
+
+        try {
+            initPageInfo();
+
+            ParserController parserCtl = new ParserController(pagesCompilationContext, this);
+            pageNodes = parserCtl.parse(pagesCompilationContext.getJspFile());
+
+            Validator.validate(this, pageNodes);
+
+            validateTagFiles(pageNodes, validatedTagFiles);
+        } finally {
+            pageInfo = null;
+            pageNodes = null;
+        }
+    }
+
+    /**
+     * Validates the tag files used by the parsed page or tag file, as they are validated when they're translated.
+     */
+    private void validateTagFiles(Node.Nodes nodes, Set<String> validatedTagFiles) throws WaspException {
+        nodes.visit(new Node.Visitor() {
+            @Override
+            public void visit(Node.CustomTag customTag) throws WaspException {
+                TagFileInfo tagFileInfo = customTag.getTagFileInfo();
+                if (tagFileInfo != null && validatedTagFiles.add(tagFileInfo.getPath())) {
+                    String tagFilePath = tagFileInfo.getPath();
+                    JspCompilationContext tagFileContext = new JspCompilationContext(tagFilePath, customTag.getTagInfo(), options,
+                            pagesCompilationContext.getServletContext(), null, pagesCompilationContext.getRuntimeContext(),
+                            pagesCompilationContext.getTagFileJarUrls().get(tagFilePath));
+                    tagFileContext.setClassLoader(pagesCompilationContext.getClassLoader());
+                    tagFileContext.usePrivateTaglibs();
+
+                    try {
+                        tagFileContext.createParser().validateOnly(validatedTagFiles);
+                    } catch (WaspException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        throw new WaspException(e);
+                    }
+                }
+                visitBody(customTag);
+            }
+        });
     }
 
     private void setJavaCompilerOptions() {
@@ -401,6 +478,9 @@ public class Compiler {
                 errDispatcher = new ErrorDispatcher(jspcMode);
             }
             generateJava();
+            if (pageInfo != null && pageInfo.usesTranslationValidators()) {
+                pagesCompilationContext.setUsesTranslationValidators(true);
+            }
             if (compileClass) {
                 generateClass();
             } else {

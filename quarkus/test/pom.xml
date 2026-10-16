@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2026 Contributors to the Eclipse Foundation.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.glassfish.wasp</groupId>
+        <artifactId>quarkus-wasp-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>wasp-quarkus-test</artifactId>
+    <name>WaSP Quarkus extension - Test app</name>
+    <description>
+        Tests for Jakarta Pages in Quarkus with WaSP, each deployed as a separate Quarkus application by the Arquillian
+        Quarkus container.
+    </description>
+
+    <properties>
+        <!-- The tests are not published -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <arquillian-quarkus.version>1.1.0-SNAPSHOT</arquillian-quarkus.version>
+    </properties>
+
+    <dependencies>
+        <!-- For the tag handler and the listeners of the test tag libraries -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ee.omnifish.arquillian</groupId>
+            <artifactId>arquillian-quarkus-managed</artifactId>
+            <version>${arquillian-quarkus.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit5</groupId>
+            <artifactId>arquillian-junit5-container</artifactId>
+            <version>1.10.0.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <!--
+                            The extensions the test applications are built with. The WaSP extension is resolved from
+                            the local Maven repository, so run "mvn install" (not just verify) after changing it.
+                        -->
+                        <arquillian.quarkus.dependencies>
+                            org.glassfish.wasp:quarkus-wasp:${project.version}
+                        </arquillian.quarkus.dependencies>
+                        <!-- Only for the applications, not their build (see RuntimeValidationTest) -->
+                        <arquillian.quarkus.systemProperties>wasp.test.reject=true</arquillian.quarkus.systemProperties>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

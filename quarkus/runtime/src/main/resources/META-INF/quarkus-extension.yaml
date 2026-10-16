@@ -1,0 +1,9 @@
+name: "WaSP - Jakarta Pages"
+metadata:
+  keywords:
+    - "jsp"
+    - "jakarta-pages"
+    - "servlet"
+  categories:
+    - "web"
+  status: "experimental"

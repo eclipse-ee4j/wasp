@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>${summary.title}</title>
+<style>tr.odd { background: #eee; }</style>
+</head>
+<body>

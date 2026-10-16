@@ -1518,12 +1518,14 @@ class Validator {
     static class TagExtraInfoVisitor extends Node.Visitor {
 
         private ErrorDispatcher err;
+        private PageInfo pageInfo;
 
         /*
          * Constructor
          */
         TagExtraInfoVisitor(Compiler compiler) {
             this.err = compiler.getErrorDispatcher();
+            this.pageInfo = compiler.getPageInfo();
         }
 
         @Override
@@ -1531,6 +1533,10 @@ class Validator {
             TagInfo tagInfo = n.getTagInfo();
             if (tagInfo == null) {
                 err.jspError(n, "jsp.error.missing.tagInfo", n.getQName());
+            }
+
+            if (tagInfo.getTagExtraInfo() != null) {
+                pageInfo.setUsesTranslationValidators(true);
             }
 
             ValidationMessage[] errors = tagInfo.validate(n.getTagData());
@@ -1647,6 +1653,9 @@ class Validator {
                 continue;
             }
             TagLibraryInfoImpl tli = (TagLibraryInfoImpl) o;
+            if (tli.getTagLibraryValidator() != null) {
+                compiler.getPageInfo().setUsesTranslationValidators(true);
+            }
 
             ValidationMessage[] errors = tli.validate(xmlView);
             if (errors != null && errors.length != 0) {

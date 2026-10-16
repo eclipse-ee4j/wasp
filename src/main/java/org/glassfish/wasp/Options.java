@@ -186,6 +186,14 @@ public interface Options {
     boolean getUsePrecompiled();
 
     /**
+     * Returns the value of the validatePrecompiled init param: whether precompiled pages are parsed and validated again
+     * before their first use, which invokes their tag extra infos and tag library validators in the running application.
+     */
+    default boolean getValidatePrecompiled() {
+        return false;
+    }
+
+    /**
      * Gets initial capacity of HashMap which maps JSPs to their corresponding servlets.
      */
     int getInitialCapacity();

@@ -41,6 +41,7 @@ import org.glassfish.jsp.api.JspProbeEmitter;
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.EmbeddedServletOptions;
 import org.glassfish.wasp.Options;
+import org.glassfish.wasp.WaspException;
 import org.glassfish.wasp.compiler.JspRuntimeContext;
 import org.glassfish.wasp.compiler.Localizer;
 import org.glassfish.wasp.runtime.JspApplicationContextImpl;
@@ -323,6 +324,48 @@ public class JspServlet extends HttpServlet {
     }
 
     // -------------------------------------------------------- Private Methods
+
+    /**
+     * Loads and initializes a page without servicing a request, like a precompile request (jsp_precompile) does. For
+     * example for a Servlet declared with a jsp-file and load-on-startup, whose page must be initialized when the
+     * Servlet is.
+     *
+     * @param jspUri the URI of the page, relative to the web application root
+     * @throws ServletException if the page could not be loaded or initialized
+     * @throws IOException if the page could not be read
+     */
+    public void preload(String jspUri) throws ServletException, IOException {
+        JspServletWrapper wrapper = runtimeContext.getWrapper(jspUri);
+        if (wrapper == null) {
+            synchronized (this) {
+                wrapper = runtimeContext.getWrapper(jspUri);
+                if (wrapper == null) {
+                    wrapper = new JspServletWrapper(config, options, jspUri, false, runtimeContext);
+                    runtimeContext.addWrapper(jspUri, wrapper);
+                }
+            }
+        }
+
+        if (!options.getUsePrecompiled()) {
+            // Compiles the page if needed, then loads and initializes it
+            wrapper.service(null, null, true);
+            return;
+        }
+
+        try {
+            wrapper.validatePrecompiled();
+        } catch (WaspException e) {
+            // Kept by the wrapper, so requests for the page fail
+            log.log(Level.SEVERE, "Precompiled page " + jspUri + " didn't validate", e);
+            return;
+        }
+
+        try {
+            wrapper.getServlet();
+        } catch (ClassNotFoundException e) {
+            throw new FileNotFoundException(escapeXml(jspUri));
+        }
+    }
 
     private void serviceJspFile(HttpServletRequest request, HttpServletResponse response, String jspUri, Throwable exception, boolean precompile)
             throws ServletException, IOException {

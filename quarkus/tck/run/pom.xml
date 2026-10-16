@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2026 Contributors to the Eclipse Foundation.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.glassfish.wasp</groupId>
+    <artifactId>quarkus-wasp-pages-tck-run</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
+
+    <name>WaSP Quarkus extension - Jakarta Pages TCK - Run</name>
+    <description>
+        Runs the Jakarta Pages TCK on Quarkus with the WaSP extension. Each test archive is built into a Quarkus
+        application by the Arquillian Quarkus container, with the pages compiled at build time.
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jakarta.tck.common.version>11.1.0</jakarta.tck.common.version>
+        <jakarta.tck.sigtest.version>11.1.0</jakarta.tck.sigtest.version>
+        <wasp.version>4.0.0-SNAPSHOT</wasp.version>
+        <arquillian-quarkus.version>1.1.1</arquillian-quarkus.version>
+
+        <!-- The API versions Quarkus (3.40.1) ships, for the API signature test -->
+        <servlet-api.version>6.0.0</servlet-api.version>
+        <pages-api.version>4.0.0</pages-api.version>
+        <el-api.version>6.0.1</el-api.version>
+        <sigtest.dir>${project.build.directory}/sigtest</sigtest.dir>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.12.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>1.10.0.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.13.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Jakarta EE APIs -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>6.0.1</version>
+        </dependency>
+
+        <!-- Jakarta Pages TCK -->
+        <dependency>
+            <groupId>jakarta.tck</groupId>
+            <artifactId>jakarta-pages-tck</artifactId>
+            <version>4.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.tck</groupId>
+            <artifactId>common</artifactId>
+            <version>${jakarta.tck.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.tck</groupId>
+            <artifactId>signaturetest</artifactId>
+            <version>${jakarta.tck.sigtest.version}</version>
+        </dependency>
+
+        <!-- JUnit 5 -->
+        <dependency>
+            <groupId>org.jboss.arquillian.junit5</groupId>
+            <artifactId>arquillian-junit5-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Dependency for the API signature test -->
+        <dependency>
+            <groupId>jakarta.tck</groupId>
+            <artifactId>sigtest-maven-plugin</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- The Arquillian connector that builds each archive into a Quarkus application and runs it -->
+        <dependency>
+            <groupId>ee.omnifish.arquillian</groupId>
+            <artifactId>arquillian-quarkus-managed</artifactId>
+            <version>${arquillian-quarkus.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+
+            <!-- The API jars Quarkus ships, for the API signature test -->
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-api-jars</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>generate-test-resources</phase>
+                        <configuration>
+                            <outputDirectory>${sigtest.dir}</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>jakarta.servlet.jsp</groupId>
+                                    <artifactId>jakarta.servlet.jsp-api</artifactId>
+                                    <version>${pages-api.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>jakarta.servlet</groupId>
+                                    <artifactId>jakarta.servlet-api</artifactId>
+                                    <version>${servlet-api.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>jakarta.el</groupId>
+                                    <artifactId>jakarta.el-api</artifactId>
+                                    <version>${el-api.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.5</version>
+                <configuration>
+                    <dependenciesToScan>
+                        <dependenciesToScan>jakarta.tck:jakarta-pages-tck</dependenciesToScan>
+                    </dependenciesToScan>
+                    <systemPropertyVariables>
+                        <!--
+                            The extensions the test applications are built with. The properties-file extension
+                            provides the users (with their groups as roles) for the security tests.
+                        -->
+                        <arquillian.quarkus.dependencies>
+                            org.glassfish.wasp:quarkus-wasp:${wasp.version}
+                            io.quarkus:quarkus-elytron-security-properties-file
+                        </arquillian.quarkus.dependencies>
+                        <!--
+                            Quarkus defaults to UTF-8 for requests and responses; the Servlet default, which the TCK
+                            checks for pages without a page encoding or content type, is ISO-8859-1.
+                        -->
+                        <arquillian.quarkus.buildProperties>
+                            quarkus.security.users.embedded.enabled=true
+                            quarkus.http.auth.basic=true
+                            quarkus.servlet.default-charset=ISO-8859-1
+                        </arquillian.quarkus.buildProperties>
+                        <arquillian.quarkus.systemProperties>
+                            quarkus.security.users.embedded.plain-text=true
+                            quarkus.security.users.embedded.users.javajoe=javajoe
+                            quarkus.security.users.embedded.roles.javajoe=guest
+                            quarkus.security.users.embedded.users.j2ee=j2ee
+                            quarkus.security.users.embedded.roles.j2ee=staff,mgr
+                        </arquillian.quarkus.systemProperties>
+
+                        <!-- Print the content of the deployed archives -->
+                        <pages.tck.archive.print>true</pages.tck.archive.print>
+                        <porting.ts.url.class.1>ee.jakarta.tck.pages.lib.implementation.sun.common.SunRIURL</porting.ts.url.class.1>
+
+                        <!-- Set the properties for the API signature test -->
+                        <sigTestClasspath>${sigtest.dir}/jakarta.servlet.jsp-api.jar:${sigtest.dir}/jakarta.servlet-api.jar:${sigtest.dir}/jakarta.el-api.jar</sigTestClasspath>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!--
+            Builds each test archive into a native executable: mvn verify -Dnative. Needs GraalVM or Mandrel, from
+            GRAALVM_HOME or as the JDK that runs Maven. A native build takes a minute or more per test class, so the
+            whole TCK takes about an hour and a half.
+        -->
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>native</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <arquillian.quarkus.nativeImage>true</arquillian.quarkus.nativeImage>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

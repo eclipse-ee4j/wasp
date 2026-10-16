@@ -19,14 +19,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.wasp</groupId>
-    <artifactId>quarkus-wasp-pages-tck</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <artifactId>wasp-pages-tck</artifactId>
+    <version>4.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>WaSP Quarkus extension - Jakarta Pages TCK</name>
+    <name>WaSP - Jakarta Pages TCK</name>
     <description>
-        Runs the (binary) Jakarta Pages TCK against Quarkus with the WaSP extension: install downloads and installs the
-        TCK, run runs it. Not part of the extension build, as a full run builds about 90 applications.
+        Runs the (binary) Jakarta Pages TCK against WaSP, in GlassFish or on Quarkus with the WaSP extension: install
+        downloads and installs the TCK, run runs it. Not part of the WaSP build, as a full run deploys about 90
+        applications.
     </description>
 
     <modules>

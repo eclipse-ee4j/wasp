@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0.9</version>
+        <version>2.0.6</version>
         <relativePath/>
     </parent>
 
@@ -163,7 +163,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>17</release>
                     <compilerArgument>-Xlint:all</compilerArgument>
@@ -174,7 +174,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.9</version>
+                <version>6.2.0</version>
                 <configuration>
                     <instructions>
                         <_noimportjava>true</_noimportjava>
@@ -239,7 +239,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -336,7 +336,7 @@
                             </groups>
                             <bottom><![CDATA[
 Comments to: <a href="mailto:wasp-dev@eclipse.org">wasp-dev@eclipse.org</a>.<br>
-Copyright &#169; 2018, 2024 Eclipse Foundation. All rights reserved.<br>
+Copyright &#169; 2018, 2026 Eclipse Foundation. All rights reserved.<br>
 Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">license terms</a>.]]>
                             </bottom>
                         </configuration>

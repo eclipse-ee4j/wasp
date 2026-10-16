@@ -79,6 +79,6 @@ Limits:
   (default 30) and `-Dwasp.benchmark.durationSeconds` (default 60) change the load, and
   `-Darquillian.quarkus.javaVmArguments`, e.g. `-Xmx512m`, the options of the application in both modes. JMeter
   measures latency in whole milliseconds, and runs on the same machine as the application.
-- `tck`: runs the Jakarta Pages TCK against the extension. It's not part of this build:
-  `mvn verify -f tck` after `mvn install`. With `-Dnative`, each test archive is built into a native executable, which
-  needs GraalVM or Mandrel (`GRAALVM_HOME`) and takes about an hour and a half.
+
+The Jakarta Pages TCK runs against the extension from `tck` in the WaSP root, with `-Pquarkus` or `-Pquarkus-native`
+(see the WaSP README).

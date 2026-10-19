@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2026 Contributors to the Eclipse Foundation.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.glassfish.wasp</groupId>
+    <artifactId>wasp-benchmark</artifactId>
+    <version>4.0.1-SNAPSHOT</version>
+
+    <name>WaSP - Benchmark</name>
+    <description>
+        Throughput and latency of one page under load: in GlassFish (the default), with GlassFish's WaSP jar replaced
+        by this build's, on Quarkus with the WaSP extension, in JVM mode (-Pquarkus) or as a native executable
+        (-Pquarkus-native), or in Piranha (-Ppiranha), with this build's WaSP classes in place of Piranha's. Not part
+        of the WaSP build: mvn verify -f benchmark, after mvn install in the WaSP root, and for the Quarkus profiles in
+        quarkus too.
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- The benchmark is not published -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <!-- The WaSP build under test: its Quarkus extension, or the WaSP jar GlassFish uses -->
+        <wasp.version>${project.version}</wasp.version>
+        <jmeter-java-dsl.version>2.3</jmeter-java-dsl.version>
+    </properties>
+
+    <dependencies>
+        <!-- For the tag handlers and the listener of the benchmark application, in the versions of Quarkus 3.40.1 -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>4.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.arquillian.junit5</groupId>
+            <artifactId>arquillian-junit5-container</artifactId>
+            <version>1.10.0.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>6.1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- The load generator: JMeter, embedded in the test -->
+        <dependency>
+            <groupId>us.abstracta.jmeter</groupId>
+            <artifactId>jmeter-java-dsl</artifactId>
+            <version>${jmeter-java-dsl.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!--
+            Exactly one of these runs the benchmark: glassfish (the default), quarkus, quarkus-native or piranha, chosen
+            with -P. The two Quarkus profiles differ only in arquillian.quarkus.nativeImage. Each sets
+            wasp.benchmark.runtime to its own id, which names its results.
+        -->
+
+        <!-- On Quarkus in JVM mode: mvn verify -Pquarkus -->
+        <profile>
+            <id>quarkus</id>
+            <properties>
+                <arquillian-quarkus.version>1.1.1</arquillian-quarkus.version>
+            </properties>
+            <dependencies>
+                <!-- The Arquillian connector that builds the archive into a Quarkus application and starts it -->
+                <dependency>
+                    <groupId>ee.omnifish.arquillian</groupId>
+                    <artifactId>arquillian-quarkus-managed</artifactId>
+                    <version>${arquillian-quarkus.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <wasp.benchmark.runtime>quarkus</wasp.benchmark.runtime>
+
+                                <!--
+                                    The extensions the benchmark application is built with. The WaSP extension is
+                                    resolved from the local Maven repository, so run "mvn install" in quarkus first.
+                                -->
+                                <arquillian.quarkus.dependencies>
+                                    org.glassfish.wasp:quarkus-wasp:${wasp.version}
+                                </arquillian.quarkus.dependencies>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            On Quarkus as a native executable: mvn verify -Pquarkus-native. Needs GraalVM or Mandrel, from GRAALVM_HOME
+            or as the JDK that runs Maven.
+        -->
+        <profile>
+            <id>quarkus-native</id>
+            <properties>
+                <arquillian-quarkus.version>1.1.1</arquillian-quarkus.version>
+            </properties>
+            <dependencies>
+                <!-- The Arquillian connector that builds the archive into a native executable and starts it -->
+                <dependency>
+                    <groupId>ee.omnifish.arquillian</groupId>
+                    <artifactId>arquillian-quarkus-managed</artifactId>
+                    <version>${arquillian-quarkus.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <wasp.benchmark.runtime>quarkus-native</wasp.benchmark.runtime>
+
+                                <!--
+                                    The extensions the benchmark application is built with. The WaSP extension is
+                                    resolved from the local Maven repository, so run "mvn install" in quarkus first.
+                                -->
+                                <arquillian.quarkus.dependencies>
+                                    org.glassfish.wasp:quarkus-wasp:${wasp.version}
+                                </arquillian.quarkus.dependencies>
+                                <arquillian.quarkus.nativeImage>true</arquillian.quarkus.nativeImage>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            In GlassFish, with GlassFish's own WaSP jar replaced by the one in the local Maven repository (from
+            "mvn install" in the WaSP root): mvn verify
+        -->
+        <profile>
+            <id>glassfish</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <arquillian-glassfish.version>2.2.1</arquillian-glassfish.version>
+                <glassfish.version>8.0.5</glassfish.version>
+                <glassfish.root>${project.build.directory}</glassfish.root>
+                <glassfish.home>${glassfish.root}/glassfish8</glassfish.home>
+            </properties>
+            <dependencies>
+                <!-- The Arquillian connector that starts GlassFish and deploys the archive to it -->
+                <dependency>
+                    <groupId>ee.omnifish.arquillian</groupId>
+                    <artifactId>arquillian-glassfish-server-managed</artifactId>
+                    <version>${arquillian-glassfish.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!--
+                        GlassFish keeps its own copy of each module in its OSGi cache, and only refreshes it for a
+                        newer module jar. The copied WaSP jar keeps its build time, so drop the cache instead.
+                    -->
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <version>3.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>clear-osgi-cache</id>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${glassfish.home}/glassfish/domains/domain1/osgi-cache</directory>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-glassfish</id>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <markersDirectory>${glassfish.root}/dependency-maven-plugin-markers</markersDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.main.distributions</groupId>
+                                            <artifactId>glassfish</artifactId>
+                                            <version>${glassfish.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${glassfish.root}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <!-- Runs after the unpacking, as it's bound to the same phase and declared later -->
+                                <id>replace-wasp</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.wasp</groupId>
+                                            <artifactId>wasp</artifactId>
+                                            <version>${wasp.version}</version>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${glassfish.home}/glassfish/modules</outputDirectory>
+                                            <destFileName>wasp.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <wasp.benchmark.runtime>glassfish</wasp.benchmark.runtime>
+                                <glassfish.home>${glassfish.home}</glassfish.home>
+
+                                <!--
+                                    GlassFish's HTTP thread pool serves at most 5 requests at a time by default, fewer
+                                    than the benchmark's threads. Give it the size of Quarkus' worker pool, which has
+                                    at least 200 threads. GlassFish applies it by restarting its HTTP listeners.
+                                -->
+                                <glassfish.postBootCommands>
+                                    set server-config.thread-pools.thread-pool.http-thread-pool.max-thread-pool-size=200
+                                </glassfish.postBootCommands>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            In Piranha Web Profile (version piranha.version), which the Arquillian connector starts as a process of its
+            own, as GlassFish and Quarkus run: mvn verify -Ppiranha. The WaSP jar in the local Maven repository (from
+            "mvn install" in the WaSP root) goes on the class path before Piranha's jar, which contains WaSP 4.0.0, so
+            that its classes are the ones loaded. Piranha serves HTTP with Grizzly, as GlassFish does; its jars go on
+            the class path too. -Dpiranha.httpServerClass= runs Piranha's default HTTP server instead. piranha.version is a snapshot, which the connector takes from the
+            local Maven repository, so build and install Piranha first (mvn install in the Piranha root).
+        -->
+        <profile>
+            <id>piranha</id>
+            <properties>
+                <piranha.version>25.4.0-SNAPSHOT</piranha.version>
+                <piranha.root>${project.build.directory}/piranha</piranha.root>
+                <piranha.config>${project.basedir}/src/test/piranha</piranha.config>
+                <piranha.httpServerClass>cloud.piranha.http.grizzly.GrizzlyHttpServer</piranha.httpServerClass>
+                <!-- More options for Piranha's JVM, e.g. -Xmx512m -->
+                <piranha.javaVmArguments></piranha.javaVmArguments>
+            </properties>
+            <dependencies>
+                <!-- The Arquillian connector that starts Piranha as a process and deploys the archive to it -->
+                <dependency>
+                    <groupId>cloud.piranha.arquillian</groupId>
+                    <artifactId>piranha-arquillian-managed</artifactId>
+                    <version>${piranha.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <!-- Piranha's Grizzly HTTP server, only to copy it and Grizzly to the class path of Piranha's process -->
+                <dependency>
+                    <groupId>cloud.piranha.http</groupId>
+                    <artifactId>piranha-http-grizzly</artifactId>
+                    <version>${piranha.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-wasp</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.wasp</groupId>
+                                            <artifactId>wasp</artifactId>
+                                            <version>${wasp.version}</version>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${piranha.root}</outputDirectory>
+                                            <destFileName>wasp.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-grizzly</id>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <!-- The Piranha HTTP API is in Piranha's jar already -->
+                                    <includeArtifactIds>piranha-http-grizzly,grizzly-http-server,grizzly-http,grizzly-framework,grizzly-http2,grizzly-npn-api</includeArtifactIds>
+                                    <outputDirectory>${piranha.root}/grizzly</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <wasp.benchmark.runtime>piranha</wasp.benchmark.runtime>
+                                <piranha.distribution>webprofile</piranha.distribution>
+                                <piranha.httpServerClass>${piranha.httpServerClass}</piranha.httpServerClass>
+                                <!--
+                                    With a class path, the connector starts Piranha with it before Piranha's jar. The
+                                    logging configuration keeps Piranha from logging everything, at each request. As
+                                    in GlassFish, WaSP doesn't check the pages and the files they include for changes
+                                    at each request: Piranha passes the system properties with this prefix to its JSP
+                                    servlet as init parameters.
+                                -->
+                                <piranha.jvmArguments>
+                                    -cp ${piranha.root}/wasp.jar${path.separator}${piranha.root}/grizzly/*
+                                    -Djava.util.logging.config.file=${piranha.config}/logging.properties
+                                    -Dcloud.piranha.extension.wasp.WaspInitializer.initParameter.development=false
+                                    ${piranha.javaVmArguments}
+                                </piranha.jvmArguments>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

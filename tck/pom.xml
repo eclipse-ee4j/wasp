@@ -25,9 +25,9 @@
 
     <name>WaSP - Jakarta Pages TCK</name>
     <description>
-        Runs the (binary) Jakarta Pages TCK against WaSP, in GlassFish or on Quarkus with the WaSP extension: install
-        downloads and installs the TCK, run runs it. Not part of the WaSP build, as a full run deploys about 90
-        applications.
+        Runs the (binary) Jakarta Pages TCK against WaSP, in GlassFish, on Quarkus with the WaSP extension or on
+        Piranha: install downloads and installs the TCK, run runs it. Not part of the WaSP build, as a full run deploys
+        about 90 applications.
     </description>
 
     <modules>

@@ -27,6 +27,10 @@
         Runs the Jakarta Pages TCK on GlassFish (the default), with GlassFish's WaSP jar replaced by this build's. With
         -Pquarkus (or -Pquarkus-native) it runs the TCK on Quarkus with the WaSP extension instead: each test archive is
         built into a Quarkus application by the Arquillian Quarkus container, with the pages compiled at build time.
+        With -Pglassfish-embedded it runs the TCK on GlassFish Embedded, in the JVM of the tests, with this build's WaSP
+        jar before GlassFish's. With -Ppiranha-micro it runs the TCK on Piranha Micro, in the JVM of the tests, with
+        Micro's WaSP jar replaced by this build's. With -Ppiranha-webprofile it runs it on the Piranha Web Profile
+        distribution, a process for each test archive, with this build's WaSP jar before Piranha's.
     </description>
 
     <properties>
@@ -125,6 +129,16 @@
             <artifactId>sigtest-maven-plugin</artifactId>
             <version>2.6</version>
             <scope>test</scope>
+            <!--
+                The test only uses its signature test classes, which don't need Maven. Maven's resolver would conflict
+                with the newer one Piranha Micro resolves its jars with.
+            -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.maven</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -166,8 +180,9 @@
     </build>
 
     <!--
-        Exactly one of these runs the TCK: glassfish (the default), quarkus or quarkus-native, chosen with -P. The two
-        Quarkus profiles differ only in arquillian.quarkus.nativeImage.
+        Exactly one of these runs the TCK: glassfish (the default), glassfish-embedded, quarkus, quarkus-native,
+        piranha-micro or piranha-webprofile, chosen with -P.
+        The two Quarkus profiles differ only in arquillian.quarkus.nativeImage.
     -->
     <profiles>
         <!-- Builds each test archive into a Quarkus application in JVM mode: mvn verify -Pquarkus -->
@@ -353,10 +368,6 @@
                                 </arquillian.quarkus.buildProperties>
                                 <arquillian.quarkus.systemProperties>
                                     quarkus.security.users.embedded.plain-text=true
-                                    quarkus.security.users.embedded.users.javajoe=javajoe
-                                    quarkus.security.users.embedded.roles.javajoe=guest
-                                    quarkus.security.users.embedded.users.j2ee=j2ee
-                                    quarkus.security.users.embedded.roles.j2ee=staff,mgr
                                 </arquillian.quarkus.systemProperties>
 
                                 <!-- Set the properties for the API signature test -->
@@ -478,16 +489,322 @@
                             <systemPropertyVariables>
                                 <glassfish.home>${glassfish.home}</glassfish.home>
 
-                                <!-- Create the users for the security (authentication) tests -->
                                 <glassfish.postBootCommands>
                                     set server-config.network-config.protocols.protocol.http-listener-1.http.trace-enabled=true
-                                    --passwordfile ${project.basedir}/src/test/glassfish/javajoe.pass create-file-user --groups guest javajoe
-                                    --passwordfile ${project.basedir}/src/test/glassfish/j2ee.pass create-file-user --groups staff:mgr j2ee
-                                    list-file-users
                                 </glassfish.postBootCommands>
 
                                 <!-- Set the properties for the API signature test: the API jars GlassFish ships -->
                                 <sigTestClasspath>${glassfish.home}/glassfish/modules/jakarta.servlet.jsp-api.jar:${glassfish.home}/glassfish/modules/jakarta.servlet-api.jar:${glassfish.home}/glassfish/modules/jakarta.el-api.jar</sigTestClasspath>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            Runs the TCK on Piranha Micro (version piranha.version), in process: each test archive is deployed to a
+            Piranha Micro of its own, in the JVM of the tests: mvn verify -Ppiranha. Micro resolves its jars when it
+            starts, with the WaSP jar it comes with replaced by this build's (org.glassfish.wasp:wasp:wasp.version,
+            installed by building WaSP). It resolves them from the local repository only, so build and install Piranha
+            first (mvn install in the Piranha root), as piranha.version is a snapshot.
+        -->
+        <profile>
+            <id>piranha-micro</id>
+            <properties>
+                <piranha.version>25.4.0-SNAPSHOT</piranha.version>
+
+                <!-- The API versions Piranha (25.4.0-SNAPSHOT) ships, for the API signature test -->
+                <servlet-api.version>6.1.0</servlet-api.version>
+                <pages-api.version>4.0.0</pages-api.version>
+                <el-api.version>6.0.1</el-api.version>
+                <sigtest.dir>${project.build.directory}/sigtest</sigtest.dir>
+            </properties>
+            <dependencies>
+                <!-- The Arquillian connector that starts a Piranha Micro for each archive, in the JVM of the tests -->
+                <dependency>
+                    <groupId>cloud.piranha.arquillian</groupId>
+                    <artifactId>piranha-arquillian-server</artifactId>
+                    <version>${piranha.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <!--
+                    Piranha compiles pages against the class path of the JVM it runs in, here that of the tests, so
+                    the WaSP jar Micro uses must be on it too. Micro itself doesn't load classes from it.
+                -->
+                <dependency>
+                    <groupId>org.glassfish.wasp</groupId>
+                    <artifactId>wasp</artifactId>
+                    <version>${wasp.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <!-- The Maven resolver Micro resolves its jars with, which the connector doesn't bring itself -->
+                <dependency>
+                    <groupId>org.jboss.shrinkwrap.resolver</groupId>
+                    <artifactId>shrinkwrap-resolver-depchain</artifactId>
+                    <version>3.3.7</version>
+                    <type>pom</type>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!-- The API jars Piranha ships, for the API signature test -->
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-api-jars</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <outputDirectory>${sigtest.dir}</outputDirectory>
+                                    <stripVersion>true</stripVersion>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>jakarta.servlet.jsp</groupId>
+                                            <artifactId>jakarta.servlet.jsp-api</artifactId>
+                                            <version>${pages-api.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>jakarta.servlet</groupId>
+                                            <artifactId>jakarta.servlet-api</artifactId>
+                                            <version>${servlet-api.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>jakarta.el</groupId>
+                                            <artifactId>jakarta.el-api</artifactId>
+                                            <version>${el-api.version}</version>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <!-- Piranha writes the compiled pages to tmp in the working directory -->
+                            <workingDirectory>${project.build.directory}</workingDirectory>
+                            <systemPropertyVariables>
+                                <!-- Replaces the WaSP version Micro comes with -->
+                                <piranha.dependencies>org.glassfish.wasp:wasp:${wasp.version}</piranha.dependencies>
+                                <piranha.offline>true</piranha.offline>
+                                <!-- The TCK requests each archive's pages at the archive's name -->
+                                <piranha.rootIsWarName>true</piranha.rootIsWarName>
+
+                                <!-- Set the properties for the API signature test -->
+                                <sigTestClasspath>${sigtest.dir}/jakarta.servlet.jsp-api.jar:${sigtest.dir}/jakarta.servlet-api.jar:${sigtest.dir}/jakarta.el-api.jar</sigTestClasspath>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            Runs the TCK on the Piranha Web Profile distribution (version piranha.version), with each test archive
+            deployed to a Piranha process of its own: mvn verify -Ppiranha-webprofile. The distribution is a single jar
+            with WaSP 4.0.0 inside; this build's WaSP jar comes before it on the class path. It's taken from the local
+            repository, so build and install Piranha first (mvn install in the Piranha root), as piranha.version is a
+            snapshot.
+        -->
+        <profile>
+            <id>piranha-webprofile</id>
+            <properties>
+                <piranha.version>25.4.0-SNAPSHOT</piranha.version>
+                <piranha.root>${project.build.directory}/piranha</piranha.root>
+
+                <!-- The API versions Piranha (25.4.0-SNAPSHOT) ships, for the API signature test -->
+                <servlet-api.version>6.1.0</servlet-api.version>
+                <pages-api.version>4.0.0</pages-api.version>
+                <el-api.version>6.0.1</el-api.version>
+                <sigtest.dir>${project.build.directory}/sigtest</sigtest.dir>
+            </properties>
+            <dependencies>
+                <!-- The Arquillian connector that starts Piranha as a process for each archive and deploys it there -->
+                <dependency>
+                    <groupId>cloud.piranha.arquillian</groupId>
+                    <artifactId>piranha-arquillian-managed</artifactId>
+                    <version>${piranha.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-wasp</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.wasp</groupId>
+                                            <artifactId>wasp</artifactId>
+                                            <version>${wasp.version}</version>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${piranha.root}</outputDirectory>
+                                            <destFileName>wasp.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <!-- The API jars Piranha ships, for the API signature test -->
+                            <execution>
+                                <id>copy-api-jars</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <outputDirectory>${sigtest.dir}</outputDirectory>
+                                    <stripVersion>true</stripVersion>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>jakarta.servlet.jsp</groupId>
+                                            <artifactId>jakarta.servlet.jsp-api</artifactId>
+                                            <version>${pages-api.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>jakarta.servlet</groupId>
+                                            <artifactId>jakarta.servlet-api</artifactId>
+                                            <version>${servlet-api.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>jakarta.el</groupId>
+                                            <artifactId>jakarta.el-api</artifactId>
+                                            <version>${el-api.version}</version>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <piranha.distribution>webprofile</piranha.distribution>
+                                <!--
+                                    With a class path, the connector starts Piranha with it before Piranha's jar. The
+                                    logging configuration keeps Piranha from logging everything, at each request.
+                                -->
+                                <piranha.jvmArguments>
+                                    -cp ${piranha.root}/wasp.jar
+                                    -Djava.util.logging.config.file=${project.basedir}/src/test/piranha/logging.properties
+                                </piranha.jvmArguments>
+
+                                <!-- Set the properties for the API signature test -->
+                                <sigTestClasspath>${sigtest.dir}/jakarta.servlet.jsp-api.jar:${sigtest.dir}/jakarta.servlet-api.jar:${sigtest.dir}/jakarta.el-api.jar</sigTestClasspath>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!--
+            Runs the TCK on GlassFish Embedded (version glassfish.version), in the JVM of the tests: mvn verify
+            -Pglassfish-embedded. GlassFish Embedded is a single jar with its own copy of WaSP inside. This build's WaSP
+            jar comes before it on the class path, so its classes and tag library descriptors are found first. That
+            jar has every WaSP file GlassFish Embedded has, so no class of GlassFish's own WaSP is used.
+        -->
+        <profile>
+            <id>glassfish-embedded</id>
+            <properties>
+                <arquillian-glassfish.version>2.2.1</arquillian-glassfish.version>
+                <glassfish.version>8.0.5</glassfish.version>
+
+                <!-- The API versions GlassFish Embedded (8.0.5) contains, for the API signature test -->
+                <servlet-api.version>6.1.0</servlet-api.version>
+                <pages-api.version>4.0.0</pages-api.version>
+                <el-api.version>6.0.1</el-api.version>
+                <sigtest.dir>${project.build.directory}/sigtest</sigtest.dir>
+            </properties>
+            <dependencies>
+                <!-- Before glassfish-embedded-all, so that this build's WaSP classes are found before GlassFish's -->
+                <dependency>
+                    <groupId>org.glassfish.wasp</groupId>
+                    <artifactId>wasp</artifactId>
+                    <version>${wasp.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.main.extras</groupId>
+                    <artifactId>glassfish-embedded-all</artifactId>
+                    <version>${glassfish.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <!-- The Arquillian connector that starts GlassFish Embedded and deploys archives to it -->
+                <dependency>
+                    <groupId>ee.omnifish.arquillian</groupId>
+                    <artifactId>arquillian-glassfish-server-embedded</artifactId>
+                    <version>${arquillian-glassfish.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!--
+                        The API jars of the APIs GlassFish Embedded contains, for the API signature test. GlassFish
+                        Embedded's own jar can't be used: it also contains the Jakarta Tags API, whose packages are
+                        subpackages of the Jakarta Pages API, which the test would report as added classes.
+                    -->
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-api-jars</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>generate-test-resources</phase>
+                                <configuration>
+                                    <outputDirectory>${sigtest.dir}</outputDirectory>
+                                    <stripVersion>true</stripVersion>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>jakarta.servlet.jsp</groupId>
+                                            <artifactId>jakarta.servlet.jsp-api</artifactId>
+                                            <version>${pages-api.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>jakarta.servlet</groupId>
+                                            <artifactId>jakarta.servlet-api</artifactId>
+                                            <version>${servlet-api.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>jakarta.el</groupId>
+                                            <artifactId>jakarta.el-api</artifactId>
+                                            <version>${el-api.version}</version>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <glassfish.postBootCommands>
+                                    set server-config.network-config.protocols.protocol.http-listener-1.http.trace-enabled=true
+                                </glassfish.postBootCommands>
+
+                                <!-- Set the properties for the API signature test -->
+                                <sigTestClasspath>${sigtest.dir}/jakarta.servlet.jsp-api.jar:${sigtest.dir}/jakarta.servlet-api.jar:${sigtest.dir}/jakarta.el-api.jar</sigTestClasspath>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

@@ -18,17 +18,13 @@
 
 package org.glassfish.wasp.runtime;
 
-import static java.lang.Boolean.TRUE;
-import static java.lang.Boolean.parseBoolean;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
-import static org.glassfish.wasp.Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE;
-import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP;
-import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE;
-import static org.glassfish.wasp.Constants.NO_JSPTAG_PRECREATE_INIT_PARAM;
-import static org.glassfish.wasp.Constants.XML_BLOCK_EXTERNAL_INIT_PARAM;
-import static org.glassfish.wasp.compiler.Localizer.getMessage;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.descriptor.JspConfigDescriptor;
+import jakarta.servlet.descriptor.TaglibDescriptor;
+import jakarta.servlet.jsp.tagext.JspTag;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,13 +55,17 @@ import org.glassfish.wasp.compiler.Localizer;
 import org.glassfish.wasp.xmlparser.ParserUtils;
 import org.glassfish.wasp.xmlparser.TreeNode;
 
-import jakarta.servlet.ServletContainerInitializer;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.descriptor.JspConfigDescriptor;
-import jakarta.servlet.descriptor.TaglibDescriptor;
-import jakarta.servlet.jsp.tagext.JspTag;
+import static java.lang.Boolean.TRUE;
+import static java.lang.Boolean.parseBoolean;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+import static org.glassfish.wasp.Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE;
+import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP;
+import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE;
+import static org.glassfish.wasp.Constants.NO_JSPTAG_PRECREATE_INIT_PARAM;
+import static org.glassfish.wasp.Constants.XML_BLOCK_EXTERNAL_INIT_PARAM;
+import static org.glassfish.wasp.compiler.Localizer.getMessage;
 
 /**
  * A container for all tag libraries that are defined "globally" for the web application.
@@ -515,6 +515,9 @@ public class TldScanner implements ServletContainerInitializer {
      */
     private void scanJar(URL url, boolean isLocal) throws WaspException {
         String resourcePath = url.toString();
+        // The jar and the entry name of a tld in a jar, mapped as the other scan algorithm maps them, so that the
+        // compiler reads the tld, and its tag files, from the jar
+        String[] jarLocation = getJarLocation(resourcePath);
         TldInfo[] tldInfos = jarTldCacheLocal.get(resourcePath);
 
         // Optimize for most common cases: jars known to NOT have tlds
@@ -526,7 +529,7 @@ public class TldScanner implements ServletContainerInitializer {
         if (tldInfos == null) {
             List<TldInfo> tldInfoA = new ArrayList<>();
             try {
-                tldInfoA.add(scanTld(resourcePath, url.getFile(), url.openStream()));
+                tldInfoA.add(scanTld(resourcePath, jarLocation != null ? jarLocation[1] : url.getFile(), url.openStream()));
             } catch (IOException ex) {
                 logOrThrow(resourcePath, ex);
             }
@@ -542,8 +545,67 @@ public class TldScanner implements ServletContainerInitializer {
             if (scanListeners) {
                 addListenerAndCreateTags(tldInfo, isLocal);
             }
-            mapTldLocation(resourcePath, tldInfo, isLocal);
+            mapTldLocation(jarLocation != null ? jarLocation[0] : resourcePath, tldInfo, isLocal);
         }
+    }
+
+    /**
+     * Returns the jar and the entry name of a tld in a jar, given its URL.
+     *
+     * <p>
+     * For example:
+     *
+     * jar:file:/lib/x.jar!/META-INF/x.tld gives
+     *
+     * file:/lib/x.jar
+     * META-INF/x.tld
+     *
+     * <p>
+     * A URL of another kind, such as
+     *
+     * shrinkwrap://x.jar/META-INF/x.tld, gives
+     *
+     * shrinkwrap://x.jar
+     * META-INF/x.tld
+     *
+     * They key parsing rule is that the part before META-INF ends with .jar. The compiler opens the
+     * jar as jar:[jar]!/, so a jar of another kind must give the jar's content when opened.
+     *
+     * @param tldUrl the URL of the tld
+     * @return the jar and the entry name, or null if the tld isn't in a jar
+     */
+    static String[] getJarLocation(String tldUrl) {
+        String jar;
+        String entryName;
+
+        int separator = tldUrl.indexOf("!/");
+
+        if (tldUrl.startsWith("jar:") && separator != -1) {
+
+            // The classic "jar:file:/x.jar!/META-INF/y.z" format
+
+            jar = tldUrl.substring("jar:".length(), separator);
+            entryName = tldUrl.substring(separator + "!/".length());
+        } else {
+
+            // A format like shrinkwrap://x.jar/META-INF/y.z
+
+            int metaInf = tldUrl.indexOf("/META-INF/");
+            if (metaInf == -1) {
+                return null;
+            }
+            jar = tldUrl.substring(0, metaInf);
+            while (jar.endsWith("/")) {
+                jar = jar.substring(0, jar.length() - 1);
+            }
+            entryName = tldUrl.substring(metaInf + 1);
+        }
+
+        if (!jar.endsWith(JAR_FILE_SUFFIX) || !entryName.startsWith("META-INF/")) {
+            return null;
+        }
+
+        return new String[] { jar, entryName };
     }
 
 

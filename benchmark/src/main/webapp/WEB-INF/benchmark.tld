@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="https://jakarta.ee/xml/ns/jakartaee" version="3.0">
+    <tlib-version>1.0</tlib-version>
+    <short-name>benchmark</short-name>
+    <uri>urn:wasp:benchmark</uri>
+    <tag>
+        <name>forEach</name>
+        <tag-class>org.glassfish.wasp.benchmark.ForEachTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute><name>items</name><required>true</required><rtexprvalue>true</rtexprvalue><type>java.lang.Iterable</type></attribute>
+        <attribute><name>var</name><required>true</required></attribute>
+        <attribute><name>indexVar</name></attribute>
+    </tag>
+    <tag>
+        <name>money</name>
+        <tag-class>org.glassfish.wasp.benchmark.MoneyTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute><name>value</name><required>true</required><rtexprvalue>true</rtexprvalue><type>java.math.BigDecimal</type></attribute>
+    </tag>
+    <function>
+        <name>upper</name>
+        <function-class>org.glassfish.wasp.benchmark.Functions</function-class>
+        <function-signature>java.lang.String upper(java.lang.String)</function-signature>
+    </function>
+    <function>
+        <name>join</name>
+        <function-class>org.glassfish.wasp.benchmark.Functions</function-class>
+        <function-signature>java.lang.String join(java.util.Collection, java.lang.String)</function-signature>
+    </function>
+</taglib>

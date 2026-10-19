@@ -69,16 +69,7 @@ Limits:
 - `runtime`, `deployment`: the extension.
 - `test`: tests, each deploying an application with the
   [Arquillian Quarkus container](https://github.com/OmniFish-EE/arquillian-container-quarkus).
-- `benchmark`: the throughput and latency of one page, `catalog.jsp`, under load from JMeter (embedded, with
-  [jmeter-java-dsl](https://abstracta.github.io/jmeter-java-dsl/)). The page uses a static and a dynamic include,
-  `jsp:useBean`, a classic iteration tag, a tag file with a fragment attribute, a simple tag, functions, and the
-  Expression Language on beans, lists and maps. It's not part of this build: `mvn verify -f benchmark` after
-  `mvn install`, and again with `-Dnative`. Each run writes its results to `benchmark/target/benchmark`, and prints
-  them next to those of the other mode if that ran before (so don't clean in between). The load runs for a warm-up
-  period first, which isn't measured. `-Dwasp.benchmark.threads` (default 8), `-Dwasp.benchmark.warmupSeconds`
-  (default 30) and `-Dwasp.benchmark.durationSeconds` (default 60) change the load, and
-  `-Darquillian.quarkus.javaVmArguments`, e.g. `-Xmx512m`, the options of the application in both modes. JMeter
-  measures latency in whole milliseconds, and runs on the same machine as the application.
 
-The Jakarta Pages TCK runs against the extension from `tck` in the WaSP root, with `-Pquarkus` or `-Pquarkus-native`
-(see the WaSP README).
+The Jakarta Pages TCK runs against the extension from `tck` in the WaSP root, with `-Pquarkus` or `-Pquarkus-native`,
+and so does the benchmark from `benchmark`, which measures the throughput and latency of a page with the extension and
+in GlassFish (see the WaSP README).

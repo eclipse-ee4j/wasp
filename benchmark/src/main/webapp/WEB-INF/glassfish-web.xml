@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">
+<!--
+    For GlassFish only, which passes these properties to WaSP's JspServlet as init parameters. It serves the pages
+    without checking them and the files they include for changes at each request, as the WaSP extension does on
+    Quarkus, where they're compiled when the application is built.
+-->
+<glassfish-web-app>
+    <jsp-config>
+        <property name="development" value="false"/>
+    </jsp-config>
+</glassfish-web-app>

@@ -18,9 +18,16 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.glassfish.wasp</groupId>
+
+    <parent>
+        <groupId>org.glassfish.wasp</groupId>
+        <artifactId>wasp-pages-tck</artifactId>
+        <version>4.0.3-SNAPSHOT</version>
+    </parent>
+
     <artifactId>wasp-pages-tck-run</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <!-- No classes of its own: the tests come from the TCK jar, which the failsafe executions below scan -->
+    <packaging>pom</packaging>
 
     <name>WaSP - Jakarta Pages TCK - Run</name>
     <description>
@@ -34,7 +41,6 @@
     </description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jakarta.tck.common.version>11.1.0</jakarta.tck.common.version>
         <jakarta.tck.sigtest.version>11.1.0</jakarta.tck.sigtest.version>
         <!-- The WaSP build under test: its Quarkus extension, or the WaSP jar GlassFish uses -->

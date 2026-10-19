@@ -7,23 +7,36 @@ Eclipse WaSP implements Jakarta Pages, a technology that helps software develope
 Building
 --------
 
-WaSP can be built by executing the following from the project root:
+The project has these modules:
 
-``mvn clean package``
+- `impl`: WaSP itself, `org.glassfish.wasp:wasp`.
+- `quarkus`: the WaSP extension for Quarkus, with its tests in `quarkus/test`.
+- `tck`: runs the Jakarta Pages TCK against WaSP.
+- `benchmark`: measures the throughput and latency of one page under load.
+
+Executing the following from the project root builds WaSP and its Quarkus extension, runs the extension's tests, and
+runs the TCK and the benchmark in GlassFish:
+
+``mvn clean install``
+
+Use `install` rather than `package`: the tests of the Quarkus extension take the extension from the local Maven
+repository. WaSP alone, with the parent POM it needs, builds with `mvn clean install -pl impl -am`. Only WaSP and its
+Quarkus extension are published to Maven Central, not the tests, the TCK or the benchmark.
 
 Jakarta Pages TCK
 -----------------
 
-`tck` runs the Jakarta Pages TCK against WaSP. run `mvn install` in the project root
-first, then `mvn install` in `tck`. The `install` module downloads the TCK, the `run` mdoule runs it, with these profiles:
+`tck` runs the Jakarta Pages TCK against WaSP. A build in the project root runs it with the default profile. To run it
+with another, run `mvn install` in the project root first, then `mvn install` in `tck` with that profile. The `install`
+module downloads the TCK, the `run` module runs it, with these profiles:
 
 - `glassfish` (the default): GlassFish 8.0.5, with GlassFish's own WaSP jar replaced by the one just built. Each test is deployed 
   and undeployed to a running server. It takes about a minute.
 - `glassfish-embedded`: GlassFish Embedded 8.0.5, in the JVM of the tests. GlassFish Embedded is a single jar with
   its own copy of WaSP inside, so the WaSP jar just built comes before it on the class path. It takes about a minute.
 - `quarkus`: Quarkus with the WaSP extension, with each test archive built into a Quarkus application by the
-  [Arquillian Quarkus container](https://github.com/OmniFish-EE/arquillian-container-quarkus). Run `mvn install` in
-  `quarkus` first. It takes about five minutes.
+  [Arquillian Quarkus container](https://github.com/OmniFish-EE/arquillian-container-quarkus). It takes about five
+  minutes.
 - `quarkus-native`: as `quarkus`, but with each test archive built into a native executable. It needs GraalVM or
   Mandrel (`GRAALVM_HOME`) and takes about an hour and a half.
 - `piranha-micro`: on [Piranha](https://github.com/eclipse-ee4j/piranha) Micro, in the JVM of the tests: each test archive
@@ -46,16 +59,16 @@ The page renders a catalog of 100 products with a static and a dynamic include, 
 file with a fragment attribute, a simple tag, functions, and the Expression Language on beans, lists and maps. 
 
 8 users request it, each again as soon as it has the response, and each keeping its session cookie as a browser does. 
-The load runs for 30 seconds before it's measured.
+The load runs for a warm-up period before it's measured.
 
-It's not part of the WaSP build: run `mvn install` in the project root first, then `mvn verify` in `benchmark`, with
-one of four profiles:
+A build in the project root runs it with the default profile. For another, run `mvn install` in the project root
+first, then `mvn verify` in `benchmark`, with one of four profiles:
 
 - `glassfish` (the default): in GlassFish 8.0.5, with GlassFish's own WaSP jar replaced by the one just built. Two
   settings make it serve the page as Quarkus does: it doesn't check pages for changes at each request (`development`
   is `false` in the application's `glassfish-web.xml`), and its HTTP thread pool serves up to 200 requests at a time
   instead of 5.
-- `quarkus`: on Quarkus in JVM mode, with the WaSP extension. Run `mvn install` in `quarkus` first.
+- `quarkus`: on Quarkus in JVM mode, with the WaSP extension.
 - `quarkus-native`: as `quarkus`, but as a native executable. It needs GraalVM or Mandrel (`GRAALVM_HOME`).
 - `piranha`: in [Piranha](https://github.com/eclipse-ee4j/piranha) Web Profile, as a process of its own, with the WaSP
   jar just built on the class path before Piranha's jar, which contains WaSP 4.0.0. It needs a local build of Piranha
@@ -65,18 +78,33 @@ one of four profiles:
  
 For example, `mvn verify -f benchmark -Pquarkus`. 
 
-Each run writes its results to `benchmark/target/benchmark`, and prints them next to those of the other profiles that ran before, s
-o don't clean in between. 
+Each run writes its results to `benchmark/target/benchmark`, and prints them next to those of the other profiles that ran before, so
+don't clean in between. 
 
-`-Dwasp.benchmark.threads` (default 8), `-Dwasp.benchmark.warmupSeconds` (default 30) and `-Dwasp.benchmark.durationSeconds` (default 60) change
+`-Dwasp.benchmark.threads` (default 8), `-Dwasp.benchmark.warmupSeconds` (default 5) and `-Dwasp.benchmark.durationSeconds` (default 10) change
 the load. 
+
+The defaults are minimal, as a build in the project root runs the benchmark too: a single round, 5 seconds of warm-up
+and 10 seconds measured. That only checks that the benchmark works; its numbers mean little. For realistic numbers,
+warm up for 30 seconds and measure for 180 seconds, in five rounds, as for the results below. A round runs each profile
+once, each in a process of its own:
+
+```shell
+for round in 1 2 3 4 5; do
+    for profile in glassfish quarkus piranha; do
+        mvn verify -f benchmark -P$profile -Dwasp.benchmark.warmupSeconds=30 -Dwasp.benchmark.durationSeconds=180
+    done
+done
+```
+
+The last run of each round prints the results of that round for all three profiles. The five rounds take about an hour.
 
 `-Darquillian.quarkus.javaVmArguments` adds options to the JVM of the application on Quarkus, and
 `-Dpiranha.javaVmArguments` to Piranha's, e.g. `-Xmx512m`, the maximum heap GlassFish has in its `domain.xml`.
 
 ### Results
 
-Five rounds each running six configurations in this order, with `-Dwasp.benchmark.durationSeconds=180`: 180 seconds
+Five rounds each running six configurations in this order, with `-Dwasp.benchmark.warmupSeconds=30 -Dwasp.benchmark.durationSeconds=180`: 180 seconds
 measured per run, after the 30 seconds of warm-up. All 30 runs passed without errors.
 
 - `quarkus`, `glassfish` and `piranha`, each first with the JVM's default heap, then with a heap of at most 512 MB

@@ -19,12 +19,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.glassfish.wasp</groupId>
+    <parent>
+        <groupId>org.glassfish.wasp</groupId>
+        <artifactId>parent</artifactId>
+        <version>4.0.3-SNAPSHOT</version>
+    </parent>
+
     <artifactId>quarkus-wasp-parent</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>WaSP Quarkus extension - Parent</name>
+    <name>WaSP - Quarkus extension - Parent</name>
     <description>
         Jakarta Pages (JSP) for Quarkus, implemented by WaSP. Pages are compiled when the application is built.
     </description>
@@ -37,7 +41,6 @@
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <quarkus.version>3.40.1</quarkus.version>
         <wasp.version>${project.version}</wasp.version>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>

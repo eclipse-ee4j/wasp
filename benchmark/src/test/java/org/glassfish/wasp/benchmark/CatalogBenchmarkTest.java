@@ -68,14 +68,16 @@ import us.abstracta.jmeter.javadsl.core.stats.StatsSummary;
  *
  * <p>
  * System properties: {@code wasp.benchmark.threads} (concurrent users, default 8),
- * {@code wasp.benchmark.warmupSeconds} (default 30) and {@code wasp.benchmark.durationSeconds} (default 60).
+ * {@code wasp.benchmark.warmupSeconds} (default 5) and {@code wasp.benchmark.durationSeconds} (default 10). The
+ * defaults are minimal, as the build runs the benchmark too, only to check that it works; meaningful numbers need
+ * longer runs, and several of them (see the README).
  */
 @ExtendWith(ArquillianExtension.class)
 class CatalogBenchmarkTest {
 
     private static final int THREADS = Integer.getInteger("wasp.benchmark.threads", 8);
-    private static final Duration WARMUP = Duration.ofSeconds(Integer.getInteger("wasp.benchmark.warmupSeconds", 30));
-    private static final Duration DURATION = Duration.ofSeconds(Integer.getInteger("wasp.benchmark.durationSeconds", 60));
+    private static final Duration WARMUP = Duration.ofSeconds(Integer.getInteger("wasp.benchmark.warmupSeconds", 5));
+    private static final Duration DURATION = Duration.ofSeconds(Integer.getInteger("wasp.benchmark.durationSeconds", 10));
 
     /** The profiles, each running the benchmark on its own runtime, in the order their results are printed */
     private static final List<String> RUNTIMES = List.of("glassfish", "quarkus", "quarkus-native", "piranha");

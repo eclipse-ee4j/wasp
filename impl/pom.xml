@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+	Copyright (c) 2021, 2024 Contributors to Eclipse Foundation.
+    Copyright (c) 1997, 2020 Oracle and/or its affiliates and others.
+    All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.glassfish.wasp</groupId>
+        <artifactId>parent</artifactId>
+        <version>4.0.3-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>wasp</artifactId>
+
+    <name>WaSP - Main implementation</name>
+
+    <dependencies>
+        <!-- Jakarta EE Dependencies -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>4.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>6.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- Other dependencies -->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.3</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <includes>
+                    <include>LICENSE.md</include>
+                    <include>NOTICE.md</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- Restricts the Java version to 17 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
+                <configuration>
+                    <release>17</release>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                </configuration>
+            </plugin>
+
+             <!-- Creates the OSGi MANIFEST.MF file -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>6.2.0</version>
+                <configuration>
+                    <instructions>
+                        <_noimportjava>true</_noimportjava>
+                        <_runee>JavaSE-17</_runee>
+                        <Automatic-Module-Name>org.glassfish.wasp</Automatic-Module-Name>
+                        <Extension-Name>org.glassfish.wasp.wasp</Extension-Name>
+                        <Bundle-SymbolicName>org.glassfish.wasp.wasp</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Bundle-Name>WaSP Jakarta Server Pages Implementation ${project.version}</Bundle-Name>
+                        <Bundle-Description>Eclipse Jakarta Server Pages Implementation (jakarta.pages/3.1) ${project.version}</Bundle-Description>  
+                        
+                        <Specification-Title>Jakarta Server Pages</Specification-Title>
+                        <Specification-Version>3.1</Specification-Version>
+                        <Specification-Vendor>Eclipse Foundation</Specification-Vendor>
+                            
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                        <Implementation-Vendor>Eclipse Foundation</Implementation-Vendor>
+                        
+                        <_include>-osgi.bundle</_include>
+                        <Import-Package>
+                            !org.apache.bcel,
+                            !org.apache.regexp,
+                            !org.apache.xml,
+                            !org.apache.xml.dtm,
+                            !org.apache.xml.utils,
+                            !org.apache.xpath,
+                            !org.apache.xpath.jaxp,
+                            !org.apache.xpath.objects,
+                            !org.apache.xpath.res,
+                            !java_cup.runtime,
+                            !trax,
+                            org.xml.sax.ext,
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Adds the manifest file created by the org.apache.felix:maven-bundle-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>
+                            ${project.build.outputDirectory}/META-INF/MANIFEST.MF
+                        </manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+            
+            <!-- Post process the jar we created by including XALAN and moving packages -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                            <artifactSet>
+                                <includes>
+                                    <include>xalan:xalan</include>
+                                </includes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>xalan:xalan</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.apache.xpath</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.xpath</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.xml</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.xml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.xalan</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.xalan</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.regexp</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.regexp</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.bcel</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.org.apache.bcel</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>java_cup.runtime</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.java_cup.runtime</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>trax</pattern>
+                                    <shadedPattern>org.eclipse.tags.shaded.trax</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Configure the jar with the sources. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Create Javadoc for API jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <!--
+                        WaSP has no module-info, so document it from the class path only. Otherwise the plugin looks
+                        for a module name in each dependency, which fails for Xalan 2.7.3 (the latest): its jar declares
+                        a service provider that it doesn't contain.
+                    -->
+                    <legacyMode>true</legacyMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+							<doclint>none</doclint>
+							<failOnError>false</failOnError>
+							<detectOfflineLinks>false</detectOfflineLinks>
+							
+							<excludePackageNames>org.glassfish.wasp.util,org.apache.*,java_cup.*,trax</excludePackageNames>
+							<quiet>true</quiet>
+                            <groups>
+                                <group>
+                                    <title>WaSP ${project.version}</title>
+                                    <packages>org.glassfish.wasp</packages>
+                                    <packages>org.glassfish.jsp.api</packages>
+                                </group>
+                            </groups>
+                            <bottom><![CDATA[
+Comments to: <a href="mailto:wasp-dev@eclipse.org">wasp-dev@eclipse.org</a>.<br>
+Copyright &#169; 2018, 2026 Eclipse Foundation. All rights reserved.<br>
+Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">license terms</a>.]]>
+                            </bottom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+           
+        </plugins>
+    </build>
+</project>

@@ -18,17 +18,26 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.glassfish.wasp</groupId>
+
+    <parent>
+        <groupId>org.glassfish.wasp</groupId>
+        <artifactId>parent</artifactId>
+        <version>4.0.3-SNAPSHOT</version>
+    </parent>
+
     <artifactId>wasp-pages-tck</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>WaSP - Jakarta Pages TCK</name>
     <description>
         Runs the (binary) Jakarta Pages TCK against WaSP, in GlassFish, on Quarkus with the WaSP extension or on
-        Piranha: install downloads and installs the TCK, run runs it. Not part of the WaSP build, as a full run deploys
-        about 90 applications.
+        Piranha: install downloads and installs the TCK, run runs it.
     </description>
+
+    <properties>
+        <!-- The TCK runner is not published (see also excludeArtifacts in the parent) -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
 
     <modules>
         <module>install</module>

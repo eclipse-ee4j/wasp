@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.wasp</groupId>
     <artifactId>wasp-pages-tck-run</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.2</version>
 
     <name>WaSP - Jakarta Pages TCK - Run</name>
     <description>

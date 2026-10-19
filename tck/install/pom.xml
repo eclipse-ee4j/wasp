@@ -28,7 +28,7 @@
 
     <groupId>org.glassfish.wasp</groupId>
     <artifactId>wasp-pages-tck-install</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.2</version>
     <packaging>pom</packaging>
 
     <name>WaSP - Jakarta Pages TCK - Install</name>

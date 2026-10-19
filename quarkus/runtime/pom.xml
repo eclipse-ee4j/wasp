@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>quarkus-wasp</artifactId>
-    <name>WaSP Quarkus extension - Runtime</name>
+    <name>WaSP - Quarkus extension - Runtime</name>
 
     <dependencies>
         <dependency>

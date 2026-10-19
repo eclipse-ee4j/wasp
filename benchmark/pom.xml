@@ -18,22 +18,26 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.glassfish.wasp</groupId>
+
+    <parent>
+        <groupId>org.glassfish.wasp</groupId>
+        <artifactId>parent</artifactId>
+        <version>4.0.3-SNAPSHOT</version>
+    </parent>
+
     <artifactId>wasp-benchmark</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
 
     <name>WaSP - Benchmark</name>
     <description>
         Throughput and latency of one page under load: in GlassFish (the default), with GlassFish's WaSP jar replaced
         by this build's, on Quarkus with the WaSP extension, in JVM mode (-Pquarkus) or as a native executable
-        (-Pquarkus-native), or in Piranha (-Ppiranha), with this build's WaSP classes in place of Piranha's. Not part
-        of the WaSP build: mvn verify -f benchmark, after mvn install in the WaSP root, and for the Quarkus profiles in
-        quarkus too.
+        (-Pquarkus-native), or in Piranha (-Ppiranha), with this build's WaSP classes in place of Piranha's. Run on its
+        own with mvn verify -f benchmark, after mvn install in the WaSP root, which installs the WaSP jar and the
+        Quarkus extension it uses.
     </description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- The benchmark is not published -->
+        <!-- The benchmark is not published (see also excludeArtifacts in the parent) -->
         <maven.deploy.skip>true</maven.deploy.skip>
         <!-- The WaSP build under test: its Quarkus extension, or the WaSP jar GlassFish uses -->
         <wasp.version>${project.version}</wasp.version>

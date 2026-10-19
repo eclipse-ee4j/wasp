@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>quarkus-wasp-deployment</artifactId>
-    <name>WaSP Quarkus extension - Deployment</name>
+    <name>WaSP - Quarkus extension - Deployment</name>
 
     <dependencies>
         <dependency>

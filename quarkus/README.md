@@ -70,6 +70,6 @@ Limits:
 - `test`: tests, each deploying an application with the
   [Arquillian Quarkus container](https://github.com/OmniFish-EE/arquillian-container-quarkus).
 
-The Jakarta Pages TCK runs against the extension from `tck` in the WaSP root, with `-Pquarkus` or `-Pquarkus-native`,
+The Jakarta Pages TCK runs against the extension from `tck/pages` in the WaSP root, with `-Pquarkus` or `-Pquarkus-native`,
 and so does the benchmark from `benchmark`, which measures the throughput and latency of a page with the extension and
 in GlassFish (see the WaSP README).

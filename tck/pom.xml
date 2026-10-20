@@ -22,25 +22,24 @@
     <parent>
         <groupId>org.glassfish.wasp</groupId>
         <artifactId>parent</artifactId>
-        <version>4.0.3-SNAPSHOT</version>
+        <version>4.0.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>wasp-pages-tck</artifactId>
+    <artifactId>wasp-tck</artifactId>
     <packaging>pom</packaging>
 
-    <name>WaSP - Jakarta Pages TCK</name>
+    <name>WaSP - TCKs</name>
     <description>
-        Runs the (binary) Jakarta Pages TCK against WaSP, in GlassFish, on Quarkus with the WaSP extension or on
-        Piranha: install downloads and installs the TCK, run runs it.
+        Runs the (binary) Jakarta TCKs against WaSP: pages runs the Jakarta Pages TCK, tags the Jakarta Tags TCK.
     </description>
 
     <properties>
-        <!-- The TCK runner is not published (see also excludeArtifacts in the parent) -->
+        <!-- The TCK runners are not published (see also excludeArtifacts in the parent) -->
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <modules>
-        <module>install</module>
-        <module>run</module>
+        <module>pages</module>
+        <module>tags</module>
     </modules>
 </project>

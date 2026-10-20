@@ -36,7 +36,7 @@
 
     <groupId>org.glassfish.wasp</groupId>
     <artifactId>parent</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>WaSP - Parent</name>
@@ -89,7 +89,7 @@
             published jars don't refer to. That plugin publishes in place of the maven-deploy-plugin, and doesn't look
             at maven.deploy.skip.
         -->
-        <excludeArtifacts>parent,quarkus-wasp-parent,wasp-pages-tck,wasp-pages-tck-install,wasp-pages-tck-run,wasp-benchmark,wasp-quarkus-test</excludeArtifacts>
+        <excludeArtifacts>parent,quarkus-wasp-parent,wasp-tck,wasp-pages-tck,wasp-pages-tck-install,wasp-pages-tck-run,wasp-tags-tck,wasp-benchmark,wasp-quarkus-test</excludeArtifacts>
     </properties>
 
     <modules>

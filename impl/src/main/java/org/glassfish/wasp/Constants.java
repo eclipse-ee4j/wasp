@@ -190,6 +190,13 @@ public class Constants {
      * first use, when the option validatePrecompiled is set. When absent, all precompiled pages are validated.
      */
     public static final String PRECOMPILED_PAGES_TO_VALIDATE = "org.glassfish.wasp.precompiledPagesToValidate";
+
+    /**
+     * ServletContext attribute with the class name (a String) of the XSLT TransformerFactory that x:transform uses, e.g.
+     * one that doesn't compile stylesheets into classes, which a native executable can't load. When absent, it uses the
+     * JAXP default.
+     */
+    public static final String XSLT_TRANSFORMER_FACTORY = "org.glassfish.wasp.xsltTransformerFactory";
     // END GlassFish 747
 
     public static final String JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE = "com.sun.appserv.jsp.resource.injector";

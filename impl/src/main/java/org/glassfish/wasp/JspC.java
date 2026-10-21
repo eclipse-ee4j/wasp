@@ -907,35 +907,6 @@ public class JspC implements Options {
         }
     }
 
-    // START SJSAS 6329723
-    /**
-     * Gets the list of JSP compilation errors caught during the most recent invocation of this instance's
-     * <code>execute</code> method when failOnError has been set to FALSE.
-     *
-     * Each error error in the list is represented by an instance of org.glassfish.wasp.WaspException.
-     *
-     * @return List of JSP compilation errors caught during most recent invocation of this instance's <code>execute</code>
-     * method, or an empty list if no errors were encountered or this instance's failOnError property was set to TRUE
-     */
-    /**
-     * @return true if translating the page read a tag library descriptor or a tag file from a jar
-     */
-    private static boolean usesJarResources(PageInfo pageInfo, JspCompilationContext context) throws WaspException {
-        for (String dependant : pageInfo.getDependants()) {
-            if (dependant.startsWith("jar:")) {
-                return true;
-            }
-        }
-        for (TagLibraryInfo taglib : pageInfo.getTaglibs()) {
-            String[] location = context.getTldLocation(taglib.getURI());
-            if (location != null && location[1] != null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Returns the result of compiling each page during the most recent invocation of this instance's
      * <code>execute</code> method: the page URI, the generated class name, and the translation error if any.
@@ -950,6 +921,16 @@ public class JspC implements Options {
         return Collections.unmodifiableMap(compilationResults);
     }
 
+    // START SJSAS 6329723
+    /**
+     * Gets the list of JSP compilation errors caught during the most recent invocation of this instance's
+     * <code>execute</code> method when failOnError has been set to FALSE.
+     *
+     * Each error error in the list is represented by an instance of org.glassfish.wasp.WaspException.
+     *
+     * @return List of JSP compilation errors caught during most recent invocation of this instance's <code>execute</code>
+     * method, or an empty list if no errors were encountered or this instance's failOnError property was set to TRUE
+     */
     public List<WaspException> getJSPCompilationErrors() {
 
         ArrayList<WaspException> ret = null;
@@ -1126,7 +1107,7 @@ public class JspC implements Options {
                 clc.compile(compile);
                 PageInfo compiledPageInfo = clc.getPageInfo();
                 usesTranslationValidators = compiledPageInfo != null && compiledPageInfo.usesTranslationValidators();
-                usesJarResources = compiledPageInfo != null && usesJarResources(compiledPageInfo, clctxt);
+                usesJarResources = clctxt.usesJarResources();
             }
 
             // START SJSAS 6393940

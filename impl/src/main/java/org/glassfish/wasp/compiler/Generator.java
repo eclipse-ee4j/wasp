@@ -353,7 +353,7 @@ class Generator {
      * servlet and tag handler preamble generation)
      */
     private void genPreambleStaticInitializers() throws WaspException {
-        out.printil("private static final JspFactory _jspxFactory = JspFactory.getDefaultFactory();");
+        out.printil("private static final JspFactory _jspxFactory = org.glassfish.wasp.runtime.JspFactoryImpl.getOrSetDefaultFactory();");
         out.println();
 
         // Static data for getDependants()

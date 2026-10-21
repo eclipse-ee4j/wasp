@@ -9,7 +9,10 @@ Building
 
 The project has these modules:
 
-- `impl`: WaSP itself, `org.glassfish.wasp:wasp`.
+- `impl`: WaSP itself, `org.glassfish.wasp:wasp`. Its jar includes Xalan 2.7.3 and Xalan's serializer, which the XML
+  tags of Jakarta Tags use, moved to `org.eclipse.tags.shaded`. Two parts differ from Xalan's: the serializer's output
+  properties name its classes by their moved names, and `XSLTElementProcessor` keeps the attributes of literal result
+  elements in secure processing mode, where Xalan rejects them.
 - `quarkus`: the WaSP extension for Quarkus, with its tests in `quarkus/test`.
 - `tck`: runs the Jakarta TCKs against WaSP, the Jakarta Pages TCK in `tck/pages` and the Jakarta Tags TCK in
   `tck/tags`.

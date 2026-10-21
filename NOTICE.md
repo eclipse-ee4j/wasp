@@ -36,7 +36,41 @@ The project maintains the following source code repositories:
 
 This project leverages the following third party content.
 
-None
+The jar of WaSP (`org.glassfish.wasp:wasp`) includes Apache Xalan, with the content
+it includes, moved to the `org.eclipse.tags.shaded` package. The XML tags of Jakarta
+Tags use it. The sources of WaSP include modified copies of two parts of Apache
+Xalan: `org/apache/xalan/processor/XSLTElementProcessor.java`, and the
+`output_*.properties` files of the serializer.
+
+As the notices of that content require: this product includes software developed at
+The Apache Software Foundation (https://www.apache.org/). Apache Xalan: Copyright
+1999-2023 The Apache Software Foundation; portions were originally based on software
+copyright (c) 1999-2002 Lotus Development Corporation, (c) 2001-2002 Sun
+Microsystems and (c) 2003 IBM Corporation. Apache Commons BCEL: Copyright 2004-2022
+The Apache Software Foundation.
+
+Apache Xalan (2.7.3), with the Xalan serializer (2.7.3)
+
+* License: Apache-2.0
+* Project: https://xalan.apache.org/xalan-j/
+* Source: https://github.com/apache/xalan-java
+
+Apache Commons BCEL (6.7.0), as included in Apache Xalan
+
+* License: Apache-2.0
+* Project: https://commons.apache.org/proper/commons-bcel/
+* Source: https://github.com/apache/commons-bcel
+
+Apache Jakarta Regexp, as included in Apache Xalan
+
+* License: Apache-2.0
+* Project: https://attic.apache.org/projects/jakarta-regexp.html
+
+CUP Parser Generator runtime (java_cup.runtime), as included in Apache Xalan
+
+* License: CUP Parser Generator Copyright Notice, License, and Disclaimer
+  (Copyright 1996-1999 by Scott Hudson, Frank Flannery, C. Scott Ananian)
+* Project: http://www.cs.princeton.edu/~appel/modern/java/CUP/
 
 ## Cryptography
 

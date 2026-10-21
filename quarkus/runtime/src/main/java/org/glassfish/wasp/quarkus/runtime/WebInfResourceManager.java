@@ -35,9 +35,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Adds the WEB-INF content of the application (e.g. tag library descriptors, tag files and included fragments) to the
- * resources of the ServletContext, as in a web archive, so pages can be parsed again at runtime. The resources of the
- * web application come first. Undertow doesn't serve WEB-INF paths to clients.
+ * Adds the WEB-INF content of the application (e.g. tag library descriptors, tag files, included fragments and files
+ * the application reads) to the resources of the ServletContext, as in a web archive, so the application can read them
+ * and pages can be parsed again at runtime. The resources of the web application come first. Undertow doesn't serve
+ * WEB-INF paths to clients.
  *
  * <p>
  * The directories can be listed (e.g. for the tag files of a tag directory): the files are known from the build.

@@ -255,6 +255,12 @@
             <id>quarkus-native</id>
             <properties>
                 <arquillian-quarkus.version>1.1.1</arquillian-quarkus.version>
+                <!--
+                    The TCK's JstlDbFilter refers to Ant's StringUtils (to escape a comma in the database URL), which
+                    its archives don't include. A JVM never loads it, as the URL has no comma, but a native image
+                    build links at build time and fails without it. The version the TCK itself depends on.
+                -->
+                <ant.version>1.10.15</ant.version>
             </properties>
             <dependencies>
                 <!-- The Arquillian connector that builds each archive into a Quarkus application and runs it -->
@@ -275,13 +281,28 @@
                                 <arquillian.quarkus.dependencies>
                                     org.glassfish.wasp:quarkus-wasp:${wasp.version}
                                     org.apache.derby:derbyclient:${derby.version}
+                                    org.apache.ant:ant:${ant.version}
                                 </arquillian.quarkus.dependencies>
                                 <!--
                                     Quarkus defaults to UTF-8 for requests and responses; the Servlet default, which
                                     the TCK checks for pages without a page encoding or content type, is ISO-8859-1.
                                 -->
+                                <!--
+                                    As an application would decide: all locales, as the formatting tests use many
+                                    (Quarkus includes only the default one), and the bundles that pages name with an
+                                    expression, e.g. basename="...resources.${param.res}" (the extension registers
+                                    those named literally).
+                                -->
                                 <arquillian.quarkus.buildProperties>
                                     quarkus.servlet.default-charset=ISO-8859-1
+                                    quarkus.locales=all
+                                    quarkus.native.additional-build-args=-H:+UnlockExperimentalVMOptions,\
+                                        -H:IncludeResourceBundles=com.sun.ts.tests.jstl.common.resources.AlgoResources,\
+                                        -H:IncludeResourceBundles=com.sun.ts.tests.jstl.common.resources.AlgoResources2,\
+                                        -H:IncludeResourceBundles=com.sun.ts.tests.jstl.common.resources.AlgoResources3,\
+                                        -H:IncludeResourceBundles=com.sun.ts.tests.jstl.common.resources.AlgoResources4,\
+                                        -H:IncludeResourceBundles=com.sun.ts.tests.jstl.common.resources.AlgoResources5,\
+                                        -H:-UnlockExperimentalVMOptions
                                 </arquillian.quarkus.buildProperties>
                                 <!-- For the JAXP properties, see the failsafe configuration above -->
                                 <arquillian.quarkus.systemProperties>

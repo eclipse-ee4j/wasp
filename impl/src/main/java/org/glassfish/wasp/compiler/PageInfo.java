@@ -76,6 +76,7 @@ public class PageInfo {
     private String isELIgnoredValue;
     private boolean isELIgnored;
     private boolean usesTranslationValidators;
+    private boolean usesJarResources;
     private String omitXmlDecl;
     private String doctypeName;
     private String doctypePublic;
@@ -643,6 +644,18 @@ public class PageInfo {
 
     public void setUsesTranslationValidators(boolean usesTranslationValidators) {
         this.usesTranslationValidators = usesTranslationValidators;
+    }
+
+    /**
+     * @return true if a tag file this page uses read a tag library descriptor or a tag file from a jar when it was
+     *         translated (what the page itself reads is in its dependants and tag libraries)
+     */
+    public boolean usesJarResources() {
+        return usesJarResources;
+    }
+
+    public void setUsesJarResources(boolean usesJarResources) {
+        this.usesJarResources = usesJarResources;
     }
 
     /*

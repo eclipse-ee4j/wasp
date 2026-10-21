@@ -30,14 +30,12 @@ final class CompiledPagesBuildItem extends SimpleBuildItem {
     private final Set<String> pagesUsingTranslationValidators;
     private final Set<String> pagesUsingJarResources;
     private final List<TldLocation> tldLocations;
-    private final Set<String> webInfFiles;
 
     CompiledPagesBuildItem(Set<String> pagesUsingTranslationValidators, Set<String> pagesUsingJarResources,
-            List<TldLocation> tldLocations, Set<String> webInfFiles) {
+            List<TldLocation> tldLocations) {
         this.pagesUsingTranslationValidators = pagesUsingTranslationValidators;
         this.pagesUsingJarResources = pagesUsingJarResources;
         this.tldLocations = tldLocations;
-        this.webInfFiles = webInfFiles;
     }
 
     /**
@@ -60,12 +58,5 @@ final class CompiledPagesBuildItem extends SimpleBuildItem {
      */
     List<TldLocation> getTldLocations() {
         return tldLocations;
-    }
-
-    /**
-     * @return the files in WEB-INF of the application roots (not in META-INF/resources), e.g. WEB-INF/tags/a.tag
-     */
-    Set<String> getWebInfFiles() {
-        return webInfFiles;
     }
 }

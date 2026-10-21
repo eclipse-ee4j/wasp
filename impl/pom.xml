@@ -72,6 +72,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+            Xalan's serializer, which Xalan uses but which has been a separate artifact since Xalan 2.7, and which Xalan's
+            POM doesn't declare. Without it, the shaded Xalan refers to classes the jar doesn't have, which fails a native
+            image build that links at build time.
+        -->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+            <version>2.7.3</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -141,11 +152,23 @@
                             !org.apache.xpath.jaxp,
                             !org.apache.xpath.objects,
                             !org.apache.xpath.res,
+                            !org.apache.xalan.*,
                             !java_cup.runtime,
                             !trax,
                             org.xml.sax.ext,
                             *
                         </Import-Package>
+                        <!--
+                            As by default, the packages of the sources, not imported, but not that of the Xalan class
+                            src/main/java has (see the shade plugin), which the jar has relocated. Nor the packages with
+                            only resources.
+                        -->
+                        <_exportcontents>
+                            !org.apache.xalan.*,
+                            !org.eclipse.tags.shaded.*,
+                            !org.glassfish.wasp.resources,
+                            *;-noimport:=true
+                        </_exportcontents>
                     </instructions>
                 </configuration>
                 <executions>
@@ -188,13 +211,34 @@
                             <artifactSet>
                                 <includes>
                                     <include>xalan:xalan</include>
+                                    <include>xalan:serializer</include>
                                 </includes>
                             </artifactSet>
                             <filters>
                                 <filter>
-                                    <artifact>xalan:xalan</artifact>
+                                    <artifact>xalan:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/**</exclude>
+                                    </excludes>
+                                </filter>
+                                <!--
+                                    The serializer's output properties name its classes, which the relocation doesn't
+                                    change in resources: src/main/resources has them with the relocated names instead.
+                                -->
+                                <filter>
+                                    <artifact>xalan:serializer</artifact>
+                                    <excludes>
+                                        <exclude>org/apache/xml/serializer/output_*.properties</exclude>
+                                    </excludes>
+                                </filter>
+                                <!--
+                                    In secure processing mode, Xalan's XSLTElementProcessor rejects the attributes of
+                                    literal result elements: src/main/java has it with that fixed instead.
+                                -->
+                                <filter>
+                                    <artifact>xalan:xalan</artifact>
+                                    <excludes>
+                                        <exclude>org/apache/xalan/processor/XSLTElementProcessor.class</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

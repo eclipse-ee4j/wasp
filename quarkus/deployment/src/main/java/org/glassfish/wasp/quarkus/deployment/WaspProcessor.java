@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -54,8 +55,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.tools.ToolProvider;
@@ -78,7 +82,12 @@ import org.jboss.metadata.web.spec.JspPropertyGroupMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
 import org.jboss.metadata.web.spec.ServletMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.tree.ClassNode;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.delete;
@@ -99,6 +108,22 @@ class WaspProcessor {
     /** The Expression Language implementation the Jakarta Expression Language API loads when it finds no other */
     private static final String DEFAULT_EXPRESSION_FACTORY = "com.sun.el.ExpressionFactoryImpl";
 
+    private static final String JDBC_DRIVER = "java.sql.Driver";
+
+    /** WaSP's own artifact, with the Jakarta Tags and the Xalan they use */
+    private static final String WASP_GROUP_ID = "org.glassfish.wasp";
+    private static final String WASP_ARTIFACT_ID = "wasp";
+
+    /** The Jakarta Tags API */
+    private static final String TAGS_API_GROUP_ID = "jakarta.servlet.jsp.jstl";
+    private static final String TAGS_API_ARTIFACT_ID = "jakarta.servlet.jsp.jstl-api";
+
+    /** The package prefix of the Xalan classes in WaSP's jar, which relocates them */
+    private static final String SHADED_XALAN = "org.eclipse.tags.shaded.";
+
+    /** The XSLT processor of that Xalan, which interprets stylesheets */
+    private static final String XSLT_TRANSFORMER_FACTORY = SHADED_XALAN + "org.apache.xalan.processor.TransformerFactoryImpl";
+
     /** The release level when the application's own classes don't tell */
     private static final int DEFAULT_RELEASE = 17;
 
@@ -112,12 +137,23 @@ class WaspProcessor {
      * with a jsp-file. Undertow deploys during static init, so these are passed in at build time.
      *
      * <p>
-     * Also the pages to validate again at runtime, and the tag library descriptors they use.
+     * Also the files in WEB-INF, which are resources of the ServletContext as in a web archive, and the pages to
+     * validate again at runtime, with the tag library descriptors they use.
      */
     @BuildStep
     ServletExtensionBuildItem servletExtension(Optional<WebMetadataBuildItem> webMetadata,
-            Optional<CompiledPagesBuildItem> compiledPages, WaspConfig waspConfig, NativeConfig nativeConfig) {
+            Optional<CompiledPagesBuildItem> compiledPages, WaspConfig waspConfig, NativeConfig nativeConfig,
+            ApplicationArchivesBuildItem applicationArchives) throws IOException {
         WaspServletExtension servletExtension = new WaspServletExtension();
+
+        List<Path> applicationRoots = new ArrayList<>();
+        applicationArchives.getRootArchive().getResolvedPaths().forEach(applicationRoots::add);
+        servletExtension.setWebInfFiles(getWebInfFiles(applicationRoots));
+
+        if (nativeConfig.enabled()) {
+            // The JDK's XSLT processor compiles stylesheets into classes, which a native executable can't load
+            servletExtension.setXsltTransformerFactory(XSLT_TRANSFORMER_FACTORY);
+        }
 
         Set<String> pagesToValidate = getPagesToValidate(compiledPages, waspConfig, nativeConfig);
         if (!pagesToValidate.isEmpty()) {
@@ -128,7 +164,6 @@ class WaspProcessor {
             }
             servletExtension.setPagesToValidate(pagesToValidate);
             servletExtension.setTldLocations(tldLocations);
-            servletExtension.setWebInfFiles(new LinkedHashSet<>(compiledPages.get().getWebInfFiles()));
         }
 
         WebMetaData webMetaData = webMetadata.map(WebMetadataBuildItem::getWebMetaData).orElse(null);
@@ -176,6 +211,164 @@ class WaspProcessor {
                 .constructors()
                 .reason("Jakarta Pages: the default Expression Language implementation is loaded by name")
                 .build());
+    }
+
+    /**
+     * The JDBC drivers on the class path, for a native executable: the SQL tags load the driver a page names (with
+     * {@code <sql:setDataSource driver="...">} or the {@code jakarta.servlet.jsp.jstl.sql.dataSource} context parameter)
+     * by its class name, and the DriverManager finds drivers as service providers.
+     */
+    @BuildStep
+    void registerJdbcDrivers(BuildProducer<ServiceProviderBuildItem> serviceProviders,
+            BuildProducer<ReflectiveClassBuildItem> reflectiveClasses) {
+        ServiceProviderBuildItem drivers = ServiceProviderBuildItem.allProvidersFromClassPath(JDBC_DRIVER);
+        if (drivers.providers().isEmpty()) {
+            return;
+        }
+
+        serviceProviders.produce(drivers);
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(drivers.providers().toArray(String[]::new))
+                .constructors()
+                .reason("Jakarta Tags: the SQL tags load the JDBC driver a page names by its class name")
+                .build());
+    }
+
+    /**
+     * The classes the Xalan in WaSP's jar creates by name or with {@code Class.newInstance()} when the XML tags evaluate
+     * XPath expressions, for a native executable: its DTM manager, the string buffers it pools, and the XPath functions
+     * of its function table.
+     */
+    @BuildStep
+    void registerXPathClasses(CurateOutcomeBuildItem curateOutcome, BuildProducer<ReflectiveClassBuildItem> reflectiveClasses)
+            throws IOException {
+        Set<String> classes = new LinkedHashSet<>(List.of(
+                SHADED_XALAN + "org.apache.xml.dtm.ref.DTMManagerDefault",
+                SHADED_XALAN + "org.apache.xml.utils.FastStringBuffer",
+                SHADED_XALAN + "org.apache.xalan.templates.FuncKey"));
+        classes.addAll(findClasses(curateOutcome, WASP_GROUP_ID, WASP_ARTIFACT_ID, SHADED_XALAN + "org.apache.xpath.functions", false));
+
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(classes)
+                .constructors()
+                .reason("Jakarta Tags: Xalan creates its DTM manager and XPath functions by reflection")
+                .build());
+    }
+
+    /**
+     * The XSLT processor of the Xalan in WaSP's jar, which {@code <x:transform>} uses in a native executable (see
+     * {@link #servletExtension}): unlike the JDK's, it doesn't compile stylesheets into classes, which a native executable
+     * can't load. It creates the elements of a stylesheet by reflection and sets their attributes with their setters (or
+     * those of their processors, e.g. the href of xsl:import), and creates its serializers and pooled objects by
+     * reflection.
+     */
+    @BuildStep
+    void registerXsltClasses(CurateOutcomeBuildItem curateOutcome, BuildProducer<ReflectiveClassBuildItem> reflectiveClasses)
+            throws IOException {
+        Set<String> elementClasses = new LinkedHashSet<>();
+        for (String packageName : List.of("org.apache.xalan.templates", "org.apache.xalan.processor")) {
+            elementClasses.addAll(findClasses(curateOutcome, WASP_GROUP_ID, WASP_ARTIFACT_ID, SHADED_XALAN + packageName, false));
+        }
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(elementClasses)
+                .constructors()
+                .methods()
+                .reason("Jakarta Tags: Xalan creates the elements of a stylesheet and sets their attributes by reflection")
+                .build());
+
+        Set<String> classes = new LinkedHashSet<>(List.of("java.io.StringWriter"));
+        classes.addAll(findClasses(curateOutcome, WASP_GROUP_ID, WASP_ARTIFACT_ID, SHADED_XALAN + "org.apache.xml.serializer", false));
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(classes)
+                .constructors()
+                .reason("Jakarta Tags: Xalan creates its transformer factory, serializers and pooled objects by reflection")
+                .build());
+    }
+
+    /**
+     * The resources of the Xalan in WaSP's jar, for a native executable: e.g. the default output properties and the
+     * entities of its serializer.
+     */
+    @BuildStep
+    NativeImageResourceBuildItem registerXalanResources(CurateOutcomeBuildItem curateOutcome) throws IOException {
+        String directory = SHADED_XALAN.replace('.', '/');
+
+        List<String> resources = new ArrayList<>();
+        for (ResolvedDependency dependency : curateOutcome.getApplicationModel().getRuntimeDependencies()) {
+            if (WASP_GROUP_ID.equals(dependency.getGroupId()) && WASP_ARTIFACT_ID.equals(dependency.getArtifactId())) {
+                for (Path path : dependency.getResolvedPaths()) {
+                    listEntries(path, directory).stream()
+                                                .filter(entry -> !entry.endsWith(".class"))
+                                                .forEach(resources::add);
+                }
+            }
+        }
+
+        return new NativeImageResourceBuildItem(resources);
+    }
+
+    /**
+     * The types of the objects the Jakarta Tags expose to the Expression Language, for a native executable: the
+     * Expression Language reads their properties by reflection, e.g. {@code ${status.last}} of the loop status of
+     * {@code <c:forEach varStatus="status">}, or {@code ${result.rowCount}} of the result of {@code <sql:query>}. All
+     * classes of the Jakarta Tags API, and WaSP's implementation of a query result.
+     */
+    @BuildStep
+    void registerTagsTypes(CurateOutcomeBuildItem curateOutcome, BuildProducer<ReflectiveClassBuildItem> reflectiveClasses)
+            throws IOException {
+        Set<String> classes = new LinkedHashSet<>(List.of("org.glassfish.wasp.taglibs.standard.tag.common.sql.ResultImpl"));
+        classes.addAll(findClasses(curateOutcome, TAGS_API_GROUP_ID, TAGS_API_ARTIFACT_ID, "jakarta.servlet.jsp.jstl", true));
+
+        reflectiveClasses.produce(ReflectiveClassBuildItem.builder(classes)
+                .methods()
+                .reason("Jakarta Tags: the Expression Language reads properties of the objects tags expose by reflection")
+                .build());
+    }
+
+    /**
+     * @return the classes in a package of a runtime dependency, optionally with those of its subpackages
+     */
+    private static Set<String> findClasses(CurateOutcomeBuildItem curateOutcome, String groupId, String artifactId,
+            String packageName, boolean subpackages) throws IOException {
+        String directory = packageName.replace('.', '/') + "/";
+
+        Set<String> classes = new LinkedHashSet<>();
+        for (ResolvedDependency dependency : curateOutcome.getApplicationModel().getRuntimeDependencies()) {
+            if (!groupId.equals(dependency.getGroupId()) || !artifactId.equals(dependency.getArtifactId())) {
+                continue;
+            }
+            for (Path path : dependency.getResolvedPaths()) {
+                for (String entry : listEntries(path, directory)) {
+                    if (entry.endsWith(".class") && (subpackages || entry.indexOf('/', directory.length()) < 0)) {
+                        classes.add(entry.substring(0, entry.length() - ".class".length()).replace('/', '.'));
+                    }
+                }
+            }
+        }
+
+        return classes;
+    }
+
+    /**
+     * @return the names of the entries of a jar or directory under a directory, e.g. {@code a/b/C.class} under
+     *         {@code a/b/}
+     */
+    private static List<String> listEntries(Path jarOrDirectory, String directory) throws IOException {
+        List<String> entries = new ArrayList<>();
+        if (isDirectory(jarOrDirectory)) {
+            Path start = jarOrDirectory.resolve(directory);
+            if (isDirectory(start)) {
+                try (Stream<Path> paths = walk(start)) {
+                    paths.filter(Files::isRegularFile)
+                         .forEach(path -> entries.add(jarOrDirectory.relativize(path).toString().replace(File.separatorChar, '/')));
+                }
+            }
+        } else if (exists(jarOrDirectory)) {
+            try (JarFile jarFile = new JarFile(jarOrDirectory.toFile())) {
+                jarFile.stream()
+                       .map(JarEntry::getName)
+                       .filter(name -> name.startsWith(directory) && !name.endsWith("/"))
+                       .forEach(entries::add);
+            }
+        }
+
+        return entries;
     }
 
     /**
@@ -243,14 +436,18 @@ class WaspProcessor {
     }
 
     /**
-     * The resource bundles of the Expression Language and of WaSP, for their messages, and all charsets, since a page
-     * can declare any encoding. For a native executable.
+     * The resource bundles of the Expression Language, of WaSP and of the Xalan in WaSP's jar (which the XML tags use for
+     * XPath), for their messages, and all charsets, since a page can declare any encoding. For a native executable.
      */
     @BuildStep
     void registerBundlesAndCharsets(BuildProducer<NativeImageResourceBundleBuildItem> resourceBundles,
             BuildProducer<NativeImageEnableAllCharsetsBuildItem> allCharsets) {
         for (String bundle : List.of("jakarta.el.PrivateMessages", "org.glassfish.expressly.Messages",
-                "org.glassfish.wasp.resources.messages")) {
+                "org.glassfish.wasp.resources.messages",
+                SHADED_XALAN + "org.apache.xml.res.XMLErrorResources",
+                SHADED_XALAN + "org.apache.xpath.res.XPATHErrorResources",
+                SHADED_XALAN + "org.apache.xalan.res.XSLTErrorResources",
+                SHADED_XALAN + "org.apache.xml.serializer.utils.SerializerMessages")) {
             resourceBundles.produce(new NativeImageResourceBundleBuildItem(bundle));
         }
         allCharsets.produce(new NativeImageEnableAllCharsetsBuildItem());
@@ -258,7 +455,8 @@ class WaspProcessor {
 
     /**
      * Includes the application's resources in a native executable, e.g. resource bundles and serialized beans that
-     * pages use. Not the classes, nor the pages and WEB-INF files, which were compiled at build time.
+     * pages use, and the files in WEB-INF, which the application can read through the ServletContext. Not the classes,
+     * nor the pages, which were compiled at build time.
      */
     @BuildStep
     NativeImageResourceBuildItem registerApplicationResources(ApplicationArchivesBuildItem applicationArchives) throws IOException {
@@ -270,7 +468,7 @@ class WaspProcessor {
             try (Stream<Path> paths = walk(root)) {
                 for (Path file : paths.filter(Files::isRegularFile).toList()) {
                     String name = root.relativize(file).toString().replace(File.separatorChar, '/');
-                    if (!name.endsWith(".class") && !name.startsWith("META-INF/") && !name.startsWith("WEB-INF/")) {
+                    if (!name.endsWith(".class") && !name.startsWith("META-INF/")) {
                         resources.add(name);
                     }
                 }
@@ -306,8 +504,9 @@ class WaspProcessor {
     }
 
     /**
-     * The pages and the files in WEB-INF, for a native executable that validates pages again at runtime: WaSP parses
-     * them again, with the tag library descriptors and tag files they use.
+     * The pages, for a native executable that validates pages again at runtime: WaSP parses them again, with the tag
+     * library descriptors and tag files they use, which are in WEB-INF (included by
+     * {@link #registerApplicationResources}).
      */
     @BuildStep
     void registerPagesForValidation(Optional<CompiledPagesBuildItem> compiledPages, WaspConfig waspConfig,
@@ -319,15 +518,13 @@ class WaspProcessor {
 
         List<String> files = new ArrayList<>();
         for (Path root : applicationArchives.getRootArchive().getResolvedPaths()) {
-            for (String directory : List.of("META-INF/resources", "WEB-INF")) {
-                Path start = root.resolve(directory);
-                if (!isDirectory(start)) {
-                    continue;
-                }
-                try (Stream<Path> paths = walk(start)) {
-                    for (Path file : paths.filter(Files::isRegularFile).toList()) {
-                        files.add(root.relativize(file).toString().replace(File.separatorChar, '/'));
-                    }
+            Path start = root.resolve("META-INF/resources");
+            if (!isDirectory(start)) {
+                continue;
+            }
+            try (Stream<Path> paths = walk(start)) {
+                for (Path file : paths.filter(Files::isRegularFile).toList()) {
+                    files.add(root.relativize(file).toString().replace(File.separatorChar, '/'));
                 }
             }
         }
@@ -357,7 +554,8 @@ class WaspProcessor {
     void compilePages(ApplicationArchivesBuildItem applicationArchives, CurateOutcomeBuildItem curateOutcome,
             OutputTargetBuildItem outputTarget, Optional<WebMetadataBuildItem> webMetadata,
             BuildProducer<GeneratedClassBuildItem> generatedClasses, BuildProducer<ListenerBuildItem> listeners,
-            BuildProducer<CompiledPagesBuildItem> compiledPages, BuildProducer<ReflectiveClassBuildItem> reflectiveClasses)
+            BuildProducer<CompiledPagesBuildItem> compiledPages, BuildProducer<ReflectiveClassBuildItem> reflectiveClasses,
+            BuildProducer<NativeImageResourceBundleBuildItem> resourceBundles)
             throws Exception {
 
         Path workDirectory = outputTarget.getOutputDirectory().resolve("wasp");
@@ -449,6 +647,18 @@ class WaspProcessor {
                 .reason("Jakarta Pages: WaSP loads page and tag file classes by name")
                 .build());
 
+        Set<String> referencedClasses = findReferencedClasses(outputDirectory, pageClasses, curateOutcome);
+        if (!referencedClasses.isEmpty()) {
+            reflectiveClasses.produce(ReflectiveClassBuildItem.builder(referencedClasses)
+                    .constructors()
+                    .methods()
+                    .reason("Jakarta Pages: pages use the classes they refer to through the Expression Language and tags")
+                    .build());
+        }
+        for (String basename : findBundleBasenames(outputDirectory, webMetadata)) {
+            resourceBundles.produce(new NativeImageResourceBundleBuildItem(basename));
+        }
+
         Set<String> pagesUsingTranslationValidators = new LinkedHashSet<>();
         Set<String> pagesUsingJarResources = new LinkedHashSet<>();
         for (JspCompilationResult result : jspC.getCompilationResults().values()) {
@@ -462,7 +672,80 @@ class WaspProcessor {
         }
 
         compiledPages.produce(new CompiledPagesBuildItem(pagesUsingTranslationValidators, pagesUsingJarResources,
-                getTldLocations(jspC.getTldScanner().getLocations(), curateOutcome), getWebInfFiles(applicationRoots)));
+                getTldLocations(jspC.getTldScanner().getLocations(), curateOutcome)));
+    }
+
+    /**
+     * @return the classes the compiled pages refer to, e.g. the class of a {@code <jsp:useBean>}, also in libraries, for
+     *         a native executable: the Expression Language and the tags use their properties by reflection. Not those
+     *         of the JDK, Jakarta and WaSP's own jar, nor the pages themselves.
+     */
+    private static Set<String> findReferencedClasses(Path outputDirectory, Set<String> pageClasses,
+            CurateOutcomeBuildItem curateOutcome) throws IOException {
+        Set<String> referencedClasses = new TreeSet<>();
+        Remapper collector = new Remapper() {
+            @Override
+            public String map(String internalName) {
+                referencedClasses.add(internalName.replace('/', '.'));
+                return internalName;
+            }
+        };
+
+        try (Stream<Path> paths = walk(outputDirectory)) {
+            for (Path classFile : paths.filter(path -> path.toString().endsWith(".class")).toList()) {
+                // To a class node, which visits the code too, e.g. the class of a new or a cast
+                new ClassReader(Files.readAllBytes(classFile)).accept(new ClassRemapper(new ClassNode(), collector), 0);
+            }
+        }
+
+        List<String> waspLocations = new ArrayList<>();
+        for (ResolvedDependency dependency : curateOutcome.getApplicationModel().getRuntimeDependencies()) {
+            if (WASP_GROUP_ID.equals(dependency.getGroupId()) && WASP_ARTIFACT_ID.equals(dependency.getArtifactId())) {
+                dependency.getResolvedPaths().forEach(path -> waspLocations.add(path.toUri().toString()));
+            }
+        }
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        referencedClasses.removeAll(pageClasses);
+        referencedClasses.removeIf(name -> {
+            if (PLATFORM_PACKAGES.stream().anyMatch(name::startsWith)) {
+                return true;
+            }
+            URL location = classLoader.getResource(name.replace('.', '/') + ".class");
+            return location == null || waspLocations.stream().anyMatch(location.toString()::contains);
+        });
+
+        return referencedClasses;
+    }
+
+    /**
+     * @return the base names of the resource bundles the pages name literally, in {@code <fmt:setBundle>} and
+     *         {@code <fmt:bundle>}, and web.xml names as the default localization context, for a native executable: the
+     *         formatting tags load them by name
+     */
+    private static Set<String> findBundleBasenames(Path outputDirectory, Optional<WebMetadataBuildItem> webMetadata)
+            throws IOException {
+        Set<String> basenames = new TreeSet<>();
+        try (Stream<Path> paths = walk(outputDirectory)) {
+            for (Path source : paths.filter(path -> path.toString().endsWith(".java")).toList()) {
+                Matcher matcher = LITERAL_BASENAME.matcher(new String(Files.readAllBytes(source), ISO_8859_1));
+                while (matcher.find()) {
+                    basenames.add(matcher.group(1));
+                }
+            }
+        }
+
+        WebMetaData webMetaData = webMetadata.map(WebMetadataBuildItem::getWebMetaData).orElse(null);
+        if (webMetaData != null && webMetaData.getContextParams() != null) {
+            for (ParamValueMetaData contextParam : webMetaData.getContextParams()) {
+                if (LOCALIZATION_CONTEXT.equals(contextParam.getParamName()) && contextParam.getParamValue() != null) {
+                    basenames.add(contextParam.getParamValue().trim());
+                }
+            }
+        }
+
+        basenames.removeIf(String::isBlank);
+        return basenames;
     }
 
     /**
@@ -650,10 +933,6 @@ class WaspProcessor {
     }
 
     /**
-     * Finds the listeners declared in all tag library descriptors of the application: under WEB-INF, and in
-     * META-INF of the libraries, also of libraries no page uses (as WaSP's runtime scan does).
-     */
-    /**
      * The classes that tag library descriptors name: their listeners, and all classes they name, the listeners included.
      */
     private record TldClasses(Set<String> listeners, Set<String> classes) {
@@ -670,13 +949,25 @@ class WaspProcessor {
             java.util.Date.class, java.util.GregorianCalendar.class, java.util.Locale.class,
             java.time.LocalDate.class, java.time.LocalDateTime.class, java.time.LocalTime.class, java.time.Instant.class);
 
-    /** A class in WaSP's jar, to recognize it by */
-    private static final String WASP_CLASS = JspC.class.getName().replace('.', '/') + ".class";
+    /** The packages of the JDK and Jakarta, whose classes aren't registered because pages refer to them */
+    private static final List<String> PLATFORM_PACKAGES = List.of("java.", "javax.", "jdk.", "sun.", "com.sun.org.apache.",
+            "org.w3c.", "org.xml.", "jakarta.");
+
+    /** A literal base name of {@code <fmt:setBundle>} or {@code <fmt:bundle>} in the generated code of a page */
+    private static final Pattern LITERAL_BASENAME = Pattern.compile("\\.setBasename\\(\"([^\"\\\\]*)\"\\)");
+
+    /** The context parameter with the default localization context of the formatting tags: a bundle base name */
+    private static final String LOCALIZATION_CONTEXT = "jakarta.servlet.jsp.jstl.fmt.localizationContext";
 
     /** The elements of a tag library descriptor that name a class, with those of JSP 1.1 descriptors */
     private static final List<String> TLD_CLASS_ELEMENTS = List.of("tag-class", "tagclass", "tei-class", "teiclass",
             "validator-class", "function-class", "listener-class");
 
+    /**
+     * Finds the listeners declared in all tag library descriptors of the application: under WEB-INF, and in META-INF of
+     * the libraries, also of libraries no page uses (as WaSP's runtime scan does). With the classes they name, also
+     * those of the Jakarta Tags in WaSP's own jar.
+     */
     private static TldClasses findTldClasses(Path webRoot, List<Path> classPath) throws IOException {
         Map<String, String> listeners = new LinkedHashMap<>();
         Set<String> classes = new LinkedHashSet<>();
@@ -703,14 +994,12 @@ class WaspProcessor {
                 }
             } else if (entry.toString().endsWith(".jar") && exists(entry)) {
                 try (JarFile jarFile = new JarFile(entry.toFile())) {
-                    // WaSP's own JSTL tag libraries need the JSTL API; pages that use them reference their classes
-                    Set<String> jarClasses = jarFile.getEntry(WASP_CLASS) != null ? new LinkedHashSet<>() : classes;
                     Iterator<JarEntry> entries = jarFile.entries().asIterator();
                     while (entries.hasNext()) {
                         JarEntry jarEntry = entries.next();
                         if (jarEntry.getName().startsWith("META-INF/") && jarEntry.getName().endsWith(".tld")) {
                             try (InputStream in = jarFile.getInputStream(jarEntry)) {
-                                addTldClasses(entry + "!/" + jarEntry.getName(), in, listeners, jarClasses);
+                                addTldClasses(entry + "!/" + jarEntry.getName(), in, listeners, classes);
                             }
                         }
                     }

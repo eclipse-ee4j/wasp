@@ -61,6 +61,23 @@ public class JspFactoryImpl extends JspFactory {
         }
     };
 
+    /**
+     * Returns the default factory, which generated pages and tag files keep when their class is initialized. That can be
+     * before a JspRuntimeContext set it, e.g. when a native image build initializes the classes of precompiled pages,
+     * so when there's none yet, this implementation becomes the default, as a JspRuntimeContext would make it.
+     *
+     * @return the default factory
+     */
+    public static synchronized JspFactory getOrSetDefaultFactory() {
+        JspFactory factory = JspFactory.getDefaultFactory();
+        if (factory == null) {
+            factory = new JspFactoryImpl();
+            JspFactory.setDefaultFactory(factory);
+        }
+
+        return factory;
+    }
+
     @Override
     public PageContext getPageContext(Servlet servlet, ServletRequest request, ServletResponse response, String errorPageURL, boolean needsSession,
             int bufferSize, boolean autoflush) {

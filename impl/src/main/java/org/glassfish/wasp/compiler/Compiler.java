@@ -43,6 +43,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.servlet.jsp.tagext.TagFileInfo;
+import jakarta.servlet.jsp.tagext.TagLibraryInfo;
 
 import org.glassfish.wasp.JspCompilationContext;
 import org.glassfish.wasp.Options;
@@ -481,6 +482,9 @@ public class Compiler {
             if (pageInfo != null && pageInfo.usesTranslationValidators()) {
                 pagesCompilationContext.setUsesTranslationValidators(true);
             }
+            if (pageInfo != null && usesJarResources(pageInfo, pagesCompilationContext)) {
+                pagesCompilationContext.setUsesJarResources(true);
+            }
             if (compileClass) {
                 generateClass();
             } else {
@@ -831,6 +835,29 @@ public class Compiler {
 
         for (String jar : systemJars) {
             if (path.indexOf(jar) > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return true if translating the page or tag file read a tag library descriptor or a tag file from a jar, also for
+     *         the tag files it uses
+     */
+    private static boolean usesJarResources(PageInfo pageInfo, JspCompilationContext context) throws WaspException {
+        if (pageInfo.usesJarResources()) {
+            return true;
+        }
+        for (String dependant : pageInfo.getDependants()) {
+            if (dependant.startsWith("jar:")) {
+                return true;
+            }
+        }
+        for (TagLibraryInfo taglib : pageInfo.getTaglibs()) {
+            String[] location = context.getTldLocation(taglib.getURI());
+            if (location != null && location[1] != null) {
                 return true;
             }
         }

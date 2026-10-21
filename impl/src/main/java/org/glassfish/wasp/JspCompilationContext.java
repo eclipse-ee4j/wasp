@@ -87,6 +87,7 @@ public class JspCompilationContext {
     private ConcurrentHashMap<String, TagLibraryInfoImpl> taglibs;
     private ConcurrentHashMap<String, URL> tagFileJarUrls;
     private volatile boolean usesTranslationValidators;
+    private volatile boolean usesJarResources;
 
     // jspURI _must_ be relative to the context
     public JspCompilationContext(String jspUri, boolean isErrPage, Options options, ServletContext context, JspServletWrapper jsw, JspRuntimeContext rctxt)
@@ -162,6 +163,18 @@ public class JspCompilationContext {
 
     public void setUsesTranslationValidators(boolean usesTranslationValidators) {
         this.usesTranslationValidators = usesTranslationValidators;
+    }
+
+    /**
+     * @return true if translating the page or tag file read a tag library descriptor or a tag file from a jar, also for
+     *         the tag files it uses
+     */
+    public boolean usesJarResources() {
+        return usesJarResources;
+    }
+
+    public void setUsesJarResources(boolean usesJarResources) {
+        this.usesJarResources = usesJarResources;
     }
 
     /**

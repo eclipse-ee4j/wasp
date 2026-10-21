@@ -9,13 +9,17 @@ Building
 
 The project has these modules:
 
-- `impl`: WaSP itself, `org.glassfish.wasp:wasp`.
+- `impl`: WaSP itself, `org.glassfish.wasp:wasp`. Its jar includes Xalan 2.7.3 and Xalan's serializer, which the XML
+  tags of Jakarta Tags use, moved to `org.eclipse.tags.shaded`. Two parts differ from Xalan's: the serializer's output
+  properties name its classes by their moved names, and `XSLTElementProcessor` keeps the attributes of literal result
+  elements in secure processing mode, where Xalan rejects them.
 - `quarkus`: the WaSP extension for Quarkus, with its tests in `quarkus/test`.
-- `tck`: runs the Jakarta Pages TCK against WaSP.
+- `tck`: runs the Jakarta TCKs against WaSP, the Jakarta Pages TCK in `tck/pages` and the Jakarta Tags TCK in
+  `tck/tags`.
 - `benchmark`: measures the throughput and latency of one page under load.
 
 Executing the following from the project root builds WaSP and its Quarkus extension, runs the extension's tests, and
-runs the TCK and the benchmark in GlassFish:
+runs the TCKs and the benchmark in GlassFish:
 
 ``mvn clean install``
 
@@ -26,8 +30,8 @@ Quarkus extension are published to Maven Central, not the tests, the TCK or the 
 Jakarta Pages TCK
 -----------------
 
-`tck` runs the Jakarta Pages TCK against WaSP. A build in the project root runs it with the default profile. To run it
-with another, run `mvn install` in the project root first, then `mvn install` in `tck` with that profile. The `install`
+`tck/pages` runs the Jakarta Pages TCK against WaSP. A build in the project root runs it with the default profile. To run
+it with another, run `mvn install` in the project root first, then `mvn install` in `tck/pages` with that profile. The `install`
 module downloads the TCK, the `run` module runs it, with these profiles:
 
 - `glassfish` (the default): GlassFish 8.0.5, with GlassFish's own WaSP jar replaced by the one just built. Each test is deployed 
@@ -46,7 +50,19 @@ module downloads the TCK, the `run` module runs it, with these profiles:
   , with the WaSP jar just built on the class path before Piranha's jar, which contains WaSP 4.0.0. It needs
   a local build of Piranha 25.4.0-SNAPSHOT (`mvn install` in Piranha), and takes about two minutes.
 
-For example, `mvn install -f tck -Pquarkus`.
+For example, `mvn install -f tck/pages -Pquarkus`.
+
+Jakarta Tags TCK
+----------------
+
+`tck/tags` runs the Jakarta Tags TCK, from Maven Central, against the Jakarta Tags implementation in WaSP. It has the
+same profiles as `tck/pages`, and is run the same way, for example `mvn install -f tck/tags -Pquarkus`. Its SQL tests
+need a database: the tests start a Derby network server with an in-memory database at port 1527 (`-Djstl.db.port`
+sets another), and each profile makes the Derby client driver available to the pages.
+
+- `glassfish` (the default) and `glassfish-embedded` take about a minute.
+- `quarkus` takes about two minutes. `quarkus-native` builds a native executable for each of the 50 test classes.
+- `piranha-micro` and `piranha-webprofile` take about two minutes.
 
 Benchmark
 ---------

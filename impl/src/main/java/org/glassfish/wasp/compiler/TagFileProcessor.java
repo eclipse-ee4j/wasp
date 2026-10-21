@@ -552,6 +552,11 @@ class TagFileProcessor {
                 parentPageInfo.setUsesTranslationValidators(true);
             }
 
+            // So does one that read a tag library descriptor or a tag file from a jar
+            if (wrapper.getJspEngineContext().usesJarResources()) {
+                parentPageInfo.setUsesJarResources(true);
+            }
+
             // Add the dependants for this tag file to its parent's
             // dependant list. The only reliable dependency information
             // can only be obtained from the tag instance.

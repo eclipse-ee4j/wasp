@@ -41,6 +41,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.taglibs.standard.resources.Resources;
 import org.glassfish.wasp.taglibs.standard.tag.common.core.ImportSupport;
 import org.glassfish.wasp.taglibs.standard.tag.common.core.Util;
@@ -120,7 +121,7 @@ public abstract class TransformSupport extends BodyTagSupport {
             }
             // set up the TransformerFactory if necessary
             if (tf == null) {
-                tf = TransformerFactory.newInstance();
+                tf = newTransformerFactory();
                 try {
                     tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                 } catch (TransformerConfigurationException e) {
@@ -154,6 +155,17 @@ public abstract class TransformSupport extends BodyTagSupport {
         } catch (TransformerConfigurationException ex) {
             throw new JspException(ex);
         }
+    }
+
+    /**
+     * @return the factory the container names (see {@link Constants#XSLT_TRANSFORMER_FACTORY}), or else the JAXP default
+     */
+    private TransformerFactory newTransformerFactory() {
+        if (pageContext.getServletContext().getAttribute(Constants.XSLT_TRANSFORMER_FACTORY) instanceof String factoryClassName) {
+            return TransformerFactory.newInstance(factoryClassName, TransformSupport.class.getClassLoader());
+        }
+
+        return TransformerFactory.newInstance();
     }
 
     // parse 'xml' or body, transform via our Transformer,

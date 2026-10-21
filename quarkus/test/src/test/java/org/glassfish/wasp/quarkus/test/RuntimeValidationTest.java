@@ -40,6 +40,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
@@ -49,6 +50,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(ArquillianExtension.class)
 class RuntimeValidationTest {
+
+    private static final String JAR_TLD_NATIVE = "Pages with a tag library descriptor in a jar aren't validated again natively";
 
     @ArquillianResource
     private URL base;
@@ -83,6 +86,7 @@ class RuntimeValidationTest {
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "arquillian.quarkus.nativeImage", matches = "true", disabledReason = JAR_TLD_NATIVE)
     void teiRunsInApplicationBeforeFirstRequestOnly() throws Exception {
         // The page reads and resets the flag the TEI sets
         assertEquals("true", get("flag.jsp").body().trim());
@@ -97,6 +101,7 @@ class RuntimeValidationTest {
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "arquillian.quarkus.nativeImage", matches = "true", disabledReason = JAR_TLD_NATIVE)
     void tagDirectoryInWebInf() throws Exception {
         // Parsing the page lists the tag files in WEB-INF/tags
         HttpResponse<String> response = get("tagdir.jsp");
@@ -106,13 +111,16 @@ class RuntimeValidationTest {
 
     @Test
     void teiInTagFileRunsInApplication() throws Exception {
-        // The page doesn't use the tag library with the TEI; the tag file it uses does
+        // The page doesn't use the tag library with the TEI; the tag file it uses does. Natively, the page isn't
+        // validated again, as the tag library descriptor is in a jar, but it's served.
         HttpResponse<String> response = get("tagfile.jsp");
         assertEquals(200, response.statusCode(), response.body());
-        assertEquals("flagged|true", response.body().trim());
+        assertEquals(Boolean.getBoolean("arquillian.quarkus.nativeImage") ? "flagged|false" : "flagged|true",
+                response.body().trim());
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "arquillian.quarkus.nativeImage", matches = "true", disabledReason = JAR_TLD_NATIVE)
     void rejectedPageKeepsFailing() throws Exception {
         assertEquals(500, get("reject.jsp").statusCode());
         assertEquals(500, get("reject.jsp").statusCode());
@@ -120,18 +128,21 @@ class RuntimeValidationTest {
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "arquillian.quarkus.nativeImage", matches = "true", disabledReason = JAR_TLD_NATIVE)
     void rejectedLoadOnStartupPageFailsWithoutFailingStartup() throws Exception {
         assertEquals(500, get("rejectStartup").statusCode());
         assertEquals(500, get("rejectStartup").statusCode());
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "arquillian.quarkus.nativeImage", matches = "true", disabledReason = JAR_TLD_NATIVE)
     void failingTlvInitializationFailsPage() throws Exception {
         assertEquals(500, get("throwing.jsp").statusCode());
         assertEquals(500, get("throwing.jsp").statusCode());
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "arquillian.quarkus.nativeImage", matches = "true", disabledReason = JAR_TLD_NATIVE)
     void validatedOncePerPageWithInstancesOfItsOwn() throws Exception {
         // Concurrent first requests of one page share one validation
         List<HttpResponse<String>> counts = getConcurrently(List.of("count.jsp", "count.jsp", "count.jsp", "count.jsp", "count.jsp"));

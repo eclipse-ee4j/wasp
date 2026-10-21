@@ -43,6 +43,7 @@ import static java.util.Collections.unmodifiableSet;
 import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP;
 import static org.glassfish.wasp.Constants.JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE;
 import static org.glassfish.wasp.Constants.PRECOMPILED_PAGES_TO_VALIDATE;
+import static org.glassfish.wasp.Constants.XSLT_TRANSFORMER_FACTORY;
 import static org.glassfish.wasp.quarkus.runtime.JspFileServlet.JSP_FILE_INIT_PARAM;
 import static org.glassfish.wasp.quarkus.runtime.JspFileServlet.LOAD_ON_STARTUP_INIT_PARAM;
 
@@ -75,11 +76,23 @@ public class WaspServletExtension implements ServletExtension {
     /** The files in WEB-INF of the application (not in META-INF/resources), e.g. WEB-INF/tags/a.tag */
     private Set<String> webInfFiles = new LinkedHashSet<>();
 
+    /** The class name of the XSLT TransformerFactory x:transform uses, or null for the JAXP default */
+    private String xsltTransformerFactory;
+
     @Override
     public void handleDeployment(DeploymentInfo deploymentInfo, ServletContext servletContext) {
         // The factory the generated pages get their page context from. WaSP sets it when it compiles pages, which
         // doesn't happen here.
         JspFactory.setDefaultFactory(new JspFactoryImpl());
+
+        if (xsltTransformerFactory != null) {
+            servletContext.setAttribute(XSLT_TRANSFORMER_FACTORY, xsltTransformerFactory);
+        }
+
+        if (!webInfFiles.isEmpty()) {
+            deploymentInfo.setResourceManager(
+                    new WebInfResourceManager(deploymentInfo.getResourceManager(), webInfFiles, getClassLoader(deploymentInfo)));
+        }
 
         boolean validatePrecompiled = !pagesToValidate.isEmpty();
         if (validatePrecompiled) {
@@ -161,9 +174,7 @@ public class WaspServletExtension implements ServletExtension {
      * were translated.
      */
     private void initValidation(DeploymentInfo deploymentInfo, ServletContext servletContext) {
-        ClassLoader classLoader = deploymentInfo.getClassLoader() != null
-                ? deploymentInfo.getClassLoader()
-                : Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = getClassLoader(deploymentInfo);
 
         Map<String, String[]> locations = new HashMap<>();
         for (TldLocation tldLocation : tldLocations) {
@@ -173,12 +184,16 @@ public class WaspServletExtension implements ServletExtension {
             }
         }
 
-        deploymentInfo.setResourceManager(new WebInfResourceManager(deploymentInfo.getResourceManager(), webInfFiles, classLoader));
-
         // On the context itself: Undertow copied the attributes of the deployment info before the extensions ran
         servletContext.setAttribute(PRECOMPILED_PAGES_TO_VALIDATE, unmodifiableSet(pagesToValidate));
         servletContext.setAttribute(JSP_TLD_URI_TO_LOCATION_MAP, locations);
         servletContext.setAttribute(JSP_TLD_URI_TO_LOCATION_MAP_AUTHORITATIVE, TRUE);
+    }
+
+    private static ClassLoader getClassLoader(DeploymentInfo deploymentInfo) {
+        return deploymentInfo.getClassLoader() != null
+                ? deploymentInfo.getClassLoader()
+                : Thread.currentThread().getContextClassLoader();
     }
 
     /**
@@ -257,6 +272,14 @@ public class WaspServletExtension implements ServletExtension {
 
     public void setWebInfFiles(Set<String> webInfFiles) {
         this.webInfFiles = webInfFiles;
+    }
+
+    public String getXsltTransformerFactory() {
+        return xsltTransformerFactory;
+    }
+
+    public void setXsltTransformerFactory(String xsltTransformerFactory) {
+        this.xsltTransformerFactory = xsltTransformerFactory;
     }
 
     public Set<String> getJspUrlPatterns() {

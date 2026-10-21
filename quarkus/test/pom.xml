@@ -90,4 +90,26 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Builds each test application into a native executable: mvn install -Pnative. Needs GraalVM or Mandrel, from
+            GRAALVM_HOME or as the JDK that runs Maven. A native build takes a minute or more per test class.
+        -->
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <arquillian.quarkus.nativeImage>true</arquillian.quarkus.nativeImage>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

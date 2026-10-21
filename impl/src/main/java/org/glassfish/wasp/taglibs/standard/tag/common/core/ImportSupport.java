@@ -424,10 +424,16 @@ public abstract class ImportSupport extends BodyTagSupport implements TryCatchFi
                 bos.write(b);
             }
 
+            /*
+             * Writes the buffered bytes to the page only when the tag outputs what it imports. With 'var' or 'varReader',
+             * all of it is exposed there, also when the target flushes, as a default servlet may after copying a file.
+             */
             @Override
             public void flush() throws IOException {
-                pageContext.getOut().write(getString());
-                bos.reset();
+                if (var == null && varReader == null) {
+                    pageContext.getOut().write(getString());
+                    bos.reset();
+                }
             }
         };
 

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.glassfish.wasp</groupId>
         <artifactId>quarkus-wasp-parent</artifactId>
-        <version>4.0.4</version>
+        <version>4.0.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>wasp-quarkus-test</artifactId>

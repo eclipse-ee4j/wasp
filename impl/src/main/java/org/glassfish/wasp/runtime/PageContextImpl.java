@@ -29,6 +29,7 @@ import jakarta.el.FunctionMapper;
 import jakarta.el.ListELResolver;
 import jakarta.el.MapELResolver;
 import jakarta.el.MethodExpression;
+import jakarta.el.RecordELResolver;
 import jakarta.el.ResourceBundleELResolver;
 import jakarta.el.StaticFieldELResolver;
 import jakarta.el.ValueExpression;
@@ -593,6 +594,7 @@ public class PageContextImpl extends PageContext {
             celResolver.add(new ResourceBundleELResolver());
             celResolver.add(new ListELResolver());
             celResolver.add(new ArrayELResolver());
+            celResolver.add(new RecordELResolver());
             celResolver.add(new BeanELResolver());
             celResolver.add(new ScopedAttributeELResolver());
             celResolver.add(new ImportELResolver());

@@ -69,7 +69,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <file>${project.build.directory}/pages-tck/artifacts/jakarta-pages-tck-4.0.0.jar</file>
+                            <file>${project.build.directory}/pages-tck/artifacts/jakarta-pages-tck-${tck.test.pages.version}.jar</file>
                             <groupId>jakarta.tck</groupId>
                             <artifactId>jakarta-pages-tck</artifactId>
                             <version>${tck.test.pages.version}</version>

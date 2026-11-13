@@ -26,6 +26,7 @@ import jakarta.el.ELException;
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
 import jakarta.el.FunctionMapper;
+import jakarta.el.ImportHandler;
 import jakarta.el.ListELResolver;
 import jakarta.el.MapELResolver;
 import jakarta.el.MethodExpression;
@@ -614,6 +615,15 @@ public class PageContextImpl extends PageContext {
             if (servlet instanceof JspSourceDependent) {
                 if (((JspSourceDependent) servlet).getErrorOnELNotFound()) {
                     elContext.putContext(NotFoundELResolver.class, TRUE);
+                }
+            }
+            if (servlet instanceof JspSourceImports sourceImports) {
+                ImportHandler importHandler = elContext.getImportHandler();
+                for (String packageImport : sourceImports.getPackageImports()) {
+                    importHandler.importPackage(packageImport);
+                }
+                for (String classImport : sourceImports.getClassImports()) {
+                    importHandler.importClass(classImport);
                 }
             }
         }

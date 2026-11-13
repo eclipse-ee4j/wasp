@@ -376,6 +376,51 @@ class Generator {
             out.printil("}");
             out.println();
         }
+        out.printil("private static final java.util.Set<String> _jspx_imports_packages;");
+        out.printil("private static final java.util.Set<String> _jspx_imports_classes;");
+        out.println();
+
+        List<String> imports = pageInfo.getImports();
+        Set<String> packageImports = new java.util.LinkedHashSet<>();
+        Set<String> classImports = new java.util.LinkedHashSet<>();
+        for (String imp : imports) {
+            if (imp.endsWith(".*")) {
+                packageImports.add(imp.substring(0, imp.length() - 2));
+            } else {
+                classImports.add(imp);
+            }
+        }
+
+        out.printil("static {");
+        out.pushIndent();
+        if (packageImports.isEmpty()) {
+            out.printil("_jspx_imports_packages = java.util.Collections.emptySet();");
+        } else {
+            out.printin("_jspx_imports_packages = new java.util.HashSet<>(");
+            out.print(String.valueOf(packageImports.size()));
+            out.println(");");
+            for (String pkg : packageImports) {
+                out.printin("_jspx_imports_packages.add(");
+                out.print(quote(pkg));
+                out.println(");");
+            }
+        }
+
+        if (classImports.isEmpty()) {
+            out.printil("_jspx_imports_classes = java.util.Collections.emptySet();");
+        } else {
+            out.printin("_jspx_imports_classes = new java.util.HashSet<>(");
+            out.print(String.valueOf(classImports.size()));
+            out.println(");");
+            for (String cls : classImports) {
+                out.printin("_jspx_imports_classes.add(");
+                out.print(quote(cls));
+                out.println(");");
+            }
+        }
+        out.popIndent();
+        out.printil("}");
+        out.println();
 
         // Codes to support genStringAsByteArray option
         // Generate a static variable for the initial response encoding
@@ -428,6 +473,20 @@ class Generator {
         out.printil("public java.util.List<String> getDependants() {");
         out.pushIndent();
         out.printil("return _jspx_dependants;");
+        out.popIndent();
+        out.printil("}");
+        out.println();
+
+        out.printil("public java.util.Set<String> getPackageImports() {");
+        out.pushIndent();
+        out.printil("return _jspx_imports_packages;");
+        out.popIndent();
+        out.printil("}");
+        out.println();
+
+        out.printil("public java.util.Set<String> getClassImports() {");
+        out.pushIndent();
+        out.printil("return _jspx_imports_classes;");
         out.popIndent();
         out.printil("}");
         out.println();
@@ -501,7 +560,8 @@ class Generator {
         out.print(servletClassName);
         out.print(" extends ");
         out.println(pageInfo.getExtends());
-        out.printin("    implements org.glassfish.wasp.runtime.JspSourceDependent");
+        out.println("    implements org.glassfish.wasp.runtime.JspSourceDependent,");
+        out.printin("               org.glassfish.wasp.runtime.JspSourceImports");
         out.println(" {");
         out.pushIndent();
 
@@ -2895,7 +2955,8 @@ class Generator {
         out.printin("public final class ");
         out.println(className);
         out.printil("    extends jakarta.servlet.jsp.tagext.SimpleTagSupport");
-        out.printin("    implements org.glassfish.wasp.runtime.JspSourceDependent");
+        out.println("    implements org.glassfish.wasp.runtime.JspSourceDependent,");
+        out.printin("               org.glassfish.wasp.runtime.JspSourceImports");
         if (tagInfo.hasDynamicAttributes()) {
             out.println(",");
             out.printin("               jakarta.servlet.jsp.tagext.DynamicAttributes");

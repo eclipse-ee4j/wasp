@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.el.ImportHandler;
 import org.glassfish.wasp.compiler.Localizer;
 
 import jakarta.el.ELContext;
@@ -290,6 +291,15 @@ public class JspContextWrapper extends PageContext {
             elContextImpl.putContext(JspContext.class, this);
             elContextImpl.setVariableMapper(new VariableMapperImpl());
 
+            if (jspTag instanceof JspSourceImports sourceImports) {
+                ImportHandler importHandler = elContextImpl.getImportHandler();
+                for (String packageImport : sourceImports.getPackageImports()) {
+                    importHandler.importPackage(packageImport);
+                }
+                for (String classImport : sourceImports.getClassImports()) {
+                    importHandler.importClass(classImport);
+                }
+            }
             elContext = new ELContextWrapper(elContextImpl, isErrorOnELNotFound());
         }
 
